@@ -1,0 +1,210 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlserver"
+}
+
+// ROLE
+model Role {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique @db.NVarChar(50)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts Account[]
+}
+
+// ACCOUNT
+model Account {
+  id       Int    @id @default(autoincrement())
+  username String @unique @db.VarChar(50)
+  email    String @unique @db.VarChar(150)
+  password String @db.VarChar(255)
+  status   String @default("ACTIVE") @db.VarChar(20) // ACTIVE, INACTIVE, BANNED
+
+  roleId Int
+  role   Role @relation(fields: [roleId], references: [id])
+
+  lastLogin DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user          User?
+  refreshTokens RefreshToken[]
+}
+
+// USER
+model User {
+  id Int @id @default(autoincrement())
+
+  accountId Int     @unique
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  fullName String    @db.NVarChar(100)
+  phone    String?   @db.VarChar(20)
+  avatar   String?   @db.VarChar(500)
+  birthday DateTime?
+  gender   String?   @db.NVarChar(10)
+  address  String?   @db.NVarChar(255)
+
+  cart          Cart?
+  orders        Order[]
+  reviews       Review[]
+  notifications Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// RefreshToken
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique @db.VarChar(500)
+  expiredAt DateTime
+  accountId Int
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+// Category
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique @db.NVarChar(100)
+  description String?   @db.NVarChar(500)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// Product
+model Product {
+  id              Int     @id @default(autoincrement())
+  name            String  @db.NVarChar(150)
+  description     String? @db.NVarChar(Max)
+  imageUrl        String  @db.VarChar(500)
+  price           Decimal @db.Decimal(18, 2)
+  isAvailable     Boolean @default(true)
+  preparationTime Int
+
+  categoryId Int
+  category   Category    @relation(fields: [categoryId], references: [id])
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  reviews    Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Cart
+model Cart {
+  id        Int        @id @default(autoincrement())
+  userId    Int        @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cartItems CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+// CartItem
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  cartId    Int
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int
+  createdAt DateTime @default(now())
+
+  @@unique([cartId, productId])
+}
+
+// Order
+model Order {
+  id              Int                  @id @default(autoincrement())
+  userId          Int
+  user            User                 @relation(fields: [userId], references: [id])
+  totalAmount     Decimal              @db.Decimal(18, 2)
+  shippingAddress String               @db.NVarChar(255)
+  currentStatus   String               @default("PENDING") @db.VarChar(20) // PENDING, CONFIRMED, PREPARING, DELIVERING, COMPLETED, CANCELLED
+  orderItems      OrderItem[]
+  payment         Payment?
+  histories       OrderStatusHistory[]
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+}
+
+// OrderItem
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Decimal @db.Decimal(18, 2)
+
+  @@unique([orderId, productId])
+}
+
+// OrderStatusHistory
+model OrderStatusHistory {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    String   @db.VarChar(20) // PENDING, CONFIRMED, PREPARING, DELIVERING, COMPLETED, CANCELLED
+  createdAt DateTime @default(now())
+}
+
+// Payment
+model Payment {
+  id            Int                 @id @default(autoincrement())
+  orderId       Int                 @unique
+  order         Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  paymentMethod String              @db.VarChar(20) // CASH, VNPAY, MOMO, CARD
+  amount        Decimal             @db.Decimal(18, 2)
+  status        String              @default("PENDING") @db.VarChar(20) // PENDING, SUCCESS, FAILED, REFUNDED
+  transaction   PaymentTransaction?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+}
+
+// Payment Transaction
+model PaymentTransaction {
+  id              Int      @id @default(autoincrement())
+  paymentId       Int      @unique
+  payment         Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  transactionCode String   @unique @db.VarChar(100)
+  gatewayResponse String?  @db.NVarChar(Max)
+  createdAt       DateTime @default(now())
+}
+
+// Review 
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  rating    Int      @default(5)
+  comment   String?  @db.NVarChar(Max)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId])
+}
+
+// Notification
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String   @db.NVarChar(150)
+  message   String   @db.NVarChar(Max)
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
