@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { PrismaMssql } from '@prisma/adapter-mssql';
-import { PrismaClient } from '../generated/prisma';
+import { PrismaClient } from '@prisma/client';
 
 const adapter = new PrismaMssql({
   server: 'localhost',

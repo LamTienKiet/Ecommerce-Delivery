@@ -14,7 +14,19 @@ import { ReviewModule } from './review/review.module';
 import { NotificationModule } from './notification/notification.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UserModule, AccountModule, CategoryModule, ProductModule, CartModule, OrderModule, PaymentModule, ReviewModule, NotificationModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    UserModule,
+    AccountModule,
+    CategoryModule,
+    ProductModule,
+    CartModule,
+    OrderModule,
+    PaymentModule,
+    ReviewModule,
+    NotificationModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

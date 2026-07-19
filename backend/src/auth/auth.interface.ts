@@ -14,3 +14,12 @@ export interface AuthResult {
   id: number;
   role: string;
 }
+
+export interface SignUpData {
+  fullName: string;
+  username: string;
+  password: string;
+  phone: string;
+  email: string;
+  confirmPassword: string;
+}
