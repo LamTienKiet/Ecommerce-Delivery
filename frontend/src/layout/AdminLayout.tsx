@@ -1,14 +1,19 @@
-import React from "react";
 import { Sidebar } from "./Sidebar";
+import { Outlet } from "react-router-dom";
+import { Header } from "./Header";
+import { Footer } from "./Footer";
 
-export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
+export const AdminLayout = () => {
   return (
     <>
+      <Header />
       <div>
         <Sidebar />
       </div>
-      <main>{children}</main>
-      <h1>Welcome</h1>
+      <main>
+        <Outlet />
+      </main>
+      <Footer />
     </>
   );
 };

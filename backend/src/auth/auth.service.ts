@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
@@ -10,8 +9,6 @@ import {
   SignUpData,
 } from './auth.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { error } from 'console';
-import { RegisterDto } from './dto/register.dto';
 import { RegisterResponseDto } from './dto/register-respone.dto';
 
 @Injectable()

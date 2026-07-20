@@ -16,6 +16,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('register')
   register(@Body() input: RegisterDto) {
-    return this.authService.register(input);
+    return this.authService.authenticate(input);
   }
 }
