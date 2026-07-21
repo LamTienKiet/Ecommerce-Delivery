@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AuthLayout from "../layout/AuthLayout";
+import "./auth.css";
 
 export const LoginPage = () => {
   const [formSignIn, setFormSignIn] = useState({

@@ -1,13 +1,35 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import AuthLayout from "../layout/AuthLayout";
+import "./auth.css";
+import type { RegisterFormErrors } from "../type_auth_api/auth.api";
 
 export const RegisterPage = () => {
   const [formSignUp, setFormSignUp] = useState({
-    fullname: "",
+    fullName: "",
+    username: "",
     email: "",
     phone: "",
     password: "",
     confirmPassword: "",
+    agree: false,
   });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    setFormSignUp({
+      ...formSignUp,
+      [name]: type === "checkbox" ? checked : value,
+    });
+  };
+
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<RegisterFormErrors>({});
+  const [formError, setFormError] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+  };
+
   return (
     <AuthLayout>
       <div className="auth-tabs">
@@ -35,13 +57,32 @@ export const RegisterPage = () => {
               name="fullName"
               type="text"
               placeholder="Nguyễn Văn A"
-              value={form.fullName}
+              value={formSignUp.fullName}
               onChange={handleChange}
               autoComplete="name"
             />
             {errors.fullName && (
               <div className="auth-error-text">{errors.fullName}</div>
             )}
+          </div>
+
+          <div className="auth-field-row">
+            <div
+              className={`auth-field ${errors.username ? "auth-field-error" : ""}`}
+            >
+              <label htmlFor="username">Tên Đăng Nhập</label>
+              <input
+                id="username"
+                name="username"
+                type="username"
+                value={formSignUp.username}
+                onChange={handleChange}
+                autoComplete="new-username"
+              />
+              {errors.username && (
+                <div className="auth-error-text">{errors.username}</div>
+              )}
+            </div>
           </div>
 
           <div className="auth-field-row">
@@ -54,7 +95,7 @@ export const RegisterPage = () => {
                 name="email"
                 type="email"
                 placeholder="ban@email.com"
-                value={form.email}
+                value={formSignUp.email}
                 onChange={handleChange}
                 autoComplete="email"
               />
@@ -71,7 +112,7 @@ export const RegisterPage = () => {
                 name="phone"
                 type="text"
                 placeholder="09xx xxx xxx"
-                value={form.phone}
+                value={formSignUp.phone}
                 onChange={handleChange}
                 autoComplete="tel"
               />
@@ -91,7 +132,7 @@ export const RegisterPage = () => {
                 name="password"
                 type="password"
                 placeholder="••••••••"
-                value={form.password}
+                value={formSignUp.password}
                 onChange={handleChange}
                 autoComplete="new-password"
               />
@@ -108,7 +149,7 @@ export const RegisterPage = () => {
                 name="confirmPassword"
                 type="password"
                 placeholder="••••••••"
-                value={form.confirmPassword}
+                value={formSignUp.confirmPassword}
                 onChange={handleChange}
                 autoComplete="new-password"
               />
@@ -122,7 +163,7 @@ export const RegisterPage = () => {
             <input
               type="checkbox"
               name="agree"
-              checked={form.agree}
+              checked={formSignUp.agree}
               onChange={handleChange}
             />
             Tôi đồng ý với{" "}

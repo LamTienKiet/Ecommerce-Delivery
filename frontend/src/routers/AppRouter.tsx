@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AdminLayout } from "../layout/AdminLayout";
-import { LoginPage } from "../pages/Login";
+import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/Register";
 import { CategoryAdmin } from "../pages/AdminPage/CategoryAdmin";
 import { ProductAdmin } from "../pages/AdminPage/ProductAdmin";

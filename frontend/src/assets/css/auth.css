@@ -1,0 +1,337 @@
+/* ===========================================================
+   Le Cellier — Auth pages shared styles
+   Import once, e.g. in LoginPage.jsx / RegisterPage.jsx:
+   import './auth.css';
+   =========================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Cormorant+Garamond:ital@0;1&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap");
+
+:root {
+  --bg: #121b16;
+  --bg-panel: #182720;
+  --bg-panel-2: #1c2b22;
+  --ink: #f1e9d8;
+  --ink-dim: #a9b4a4;
+  --ink-faint: #6c7a6f;
+  --hairline: rgba(241, 233, 216, 0.14);
+  --hairline-strong: rgba(241, 233, 216, 0.28);
+  --wine: #7c2233;
+  --wine-soft: #5c1a27;
+  --gold: #b7913c;
+}
+
+.auth-shell * {
+  box-sizing: border-box;
+}
+
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 300;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.auth-shell a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.auth-eyebrow {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+}
+
+/* ---------- LEFT BRAND PANEL ---------- */
+.auth-brand-panel {
+  position: relative;
+  padding: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 1px solid var(--hairline);
+  background:
+    radial-gradient(
+      ellipse at 30% 15%,
+      rgba(183, 145, 60, 0.09),
+      transparent 55%
+    ),
+    repeating-linear-gradient(120deg, #16221b 0 2px, #182720 2px 4px),
+    linear-gradient(180deg, #101812 0%, #141f19 55%, #101812 100%);
+  overflow: hidden;
+}
+.auth-brand-panel::before {
+  content: "";
+  position: absolute;
+  inset: 28px;
+  border: 1px solid rgba(241, 233, 216, 0.15);
+  pointer-events: none;
+}
+.auth-brand-top {
+  position: relative;
+  z-index: 1;
+}
+.auth-logo {
+  font-family: "Fraunces", serif;
+  font-size: 22px;
+  letter-spacing: 0.1em;
+}
+.auth-logo em {
+  font-style: italic;
+  color: var(--gold);
+  font-weight: 500;
+}
+
+.auth-brand-mid {
+  position: relative;
+  z-index: 1;
+  max-width: 420px;
+}
+.auth-brand-mid .auth-eyebrow {
+  display: block;
+  margin-bottom: 18px;
+}
+.auth-brand-mid h1 {
+  font-family: "Fraunces", serif;
+  font-weight: 500;
+  font-size: 36px;
+  line-height: 1.28;
+  margin-bottom: 20px;
+}
+.auth-brand-mid p {
+  font-size: 14.5px;
+  color: var(--ink-dim);
+}
+
+.auth-perks {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--hairline);
+  padding-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.auth-perk {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+.auth-perk .num {
+  font-family: "Fraunces", serif;
+  font-style: italic;
+  color: var(--gold);
+  margin-right: 14px;
+}
+.auth-perk .txt {
+  color: var(--ink-dim);
+  flex: 1;
+}
+
+/* ---------- RIGHT FORM PANEL ---------- */
+.auth-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 48px;
+}
+.auth-box {
+  width: 100%;
+  max-width: 400px;
+}
+
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--hairline);
+  margin-bottom: 40px;
+}
+.auth-tab {
+  flex: 1;
+  text-align: center;
+  padding-bottom: 16px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    color 0.25s ease,
+    border-color 0.25s ease;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: "Be Vietnam Pro", sans-serif;
+}
+.auth-tab.is-active {
+  color: var(--ink);
+  border-bottom-color: var(--gold);
+}
+
+.auth-view h2 {
+  font-family: "Fraunces", serif;
+  font-weight: 500;
+  font-size: 26px;
+  margin-bottom: 8px;
+}
+.auth-view .auth-sub {
+  font-size: 13px;
+  color: var(--ink-faint);
+  margin-bottom: 32px;
+}
+
+.auth-field {
+  margin-bottom: 20px;
+}
+.auth-field label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 9px;
+}
+.auth-field input {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--hairline-strong);
+  color: var(--ink);
+  padding: 14px 16px;
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.25s ease;
+}
+.auth-field input:focus {
+  border-color: var(--gold);
+}
+.auth-field input::placeholder {
+  color: var(--ink-faint);
+}
+.auth-field-error input {
+  border-color: #d68a97;
+}
+.auth-error-text {
+  color: #d68a97;
+  font-size: 11.5px;
+  margin-top: 7px;
+}
+
+.auth-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.auth-row-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  font-size: 12.5px;
+}
+.auth-check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink-dim);
+  cursor: pointer;
+}
+.auth-check input {
+  accent-color: var(--gold);
+  width: 14px;
+  height: 14px;
+}
+.auth-link-muted {
+  color: var(--ink-faint);
+  border-bottom: 1px solid var(--hairline-strong);
+  padding-bottom: 1px;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+.auth-link-muted:hover {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.auth-btn-submit {
+  width: 100%;
+  padding: 16px;
+  background: var(--wine);
+  border: none;
+  color: var(--ink);
+  font-size: 11.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background 0.25s ease,
+    opacity 0.2s ease;
+  font-family: "Be Vietnam Pro", sans-serif;
+}
+.auth-btn-submit:hover {
+  background: var(--wine-soft);
+}
+.auth-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-terms {
+  margin-bottom: 26px;
+  font-size: 12.5px;
+}
+
+.auth-switch-line {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-faint);
+}
+.auth-switch-line button,
+.auth-switch-line a {
+  background: none;
+  border: none;
+  font-family: "Be Vietnam Pro", sans-serif;
+  color: var(--gold);
+  font-size: 13px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--gold);
+  padding-bottom: 1px;
+}
+
+.auth-form-error {
+  background: rgba(124, 34, 51, 0.14);
+  border: 1px solid rgba(214, 138, 151, 0.4);
+  color: #d68a97;
+  font-size: 12.5px;
+  padding: 12px 14px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+  .auth-shell {
+    grid-template-columns: 1fr;
+  }
+  .auth-brand-panel {
+    display: none;
+  }
+  .auth-panel {
+    padding: 40px 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-shell * {
+    transition: none !important;
+  }
+}
