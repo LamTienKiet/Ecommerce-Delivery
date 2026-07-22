@@ -1,12 +1,70 @@
 import { useState } from "react";
 import AuthLayout from "../layout/AuthLayout";
-import "./auth.css";
+import "../assets/css/auth.css";
+import type { LoginFormErrors } from "../type_auth_api/auth.api";
+import { login } from "../services/auth.service";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export const LoginPage = () => {
   const [formSignIn, setFormSignIn] = useState({
     username: "",
     password: "",
+    remember: false,
   });
+
+  const navigate = useNavigate();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormSignIn({
+      ...formSignIn,
+      [name]: value,
+    });
+  };
+
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<LoginFormErrors>({});
+  const [formError, setFormError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError("");
+    if (!validate()) return;
+    setLoading(true);
+    try {
+      const data = await login(formSignIn);
+      console.log(data);
+
+      alert("Đăng ký thành công!");
+
+      // Ví dụ chuyển sang trang đăng nhập
+      // navigate("/login");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setFormError(error.response?.data?.message || "Đăng ký thất bại");
+      } else if (error instanceof Error) {
+        setFormError(error.message);
+      } else {
+        setFormError("Đã xảy ra lỗi");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  function validate() {
+    const next: LoginFormErrors = {};
+    if (!formSignIn.username.trim())
+      next.username = "Vui lòng nhập đầy đủ tên đăng nhập";
+    if (!formSignIn.password.trim())
+      next.password = "Vui lòng nhập đầy đủ mật khẩu";
+    else if (formSignIn.password.length < 8)
+      next.password = "Mật khẩu phải ít nhất 8 chữ số";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }
+
   return (
     <>
       <AuthLayout>
@@ -20,27 +78,26 @@ export const LoginPage = () => {
         <div className="auth-view">
           <h2>Chào mừng trở lại</h2>
           <p className="auth-sub">
-            Đăng nhập để tiếp tục trải nghiệm tại Le Cellier.
+            Đăng nhập để tiếp tục trải nghiệm tại La TiuKy.
           </p>
 
           {formError && <div className="auth-form-error">{formError}</div>}
 
           <form onSubmit={handleSubmit} noValidate>
             <div
-              className={`auth-field ${errors.email ? "auth-field-error" : ""}`}
+              className={`auth-field ${errors.username ? "auth-field-error" : ""}`}
             >
-              <label htmlFor="email">Email</label>
+              <label htmlFor="username">Username</label>
               <input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="ban@email.com"
-                value={form.email}
+                id="username"
+                name="username"
+                type="username"
+                value={formSignIn.username}
                 onChange={handleChange}
-                autoComplete="email"
+                autoComplete="username"
               />
-              {errors.email && (
-                <div className="auth-error-text">{errors.email}</div>
+              {errors.username && (
+                <div className="auth-error-text">{errors.username}</div>
               )}
             </div>
 
@@ -53,7 +110,7 @@ export const LoginPage = () => {
                 name="password"
                 type="password"
                 placeholder="••••••••"
-                value={form.password}
+                value={formSignIn.password}
                 onChange={handleChange}
                 autoComplete="current-password"
               />
@@ -67,7 +124,7 @@ export const LoginPage = () => {
                 <input
                   type="checkbox"
                   name="remember"
-                  checked={form.remember}
+                  checked={formSignIn.remember}
                   onChange={handleChange}
                 />
                 Ghi nhớ đăng nhập

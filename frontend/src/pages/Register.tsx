@@ -1,9 +1,14 @@
 import React, { useState } from "react";
 import AuthLayout from "../layout/AuthLayout";
-import "./auth.css";
+import "../assets/css/auth.css";
 import type { RegisterFormErrors } from "../type_auth_api/auth.api";
+import axios from "axios";
+import { register } from "../services/auth.service";
+import { useNavigate } from "react-router-dom";
 
 export const RegisterPage = () => {
+  const navigate = useNavigate();
+
   const [formSignUp, setFormSignUp] = useState({
     fullName: "",
     username: "",
@@ -26,10 +31,53 @@ export const RegisterPage = () => {
   const [errors, setErrors] = useState<RegisterFormErrors>({});
   const [formError, setFormError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError("");
+    if (!validate()) return;
+    setLoading(true);
+    try {
+      const data = await register(formSignUp);
+      console.log(data);
+
+      alert("Đăng ký thành công!");
+
+      // Ví dụ chuyển sang trang đăng nhập
+      navigate("/login");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setFormError(error.response?.data?.message || "Đăng ký thất bại");
+      } else if (error instanceof Error) {
+        setFormError(error.message);
+      } else {
+        setFormError("Đã xảy ra lỗi");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
+  function validate() {
+    const next: RegisterFormErrors = {};
+    if (!formSignUp.fullName.trim())
+      next.fullName = "Vui lòng nhập đầy đủ họ tên";
+    if (!formSignUp.username.trim())
+      next.username = "Vui lòng nhập đầy đủ tên đăng nhập";
+    if (!formSignUp.email.trim()) next.email = "Vui lòng nhập đầy đủ Email";
+    if (!formSignUp.phone.trim())
+      next.phone = "Vui lòng nhập đầy đủ số điện thoại";
+    else if (formSignUp.phone.length < 10 || formSignUp.phone.length > 10)
+      next.phone = "Số điện thoại không đúng định dạng";
+    if (!formSignUp.password.trim())
+      next.password = "Vui lòng nhập đầy đủ mật khẩu";
+    else if (formSignUp.password.length < 8)
+      next.password = "Mật khẩu phải ít nhất 8 chữ số";
+    if (formSignUp.confirmPassword !== formSignUp.password)
+      next.confirmPassword = "Mật khẩu không khớp";
+    if (!formSignUp.agree) next.agree = "Bạn cần đồng ý điều khoản để tiếp tục";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }
   return (
     <AuthLayout>
       <div className="auth-tabs">

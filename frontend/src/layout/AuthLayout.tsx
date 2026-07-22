@@ -10,7 +10,7 @@ export default function AuthLayout({
       <div className="auth-brand-panel">
         <div className="auth-brand-top">
           <div className="auth-logo">
-            LE <em>CELLIER</em>
+            LA <em>TiuKy</em>
           </div>
         </div>
 
