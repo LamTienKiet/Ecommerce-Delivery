@@ -4,7 +4,7 @@ import "../assets/css/auth.css";
 import type { LoginFormErrors } from "../type_auth_api/auth.api";
 import { login } from "../services/auth.service";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 export const LoginPage = () => {
   const [formSignIn, setFormSignIn] = useState({
@@ -13,7 +13,7 @@ export const LoginPage = () => {
     remember: false,
   });
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
