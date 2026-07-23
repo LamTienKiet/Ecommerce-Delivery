@@ -2,9 +2,10 @@ import { useState } from "react";
 import AuthLayout from "../layout/AuthLayout";
 import "../assets/css/auth.css";
 import type { LoginFormErrors } from "../type_auth_api/auth.api";
-import { login } from "../services/auth.service";
+import { loginApi } from "../services/auth.service";
 import axios from "axios";
-// import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 export const LoginPage = () => {
   const [formSignIn, setFormSignIn] = useState({
@@ -13,7 +14,9 @@ export const LoginPage = () => {
     remember: false,
   });
 
-  // const navigate = useNavigate();
+  const { login } = useAuthStore();
+
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -33,13 +36,21 @@ export const LoginPage = () => {
     if (!validate()) return;
     setLoading(true);
     try {
-      const data = await login(formSignIn);
+      const data = await loginApi(formSignIn);
       console.log(data);
 
-      alert("Đăng ký thành công!");
+      // Lưu thông tin đăng nhập vào Store
+      login(
+        {
+          id: data.id,
+          username: data.username,
+          role: data.role,
+        },
+        data.accessToken,
+      );
 
-      // Ví dụ chuyển sang trang đăng nhập
-      // navigate("/login");
+      alert("Đăng nhập thành công!");
+      navigate("/");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setFormError(error.response?.data?.message || "Đăng ký thất bại");

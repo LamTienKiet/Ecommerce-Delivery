@@ -3,7 +3,7 @@ import AuthLayout from "../layout/AuthLayout";
 import "../assets/css/auth.css";
 import type { RegisterFormErrors } from "../type_auth_api/auth.api";
 import axios from "axios";
-import { register } from "../services/auth.service";
+import { registerApi } from "../services/auth.service";
 import { useNavigate } from "react-router-dom";
 
 export const RegisterPage = () => {
@@ -37,7 +37,7 @@ export const RegisterPage = () => {
     if (!validate()) return;
     setLoading(true);
     try {
-      const data = await register(formSignUp);
+      const data = await registerApi(formSignUp);
       console.log(data);
 
       alert("Đăng ký thành công!");

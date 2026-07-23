@@ -1,4 +1,5 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
 
 interface MenuItem {
   path: string;
@@ -7,6 +8,14 @@ interface MenuItem {
 }
 
 export const Sidebar = () => {
+  const navigate = useNavigate();
+  const { logout } = useAuthStore();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   const menu: MenuItem[] = [
     {
       path: "/",
@@ -131,8 +140,12 @@ export const Sidebar = () => {
           </svg>
         </div>
         <div>
-          <h2 className="font-bold text-white text-base tracking-wide">LaTiuKy Resto</h2>
-          <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-widest">Admin Control</span>
+          <h2 className="font-bold text-white text-base tracking-wide">
+            LaTiuKy Resto
+          </h2>
+          <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-widest">
+            Admin Control
+          </span>
         </div>
       </div>
 
@@ -159,9 +172,7 @@ export const Sidebar = () => {
       {/* Sidebar Footer / Logout */}
       <div className="p-4 border-t border-slate-800">
         <button
-          onClick={() => {
-            alert("Xử lý Đăng xuất...");
-          }}
+          onClick={handleLogout}
           className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-rose-950/30 hover:text-rose-400 transition-all duration-200 group"
         >
           <svg
