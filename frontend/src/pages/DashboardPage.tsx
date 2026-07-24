@@ -47,6 +47,8 @@ export const DashboardPage = () => {
     },
   ];
 
+  const handleExportForm = () => {};
+
   // Helper để render badge trạng thái đơn hàng
   const getStatusBadge = (status: string, label: string) => {
     switch (status) {
@@ -102,7 +104,10 @@ export const DashboardPage = () => {
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <button className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">
+          <button
+            className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
+            onClick={handleExportForm}
+          >
             Xuất Báo Cáo
           </button>
           <button className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/10">
@@ -111,9 +116,7 @@ export const DashboardPage = () => {
         </div>
       </div>
 
-      {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Doanh thu */}
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-slate-400">
@@ -248,7 +251,6 @@ export const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Khách hàng */}
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-slate-400">
@@ -313,9 +315,7 @@ export const DashboardPage = () => {
             </select>
           </div>
 
-          {/* SVG Bar Chart Visualization */}
           <div className="h-60 flex flex-col justify-between">
-            {/* Chart Area */}
             <div className="flex-1 flex items-end justify-between px-4 pb-2 relative h-48 border-b border-slate-100">
               {/* Grid Lines */}
               <div className="absolute inset-x-0 top-0 border-t border-slate-100/50"></div>
@@ -437,7 +437,7 @@ export const DashboardPage = () => {
                 stroke="#f1f5f9"
                 strokeWidth="4.2"
               />
-              
+
               <circle
                 cx="18"
                 cy="18"
@@ -448,7 +448,7 @@ export const DashboardPage = () => {
                 strokeDasharray="60 40"
                 strokeDashoffset="25"
               />
-             
+
               <circle
                 cx="18"
                 cy="18"
@@ -459,7 +459,7 @@ export const DashboardPage = () => {
                 strokeDasharray="25 75"
                 strokeDashoffset="-35"
               />
-          
+
               <circle
                 cx="18"
                 cy="18"
@@ -505,7 +505,6 @@ export const DashboardPage = () => {
         </div>
       </div>
 
-      
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
           <div>
