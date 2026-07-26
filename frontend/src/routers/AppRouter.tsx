@@ -4,8 +4,9 @@ import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/Register";
 import { CategoryAdmin } from "../pages/AdminPage/CategoryAdmin";
 import { ProductAdmin } from "../pages/AdminPage/ProductAdmin";
-import { DashboardPage } from "../pages/DashboardPage";
+import { DashboardPage } from "../pages/AdminPage/DashboardPage";
 import { OrderPage } from "../pages/OrderPage";
+import { ProductPage } from "../pages/ProductPage";
 
 export default function AppRouters() {
   return (
@@ -17,6 +18,7 @@ export default function AppRouters() {
           <Route path="orders" element={<OrderPage />} />
           <Route path="categories" element={<CategoryAdmin />} />
         </Route>
+        <Route path="/menu" element={<ProductPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
       </Routes>
