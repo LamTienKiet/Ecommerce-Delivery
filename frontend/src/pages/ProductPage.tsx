@@ -1,6 +1,7 @@
-import { ProductList } from "./Products/ProductsList";
-import { ProductToolbar } from "./Products/ProductToolBar";
+import { ProductList } from "./UserPage/Products/ProductsList";
+
 import AuthLayout from "../layout/AuthLayout";
+import { ProductToolbar } from "./UserPage/Products/ProductToolbar";
 
 export const ProductPage = () => {
   return (

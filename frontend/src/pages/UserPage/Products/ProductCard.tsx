@@ -1,4 +1,4 @@
-import type { ProductResponse } from "../../type_auth_api/products/product.api";
+import type { ProductResponse } from "../../../type_auth_api/products/product.api";
 
 interface ProductCardProps {
   product: ProductResponse;
