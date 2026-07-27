@@ -7,6 +7,7 @@ import { ProductAdmin } from "../pages/AdminPage/ProductAdmin";
 import { DashboardPage } from "../pages/AdminPage/DashboardPage";
 import { OrderPage } from "../pages/OrderPage";
 import { ProductPage } from "../pages/ProductPage";
+import { CategoryPage } from "../pages/UserPage/Categories/CategoryPage";
 
 export default function AppRouters() {
   return (
@@ -21,6 +22,7 @@ export default function AppRouters() {
         <Route path="/menu" element={<ProductPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/category" element={<CategoryPage />} />
       </Routes>
     </BrowserRouter>
   );

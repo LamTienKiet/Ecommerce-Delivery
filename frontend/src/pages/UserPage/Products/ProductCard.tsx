@@ -31,7 +31,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         />
         {/* Gradients */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#16251e] via-transparent to-transparent opacity-80" />
-        
+
         {/* Float Badges */}
         <div className="absolute top-4 left-4 flex gap-2">
           <span className="rounded-md bg-[#B7913C] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#121B16]">
@@ -46,8 +46,18 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Preparation Time */}
         <div className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1 text-xs text-[#F1E9D8] backdrop-blur-sm">
-          <svg className="w-3.5 h-3.5 text-[#B7913C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg
+            className="w-3.5 h-3.5 text-[#B7913C]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
           <span>{product.preparationTime} phút</span>
         </div>
@@ -82,7 +92,9 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Footer Area */}
         <div className="flex items-center justify-between mt-auto">
           <div className="flex flex-col">
-            <span className="text-[10px] uppercase tracking-widest text-[#A9B4A4]">Giá bán</span>
+            <span className="text-[10px] uppercase tracking-widest text-[#A9B4A4]">
+              Giá bán
+            </span>
             <span className="font-serif text-2xl font-semibold text-[#B7913C]">
               {product.price.toLocaleString("vi-VN")}₫
             </span>
@@ -96,8 +108,18 @@ export default function ProductCard({ product }: ProductCardProps) {
                 : "bg-emerald-950/40 text-emerald-850 cursor-not-allowed border border-emerald-950"
             }`}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+              />
             </svg>
             <span>Đặt món</span>
           </button>
