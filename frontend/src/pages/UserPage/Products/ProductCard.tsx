@@ -5,21 +5,6 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const getCategoryName = (catId: number) => {
-    switch (catId) {
-      case 1:
-        return "Khai vị";
-      case 2:
-        return "Món chính";
-      case 3:
-        return "Tráng miệng";
-      case 4:
-        return "Đồ uống";
-      default:
-        return "Món ăn";
-    }
-  };
-
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-emerald-950 bg-[#16251e] transition-all duration-300 hover:-translate-y-2 hover:border-[#B7913C] hover:shadow-2xl hover:shadow-[#B7913C]/10 flex flex-col h-full">
       {/* Product Image */}
@@ -35,7 +20,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Float Badges */}
         <div className="absolute top-4 left-4 flex gap-2">
           <span className="rounded-md bg-[#B7913C] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#121B16]">
-            {getCategoryName(product.categoryId)}
+            {product.categoryId}
           </span>
           {product.price > 500000 && (
             <span className="rounded-md bg-rose-900/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
