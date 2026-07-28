@@ -1,10 +1,7 @@
-import { useState } from "react";
 import { ProductList } from "./UserPage/Products/ProductsList";
-import type { ProductResponse } from "../type_auth_api/products/product.api";
-import type { CategoryResponse } from "../type_auth_api/category/category.api";
 
 export const ProductPage = () => {
- 
+  return (
     <>
       {/* Hero Section Header */}
       <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">

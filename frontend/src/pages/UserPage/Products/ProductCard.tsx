@@ -5,12 +5,29 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const getCategoryName = (id: number) => {
+    switch (id) {
+      case 1:
+        return "Pasta";
+      case 2:
+        return "Khai vị";
+      case 3:
+        return "Món chính";
+      case 4:
+        return "Món Nướng";
+      case 5:
+        return "Tráng Miệng";
+      default:
+        return "Món ăn";
+    }
+  };
+
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-emerald-950 bg-[#16251e] transition-all duration-300 hover:-translate-y-2 hover:border-[#B7913C] hover:shadow-2xl hover:shadow-[#B7913C]/10 flex flex-col h-full">
       {/* Product Image */}
       <div className="relative h-56 w-full overflow-hidden">
         <img
-          src={product.imageUrl}
+          src={`/images/${product.imageUrl}`}
           alt={product.name}
           className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-110"
         />
@@ -20,7 +37,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Float Badges */}
         <div className="absolute top-4 left-4 flex gap-2">
           <span className="rounded-md bg-[#B7913C] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#121B16]">
-            {product.categoryId}
+            {getCategoryName(product.categoryId)}
           </span>
           {product.price > 500000 && (
             <span className="rounded-md bg-rose-900/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
