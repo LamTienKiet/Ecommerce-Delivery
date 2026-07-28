@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ProductCard from "./ProductCard";
 import { ProductToolbar } from "./ProductToolbar";
 import type { ProductResponse } from "../../../type_auth_api/products/product.api";
@@ -41,47 +41,123 @@ export const ProductList = () => {
     fetchData();
   }, []);
 
-  const filteredProducts = products.filter((product) => {
-    const term = searchTerm.toLowerCase();
-    return (
-      product.name.toLowerCase().includes(term) ||
-      (product.description && product.description.toLowerCase().includes(term))
-    );
-  });
+  const filteredProducts = useMemo(() => {
+    let result = [...products];
 
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortBy === "name-asc") {
-      return a.name.localeCompare(b.name, "vi");
+    if (selectedCategory !== null) {
+      result = result.filter((p) => p.categoryId === selectedCategory);
     }
-    if (sortBy === "name-desc") {
-      return b.name.localeCompare(a.name, "vi");
+
+    if (searchTerm.trim() !== "") {
+      const keyword = searchTerm.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(keyword) ||
+          (p.description && p.description.toLowerCase().includes(keyword)),
+      );
     }
-    return 0;
-  });
+
+    if (sortBy === "price-asc") {
+      result.sort((a, b) => a.price - b.price);
+    } else if (sortBy === "price-desc") {
+      result.sort((a, b) => b.price - a.price);
+    } else if (sortBy === "name-asc") {
+      result.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortBy === "newest") {
+      result.sort((a, b) => b.id - a.id);
+    }
+
+    return result;
+  }, [products, selectedCategory, searchTerm, sortBy]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 space-y-4">
+        <div className="w-12 h-12 border-4 border-[#B7913C] border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-[#A9B4A4] font-medium tracking-wide">
+          Đang tải danh mục thượng hạng...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-20 border border-rose-900/40 bg-rose-950/10 rounded-2xl max-w-2xl mx-auto px-6">
+        <svg
+          className="w-12 h-12 mx-auto text-rose-500 mb-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          />
+        </svg>
+        <h3 className="text-lg font-serif text-[#F1E9D8] font-medium">
+          Lỗi kết nối máy chủ
+        </h3>
+        <p className="text-sm text-[#A9B4A4]/80 mt-2">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-950/60 border border-[#2a3c31] px-5 py-2.5 text-sm font-semibold text-[#B7913C] hover:bg-[#B7913C] hover:text-[#121B16] transition-all duration-300"
+        >
+          Tải lại trang
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
       {/*Category Tabs (Static selection: "all" is active) */}
-      {categories.map((cat) => (
+      <div className="flex flex-wrap items-center justify-center gap-2 border-b border-[#2a3c31] pb-4">
+        {/* Nút Tất Cả */}
         <button
-          key={cat.id}
-          onClick={() => setSelectedCategory(cat.id)}
+          onClick={() => setSelectedCategory(null)}
           className={`rounded-full px-5 py-2.5 text-sm font-medium tracking-wide transition-all duration-300 ${
-            selectedCategory === cat.id
+            selectedCategory === null
               ? "bg-[#B7913C] text-[#121B16] font-semibold"
               : "text-[#A9B4A4] hover:bg-[#16251e] hover:text-[#F1E9D8]"
           }`}
         >
-          {cat.name}
+          Tất cả
         </button>
-      ))}
+
+        {/* Các nút danh mục khác */}
+        {categories.map((cat) => (
+          <button
+            key={cat.id}
+            onClick={() => setSelectedCategory(cat.id)}
+            className={`rounded-full px-5 py-2.5 text-sm font-medium tracking-wide transition-all duration-300 ${
+              selectedCategory === cat.id
+                ? "bg-[#B7913C] text-[#121B16] font-semibold"
+                : "text-[#A9B4A4] hover:bg-[#16251e] hover:text-[#F1E9D8]"
+            }`}
+          >
+            {cat.name}
+          </button>
+        ))}
+      </div>
 
       {/* Toolbar (Static visual elements) */}
-      <ProductToolbar />
+      <ProductToolbar
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        selectedCategory={selectedCategory ?? "all"}
+        onCategoryChange={(value) =>
+          setSelectedCategory(value === "all" ? null : Number(value))
+        }
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+      />
 
       {/* Grid List (Direct mapping over all products) */}
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {products.map((product) => (
+        {filteredProducts.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
