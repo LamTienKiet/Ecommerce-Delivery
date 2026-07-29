@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import type { ProductResponse } from "../../../type_auth_api/products/product.api";
 
 interface ProductCardProps {
@@ -25,7 +26,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-emerald-950 bg-[#16251e] transition-all duration-300 hover:-translate-y-2 hover:border-[#B7913C] hover:shadow-2xl hover:shadow-[#B7913C]/10 flex flex-col h-full">
       {/* Product Image */}
-      <div className="relative h-56 w-full overflow-hidden">
+      <Link to={`/detail/${product.id}`} className="block relative h-56 w-full overflow-hidden">
         <img
           src={`/images/${product.imageUrl}`}
           alt={product.name}
@@ -63,7 +64,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </svg>
           <span>{product.preparationTime} phút</span>
         </div>
-      </div>
+      </Link>
 
       {/* Body Content */}
       <div className="flex flex-col flex-grow p-6">
@@ -79,9 +80,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Product Name */}
-        <h3 className="mt-3 font-serif text-xl font-medium text-[#F1E9D8] transition-colors group-hover:text-[#B7913C] line-clamp-1">
-          {product.name}
-        </h3>
+        <Link to={`/detail/${product.id}`}>
+          <h3 className="mt-3 font-serif text-xl font-medium text-[#F1E9D8] transition-colors group-hover:text-[#B7913C] line-clamp-1 hover:text-[#B7913C]">
+            {product.name}
+          </h3>
+        </Link>
 
         {/* Product Description */}
         <p className="mt-2 text-sm leading-relaxed text-[#A9B4A4] line-clamp-3 flex-grow">

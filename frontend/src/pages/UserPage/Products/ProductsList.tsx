@@ -143,7 +143,7 @@ export const ProductList = () => {
         ))}
       </div>
 
-      {/* Toolbar (Static visual elements) */}
+     
       <ProductToolbar
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
@@ -155,7 +155,7 @@ export const ProductList = () => {
         onSortChange={setSortBy}
       />
 
-      {/* Grid List (Direct mapping over all products) */}
+     
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         {filteredProducts.map((product) => (
           <ProductCard key={product.id} product={product} />

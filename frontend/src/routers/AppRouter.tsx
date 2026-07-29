@@ -9,6 +9,7 @@ import { DashboardPage } from "../pages/AdminPage/DashboardPage";
 import { OrderPage } from "../pages/OrderPage";
 import { ProductPage } from "../pages/ProductPage";
 import { CategoryPage } from "../pages/UserPage/Categories/CategoryPage";
+import { ProductDetail } from "../pages/UserPage/Products/ProductDetail";
 
 export default function AppRouters() {
   return (
@@ -26,6 +27,7 @@ export default function AppRouters() {
         <Route element={<UserLayout />}>
           <Route path="/menu" element={<ProductPage />} />
           <Route path="/category" element={<CategoryPage />} />
+          <Route path="/detail/:id" element={<ProductDetail />} />
         </Route>
 
         {/* Auth Routes */}
@@ -35,4 +37,3 @@ export default function AppRouters() {
     </BrowserRouter>
   );
 }
-
