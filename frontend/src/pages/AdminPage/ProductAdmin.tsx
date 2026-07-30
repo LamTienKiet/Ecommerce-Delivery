@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
-import type { ProductResponse } from "../../type_auth_api/products/product.api";
-import type { CategoryResponse } from "../../type_auth_api/category/category.api";
+import type {
+  ProductResponse,
+  CreateProductRequest,
+} from "../../type_auth_api/products/product.api";
+import type {
+  CategoryResponse,
+  CreateCategoryRequest,
+} from "../../type_auth_api/category/category.api";
 import { getCategory } from "../../services/category.service";
 import { getProducts } from "../../services/product.service";
 import { ProductStats } from "./components/ProductStats";
@@ -12,6 +18,15 @@ export const ProductAdmin = () => {
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<CreateProductRequest>({
+    name: "",
+    description: "",
+    imageUrl: "",
+    price: 0,
+    isAvailable: true,
+    preparationTime: 15,
+    categoryId: 1,
+  });
 
   // Khai báo state phục vụ bộ lọc & tìm kiếm (Tự phát triển logic lọc sau)
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -48,13 +63,18 @@ export const ProductAdmin = () => {
     fetchData();
   }, []);
 
-  // Tính toán nhanh chỉ số thống kê từ Database thực tế
+  // Tính toán nhanh chỉ số thống kê
   const total = products.length;
   const available = products.filter((p) => p.isAvailable).length;
   const unavailable = total - available;
   const totalCategories = categories.length;
 
-  // Placeholder handlers - Tự viết logic xử lý ở đây
+  // useEffect(()=>{
+  //   async function (params:type) {
+
+  //   }
+  // })
+
   const handleOpenCreateModal = () => {
     setModalMode("create");
     setIsModalOpen(true);
@@ -72,6 +92,45 @@ export const ProductAdmin = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const { name, value, type } = e.target;
+    setFormData({
+      ...formData,
+      [name]:
+        type === "checkbox"
+          ? (e.target as HTMLInputElement).checked
+          : type === "number"
+            ? Number(value)
+            : value,
+    });
+  };
+
+  const handleCreateProduct = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    e.preventDefault();
+    if (formData.name.length < 5) {
+      alert("Tên món ăn quá ngắn hãy thử lại");
+      return;
+    }
+    if (typeof formData.name !== "string") {
+      return alert("Hãy nhập đúng định dạng tên món");
+    }
+    if (typeof formData.price !== "number") {
+      return alert("Hãy nhập đúng định dạng giá tiền");
+    }
+    if (formData.price <= 0) {
+      return alert("Giá tiền sản phẩm phải lớn hơn 0");
+    }
+    if (!formData.name.trim()) {
+      return alert("Tên không được để trống");
+    }
   };
 
   if (loading) {
@@ -122,7 +181,8 @@ export const ProductAdmin = () => {
             Quản Lý Thực Đơn
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Danh sách món ăn, cấu hình giá, thời gian chuẩn bị và trạng thái phục vụ.
+            Danh sách món ăn, cấu hình giá, thời gian chuẩn bị và trạng thái
+            phục vụ.
           </p>
         </div>
         <button
@@ -180,7 +240,9 @@ export const ProductAdmin = () => {
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
               <h3 className="font-extrabold text-slate-900 text-lg">
-                {modalMode === "create" ? "Thêm Món Ăn Mới" : "Chỉnh Sửa Món Ăn"}
+                {modalMode === "create"
+                  ? "Thêm Món Ăn Mới"
+                  : "Chỉnh Sửa Món Ăn"}
               </h3>
               <button
                 onClick={handleCloseModal}
@@ -202,7 +264,6 @@ export const ProductAdmin = () => {
               </button>
             </div>
 
-            {/* Modal Body / Form */}
             <form className="flex-1 overflow-y-auto p-6 space-y-4">
               {/* Name */}
               <div>
@@ -213,6 +274,8 @@ export const ProductAdmin = () => {
                   type="text"
                   required
                   placeholder="Ví dụ: Bít Tết Sốt Nấm"
+                  value={formData.name}
+                  onChange={handleChange}
                   className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/50"
                 />
               </div>
@@ -223,10 +286,14 @@ export const ProductAdmin = () => {
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
                     Danh mục
                   </label>
-                  <select className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/50">
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
+                  <select
+                    className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/50"
+                    value={formData.categoryId}
+                    onChange={handleChange}
+                  >
+                    {categories.map((cate) => (
+                      <option key={cate.id} value={cate.id}>
+                        {cate.name}
                       </option>
                     ))}
                   </select>
@@ -241,6 +308,8 @@ export const ProductAdmin = () => {
                     type="number"
                     required
                     min={0}
+                    value={formData.price}
+                    onChange={handleChange}
                     defaultValue={0}
                     className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/50"
                   />
@@ -255,8 +324,10 @@ export const ProductAdmin = () => {
                   </label>
                   <input
                     type="number"
-                    min={1}
+                    min={5}
                     defaultValue={15}
+                    value={formData.preparationTime}
+                    onChange={handleChange}
                     className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/50"
                   />
                 </div>
@@ -272,6 +343,8 @@ export const ProductAdmin = () => {
                         type="checkbox"
                         defaultChecked
                         className="sr-only peer"
+                        checked={formData.isAvailable}
+                        onChange={handleChange}
                       />
                       <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
                       <span className="ml-3 text-sm font-semibold text-slate-700">
@@ -290,6 +363,8 @@ export const ProductAdmin = () => {
                 <input
                   type="url"
                   placeholder="https://images.unsplash.com/..."
+                  value={formData.imageUrl}
+                  onChange={handleChange}
                   className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/50"
                 />
               </div>
@@ -302,6 +377,8 @@ export const ProductAdmin = () => {
                 <textarea
                   placeholder="Nhập nguyên liệu, hương vị hoặc lưu ý chế biến..."
                   rows={3}
+                  value={formData.description}
+                  onChange={handleChange}
                   className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/50 resize-none"
                 />
               </div>
@@ -317,7 +394,11 @@ export const ProductAdmin = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={handleCloseModal}
+                  onClick={
+                    modalMode === "create"
+                      ? handleCreateProduct
+                      : handleCloseModal
+                  }
                   className="px-6 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-600/10 transition duration-150"
                 >
                   Lưu thay đổi
