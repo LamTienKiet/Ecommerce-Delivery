@@ -1,6 +1,6 @@
-import type { ProductResponse } from "../../../type_auth_api/products/product.api";
-import type { CategoryResponse } from "../../../type_auth_api/category/category.api";
-import { getImageUrl } from "../../../utils/image";
+import type { ProductResponse } from "../../../../type_auth_api/products/product.api";
+import type { CategoryResponse } from "../../../../type_auth_api/category/category.api";
+import { getImageUrl } from "../../../../utils/image";
 
 interface ProductTableProps {
   products: ProductResponse[];

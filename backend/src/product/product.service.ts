@@ -23,7 +23,7 @@ export class ProductService {
 
         category: {
           connect: {
-            id: createProductDto.categoryId,
+            id: Number(createProductDto.categoryId),
           },
         },
       },
@@ -69,7 +69,7 @@ export class ProductService {
         category: updateProductDto.categoryId
           ? {
               connect: {
-                id: updateProductDto.categoryId,
+                id: Number(updateProductDto.categoryId),
               },
             }
           : undefined,

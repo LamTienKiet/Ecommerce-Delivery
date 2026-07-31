@@ -5,7 +5,6 @@ import {
   IsNumber,
   IsPositive,
   IsString,
-  IsUrl,
 } from 'class-validator';
 
 export class CreateProductDto {

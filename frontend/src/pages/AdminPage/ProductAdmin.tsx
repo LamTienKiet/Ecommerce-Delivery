@@ -2,18 +2,20 @@ import { useEffect, useState } from "react";
 import type {
   ProductResponse,
   CreateProductRequest,
-  UpdateProductRequest,
 } from "../../type_auth_api/products/product.api";
-import type {
-  CategoryResponse,
-  CreateCategoryRequest,
-} from "../../type_auth_api/category/category.api";
+import type { CategoryResponse } from "../../type_auth_api/category/category.api";
 import { getCategory } from "../../services/category.service";
-import { createProducts, getProducts } from "../../services/product.service";
-import { ProductStats } from "./components/ProductStats";
-import { ProductToolbar } from "./components/ProductToolbar";
-import { ProductTable } from "./components/ProductTable";
-import { create } from "axios";
+import {
+  createProducts,
+  getProducts,
+  updateProduct,
+  deleteProduct,
+  uploadProductImage,
+} from "../../services/product.service";
+import { getImageUrl } from "../../utils/image";
+import { ProductStats } from "./components/products/ProductStats";
+import { ProductToolbar } from "./components/products/ProductToolbar";
+import { ProductTable } from "./components/products/ProductTable";
 
 export const ProductAdmin = () => {
   const [products, setProducts] = useState<ProductResponse[]>([]);
@@ -29,13 +31,15 @@ export const ProductAdmin = () => {
     preparationTime: 15,
     categoryId: 1,
   });
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [editingProductId, setEditingProductId] = useState<number | null>(null);
 
-  // Khai báo state phục vụ bộ lọc & tìm kiếm (Tự phát triển logic lọc sau)
+  // Khai báo state phục vụ bộ lọc & tìm kiếm
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
 
-  // Khai báo state phục vụ modal thêm/sửa (Tự phát triển logic CRUD sau)
+  // Khai báo state phục vụ modal thêm/sửa
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
 
@@ -79,21 +83,51 @@ export const ProductAdmin = () => {
 
   const handleOpenCreateModal = () => {
     setModalMode("create");
+    setEditingProductId(null);
+    setFormData({
+      name: "",
+      description: "",
+      imageUrl: "",
+      price: 0,
+      isAvailable: true,
+      preparationTime: 15,
+      categoryId: categories[0]?.id || 1,
+    });
     setIsModalOpen(true);
   };
 
   const handleOpenEditModal = (product: ProductResponse) => {
     setModalMode("edit");
-    console.log("Edit product: ", product);
+    setEditingProductId(product.id);
+    setFormData({
+      name: product.name,
+      description: product.description,
+      imageUrl: product.imageUrl,
+      price: product.price,
+      isAvailable: product.isAvailable,
+      preparationTime: product.preparationTime,
+      categoryId: product.categoryId,
+    });
     setIsModalOpen(true);
   };
 
-  const handleDeleteProduct = (id: number) => {
-    console.log("Delete product ID: ", id);
+  const handleDeleteProduct = async (id: number) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa món ăn này?")) {
+      return;
+    }
+    try {
+      await deleteProduct(id);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      alert("Xóa món ăn thành công!");
+    } catch (err) {
+      console.error("Failed to delete product:", err);
+      alert("Không thể xóa món ăn. Vui lòng thử lại!");
+    }
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setEditingProductId(null);
   };
 
   const handleChange = (
@@ -107,13 +141,44 @@ export const ProductAdmin = () => {
       [name]:
         type === "checkbox"
           ? (e.target as HTMLInputElement).checked
-          : type === "number"
+          : name === "categoryId" || type === "number"
             ? Number(value)
             : value,
     });
   };
 
-  const handleCreateProduct = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Chỉ chấp nhận file ảnh!");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const res = await uploadProductImage(file);
+      setFormData((prev) => ({
+        ...prev,
+        imageUrl: res.url,
+      }));
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Tải ảnh lên thất bại. Vui lòng thử lại!");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData((prev) => ({
+      ...prev,
+      imageUrl: "",
+    }));
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Validate
@@ -134,10 +199,10 @@ export const ProductAdmin = () => {
     }
 
     if (!formData.imageUrl.trim()) {
-      return alert("Vui lòng nhập link ảnh");
+      return alert("Vui lòng tải lên ảnh món ăn");
     }
 
-    if (formData.categoryId === 0) {
+    if (!formData.categoryId) {
       return alert("Vui lòng chọn danh mục");
     }
 
@@ -146,8 +211,18 @@ export const ProductAdmin = () => {
     }
 
     try {
-      const newProduct = await createProducts(formData);
-      setProducts((prev) => [...prev, newProduct]);
+      if (modalMode === "create") {
+        const newProduct = await createProducts(formData);
+        setProducts((prev) => [...prev, newProduct]);
+        alert("Thêm sản phẩm thành công!");
+      } else {
+        if (editingProductId === null) return;
+        const updatedProduct = await updateProduct(editingProductId, formData);
+        setProducts((prev) =>
+          prev.map((p) => (p.id === editingProductId ? updatedProduct : p)),
+        );
+        alert("Cập nhật sản phẩm thành công!");
+      }
 
       setFormData({
         name: "",
@@ -156,22 +231,18 @@ export const ProductAdmin = () => {
         price: 0,
         isAvailable: true,
         preparationTime: 15,
-        categoryId: 0,
+        categoryId: categories[0]?.id || 1,
       });
-
+      setEditingProductId(null);
       setIsModalOpen(false);
-
-      alert("Thêm sản phẩm thành công!");
     } catch (err) {
       console.error(err);
-      setError("Không thể thêm sản phẩm.");
+      alert(
+        modalMode === "create"
+          ? "Không thể thêm sản phẩm."
+          : "Không thể cập nhật sản phẩm.",
+      );
     }
-  };
-
-  const handleEditProduct = (e: React.FormEvent<UpdateProductRequest>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
   };
 
   if (loading) {
@@ -307,7 +378,7 @@ export const ProductAdmin = () => {
 
             <form
               className="flex-1 overflow-y-auto p-6 space-y-4"
-              onSubmit={handleCreateProduct}
+              onSubmit={handleFormSubmit}
             >
               {/* Name */}
               <div>
@@ -316,6 +387,7 @@ export const ProductAdmin = () => {
                 </label>
                 <input
                   type="text"
+                  name="name"
                   required
                   placeholder="Ví dụ: Bít Tết Sốt Nấm"
                   value={formData.name}
@@ -331,6 +403,7 @@ export const ProductAdmin = () => {
                     Danh mục
                   </label>
                   <select
+                    name="categoryId"
                     className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/50"
                     value={formData.categoryId}
                     onChange={handleChange}
@@ -350,11 +423,11 @@ export const ProductAdmin = () => {
                   </label>
                   <input
                     type="number"
+                    name="price"
                     required
                     min={0}
                     value={formData.price}
                     onChange={handleChange}
-                    defaultValue={0}
                     className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/50"
                   />
                 </div>
@@ -368,8 +441,8 @@ export const ProductAdmin = () => {
                   </label>
                   <input
                     type="number"
+                    name="preparationTime"
                     min={5}
-                    defaultValue={15}
                     value={formData.preparationTime}
                     onChange={handleChange}
                     className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/50"
@@ -385,7 +458,7 @@ export const ProductAdmin = () => {
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
                         type="checkbox"
-                        defaultChecked
+                        name="isAvailable"
                         className="sr-only peer"
                         checked={formData.isAvailable}
                         onChange={handleChange}
@@ -399,18 +472,102 @@ export const ProductAdmin = () => {
                 </div>
               </div>
 
-              {/* Image URL */}
+              {/* Image Upload Area */}
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                  Link ảnh món ăn
+                  Ảnh món ăn <span className="text-rose-500">*</span>
                 </label>
-                <input
-                  type="url"
-                  placeholder="https://images.unsplash.com/..."
-                  value={formData.imageUrl}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/50"
-                />
+
+                {isUploading ? (
+                  <div className="w-full h-40 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center space-y-2 bg-slate-50/50">
+                    <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-xs text-slate-400 font-medium">
+                      Đang tải ảnh lên...
+                    </p>
+                  </div>
+                ) : formData.imageUrl ? (
+                  <div className="relative w-full h-40 border border-slate-200 rounded-2xl overflow-hidden group shadow-sm bg-slate-50">
+                    <img
+                      src={getImageUrl(formData.imageUrl)}
+                      alt="Product preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <label className="cursor-pointer bg-white text-slate-800 hover:bg-slate-50 p-2.5 rounded-xl shadow-md transition active:scale-95 duration-100 flex items-center gap-2 text-xs font-bold">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                          />
+                        </svg>
+                        Thay đổi ảnh
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="hidden"
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="bg-rose-600 text-white hover:bg-rose-700 p-2.5 rounded-xl shadow-md transition active:scale-95 duration-100 flex items-center gap-2 text-xs font-bold"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                        Xóa ảnh
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <label className="border-2 border-dashed border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/5 cursor-pointer rounded-2xl h-40 flex flex-col items-center justify-center p-6 text-center transition group">
+                    <div className="p-3 bg-indigo-50 rounded-2xl group-hover:scale-110 duration-200 transition text-indigo-600 mb-3">
+                      <svg
+                        className="w-6 h-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2-2V6"
+                        />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-bold text-slate-800">
+                      Tải ảnh lên từ máy tính
+                    </span>
+                    <span className="text-xs text-slate-400 mt-1">
+                      Chấp nhận JPG, PNG, GIF, WEBP
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                  </label>
+                )}
               </div>
 
               {/* Description */}
@@ -419,6 +576,7 @@ export const ProductAdmin = () => {
                   Mô tả chi tiết
                 </label>
                 <textarea
+                  name="description"
                   placeholder="Nhập nguyên liệu, hương vị hoặc lưu ý chế biến..."
                   rows={3}
                   value={formData.description}
@@ -430,7 +588,7 @@ export const ProductAdmin = () => {
               {/* Modal Actions Footer */}
               <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                 <button
-                  type="submit"
+                  type="button"
                   onClick={handleCloseModal}
                   className="px-5 py-2.5 text-sm font-semibold text-slate-500 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition duration-150"
                 >
