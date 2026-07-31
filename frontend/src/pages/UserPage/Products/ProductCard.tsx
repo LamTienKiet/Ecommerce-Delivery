@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { ProductResponse } from "../../../type_auth_api/products/product.api";
+import { getImageUrl } from "../../../utils/image";
 
 interface ProductCardProps {
   product: ProductResponse;
@@ -28,7 +29,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Product Image */}
       <Link to={`/detail/${product.id}`} className="block relative h-56 w-full overflow-hidden">
         <img
-          src={`/images/${product.imageUrl}`}
+          src={getImageUrl(product.imageUrl)}
           alt={product.name}
           className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-110"
         />

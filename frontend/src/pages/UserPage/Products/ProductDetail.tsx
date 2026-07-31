@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import type { ProductResponse } from "../../../type_auth_api/products/product.api";
 import { getProductById } from "../../../services/product.service";
 import { getCategoryById } from "../../../services/category.service";
+import { getImageUrl } from "../../../utils/image";
 
 export const ProductDetail = () => {
   const [product, setProduct] = useState<ProductResponse | null>(null);
@@ -159,7 +160,7 @@ export const ProductDetail = () => {
         {/* Left Column: Product Image */}
         <div className="relative overflow-hidden rounded-3xl border border-[#2a3c31] bg-[#16251e] shadow-2xl shadow-black/40 group">
           <img
-            src={`/images/${product.imageUrl}`}
+            src={getImageUrl(product.imageUrl)}
             alt={product.name}
             className="w-full h-[350px] sm:h-[450px] md:h-[500px] object-cover transition-transform duration-750 ease-out group-hover:scale-105"
           />

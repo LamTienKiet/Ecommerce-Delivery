@@ -36,3 +36,14 @@ export async function updateProduct(
 export async function deleteProduct(id: number): Promise<void> {
   await axios.delete(`${API_URL}/${id}`);
 }
+
+export async function uploadProductImage(file: File): Promise<{ url: string }> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await axios.post<{ url: string }>(`${API_URL}/upload`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+}

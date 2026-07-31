@@ -1,5 +1,6 @@
 import type { ProductResponse } from "../../../type_auth_api/products/product.api";
 import type { CategoryResponse } from "../../../type_auth_api/category/category.api";
+import { getImageUrl } from "../../../utils/image";
 
 interface ProductTableProps {
   products: ProductResponse[];
@@ -73,7 +74,7 @@ export const ProductTable = ({
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3.5">
                       <img
-                        src={p.imageUrl}
+                        src={getImageUrl(p.imageUrl)}
                         alt={p.name}
                         className="w-12 h-12 rounded-xl object-cover shadow-sm border border-slate-200/50"
                       />

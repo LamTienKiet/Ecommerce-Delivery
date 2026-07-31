@@ -2,16 +2,18 @@ import { useEffect, useState } from "react";
 import type {
   ProductResponse,
   CreateProductRequest,
+  UpdateProductRequest,
 } from "../../type_auth_api/products/product.api";
 import type {
   CategoryResponse,
   CreateCategoryRequest,
 } from "../../type_auth_api/category/category.api";
 import { getCategory } from "../../services/category.service";
-import { getProducts } from "../../services/product.service";
+import { createProducts, getProducts } from "../../services/product.service";
 import { ProductStats } from "./components/ProductStats";
 import { ProductToolbar } from "./components/ProductToolbar";
 import { ProductTable } from "./components/ProductTable";
+import { create } from "axios";
 
 export const ProductAdmin = () => {
   const [products, setProducts] = useState<ProductResponse[]>([]);
@@ -111,26 +113,65 @@ export const ProductAdmin = () => {
     });
   };
 
-  const handleCreateProduct = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+  const handleCreateProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (formData.name.length < 5) {
-      alert("Tên món ăn quá ngắn hãy thử lại");
-      return;
-    }
-    if (typeof formData.name !== "string") {
-      return alert("Hãy nhập đúng định dạng tên món");
-    }
-    if (typeof formData.price !== "number") {
-      return alert("Hãy nhập đúng định dạng giá tiền");
-    }
-    if (formData.price <= 0) {
-      return alert("Giá tiền sản phẩm phải lớn hơn 0");
-    }
+
+    // Validate
     if (!formData.name.trim()) {
       return alert("Tên không được để trống");
     }
+
+    if (formData.name.length < 5) {
+      return alert("Tên món ăn quá ngắn");
+    }
+
+    if (formData.price <= 0) {
+      return alert("Giá tiền phải lớn hơn 0");
+    }
+
+    if (formData.preparationTime < 5) {
+      return alert("Thời gian chuẩn bị ít nhất phải 5 phút");
+    }
+
+    if (!formData.imageUrl.trim()) {
+      return alert("Vui lòng nhập link ảnh");
+    }
+
+    if (formData.categoryId === 0) {
+      return alert("Vui lòng chọn danh mục");
+    }
+
+    if (!formData.description.trim()) {
+      return alert("Vui lòng nhập mô tả");
+    }
+
+    try {
+      const newProduct = await createProducts(formData);
+      setProducts((prev) => [...prev, newProduct]);
+
+      setFormData({
+        name: "",
+        description: "",
+        imageUrl: "",
+        price: 0,
+        isAvailable: true,
+        preparationTime: 15,
+        categoryId: 0,
+      });
+
+      setIsModalOpen(false);
+
+      alert("Thêm sản phẩm thành công!");
+    } catch (err) {
+      console.error(err);
+      setError("Không thể thêm sản phẩm.");
+    }
+  };
+
+  const handleEditProduct = (e: React.FormEvent<UpdateProductRequest>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
   };
 
   if (loading) {
@@ -264,7 +305,10 @@ export const ProductAdmin = () => {
               </button>
             </div>
 
-            <form className="flex-1 overflow-y-auto p-6 space-y-4">
+            <form
+              className="flex-1 overflow-y-auto p-6 space-y-4"
+              onSubmit={handleCreateProduct}
+            >
               {/* Name */}
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
@@ -386,19 +430,14 @@ export const ProductAdmin = () => {
               {/* Modal Actions Footer */}
               <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                 <button
-                  type="button"
+                  type="submit"
                   onClick={handleCloseModal}
                   className="px-5 py-2.5 text-sm font-semibold text-slate-500 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition duration-150"
                 >
                   Hủy bỏ
                 </button>
                 <button
-                  type="button"
-                  onClick={
-                    modalMode === "create"
-                      ? handleCreateProduct
-                      : handleCloseModal
-                  }
+                  type="submit"
                   className="px-6 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-600/10 transition duration-150"
                 >
                   Lưu thay đổi
