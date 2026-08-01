@@ -1,15 +1,47 @@
 import { CategoryStats } from "./components/categories/CategoryStats";
 import { CategoryToolbar } from "./components/categories/CategoryToolbar";
 import { CategoryTable } from "./components/categories/CategoryTable";
-import { useEffect, useState } from "react";
-import { CategoryResponse } from "../../type_auth_api/category/category.api";
-
+import React, { useEffect, useState } from "react";
+import type { CategoryResponse, CreateCategoryRequest } from "../../type_auth_api/category/category.api";
 export const CategoryAdmin = () => {
 
-  const [categories, setCategories] = useState<>{}
-   return (
+  const [categories, setCategories] = useState<CategoryResponse[]>([]);
+  const [loading, setLoading] = useState<boolean | null>(false);
+  const [error, setError] = useState<string | null>("");
+  const [formData, setFormData] = useState<CreateCategoryRequest>({
+    name: "",
+    description: "",
+  });
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [editingProductId, setEditingProductId] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+
+  const handleOpenCreateModal = () => {
+
+  }
+
+  const handleCloseModal = () => {
+
+  }
+
+  const handleOpenEditModal = () =>{
+
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLAreaElement>) => {
+    const {name, value} = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  }
+
+
     <div className="space-y-6 animate-fade-in text-slate-800">
-      {/* Header section */}
+      
       <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
