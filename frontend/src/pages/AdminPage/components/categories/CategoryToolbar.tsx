@@ -6,11 +6,9 @@ interface CategoryToolbarProps {
   selectedCategory: string;
   onCategoryChange: (value: string) => void;
   categories: CategoryResponse[];
-  selectedStatus: string;
-  onStatusChange: (value: string) => void;
 }
 
-export const ProductToolbar = ({
+export const CategoryToolbar = ({
   searchTerm,
   onSearchChange,
   selectedCategory,
