@@ -1,4 +1,4 @@
-import type { CategoryResponse } from "../../../type_auth_api/category/category.api";
+import type { CategoryResponse } from "../../../../type_auth_api/category/category.api";
 
 interface ProductToolbarProps {
   searchTerm: string;

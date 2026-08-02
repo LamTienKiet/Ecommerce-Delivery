@@ -1,6 +1,4 @@
-import type { ProductResponse } from "../../../../type_auth_api/products/product.api";
 import type { CategoryResponse } from "../../../../type_auth_api/category/category.api";
-import { getImageUrl } from "../../../../utils/image";
 
 interface CategoryTableProps {
   categories: CategoryResponse[];
@@ -39,9 +37,16 @@ export const CategoryTable = ({
                         <h4 className="font-bold text-slate-900 text-base">
                           {cate.name}
                         </h4>
-                        <p className="text-xs text-slate-400 mt-0.5 line-clamp-1 max-w-sm">
+                      </div>
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <div className="flex items-center space-x-3.5 justify-center">
+                      <div>
+                        <h4 className="text-xs text-slate-400 mt-0.5 line-clamp-1 max-w-sm">
                           {cate.description}
-                        </p>
+                        </h4>
                       </div>
                     </div>
                   </td>

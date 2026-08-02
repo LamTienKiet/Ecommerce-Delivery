@@ -75,12 +75,6 @@ export const ProductAdmin = () => {
   const unavailable = total - available;
   const totalCategories = categories.length;
 
-  // useEffect(()=>{
-  //   async function (params:type) {
-
-  //   }
-  // })
-
   const handleOpenCreateModal = () => {
     setModalMode("create");
     setEditingProductId(null);
