@@ -1,3 +1,5 @@
+import type { CategoryResponse } from "../category/category.api";
+
 export interface ProductResponse {
   id: number;
   name: string;
@@ -7,6 +9,7 @@ export interface ProductResponse {
   isAvailable: boolean;
   preparationTime: number;
   categoryId: number;
+  category?: CategoryResponse;
 }
 
 export interface CreateProductRequest {

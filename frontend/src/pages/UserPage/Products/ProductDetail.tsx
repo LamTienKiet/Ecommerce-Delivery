@@ -60,8 +60,6 @@ export const ProductDetail = () => {
     }
   };
 
-
-
   if (loading) {
     return (
       <div className="animate-pulse space-y-8 max-w-6xl mx-auto py-6">
@@ -71,7 +69,7 @@ export const ProductDetail = () => {
         {/* Main Grid Skeleton */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Image Column Skeleton */}
-          <div className="h-[400px] md:h-[500px] bg-[#16251e] rounded-3xl"></div>
+          <div className="h-100 md:h-125 bg-[#16251e] rounded-3xl"></div>
 
           {/* Details Column Skeleton */}
           <div className="space-y-6 py-4">

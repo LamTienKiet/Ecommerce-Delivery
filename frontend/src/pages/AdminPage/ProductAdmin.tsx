@@ -75,6 +75,28 @@ export const ProductAdmin = () => {
   const unavailable = total - available;
   const totalCategories = categories.length;
 
+  // Lọc sản phẩm theo các bộ lọc của ProductToolbar
+  const filteredProducts = products.filter((product) => {
+    // 1. Lọc theo từ khóa tìm kiếm (tên hoặc mô tả)
+    const matchesSearch =
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (product.description &&
+        product.description.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    // 2. Lọc theo danh mục (category) từ DB
+    const matchesCategory =
+      selectedCategory === "all" ||
+      product.categoryId === Number(selectedCategory);
+
+    // 3. Lọc theo trạng thái phục vụ
+    const matchesStatus =
+      selectedStatus === "all" ||
+      (selectedStatus === "available" && product.isAvailable) ||
+      (selectedStatus === "unavailable" && !product.isAvailable);
+
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
+
   const handleOpenCreateModal = () => {
     setModalMode("create");
     setEditingProductId(null);
@@ -331,9 +353,9 @@ export const ProductAdmin = () => {
         onStatusChange={setSelectedStatus}
       />
 
-      {/* Table section (Truyền thẳng dữ liệu DB, không lọc) */}
+      {/* Table section (Đã được lọc theo bộ lọc trên toolbar) */}
       <ProductTable
-        products={products}
+        products={filteredProducts}
         categories={categories}
         onEdit={handleOpenEditModal}
         onDelete={handleDeleteProduct}

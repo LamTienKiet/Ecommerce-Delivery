@@ -147,10 +147,6 @@ export const ProductList = () => {
       <ProductToolbar
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        selectedCategory={selectedCategory ?? "all"}
-        onCategoryChange={(value) =>
-          setSelectedCategory(value === "all" ? null : Number(value))
-        }
         sortBy={sortBy}
         onSortChange={setSortBy}
       />

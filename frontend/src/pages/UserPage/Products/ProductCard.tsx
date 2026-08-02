@@ -7,7 +7,11 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+
   const getCategoryName = (id: number) => {
+    if (product.category?.name) {
+      return product.category.name;
+    }
     switch (id) {
       case 1:
         return "Pasta";
