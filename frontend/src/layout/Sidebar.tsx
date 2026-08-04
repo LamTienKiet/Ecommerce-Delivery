@@ -18,7 +18,7 @@ export const Sidebar = () => {
 
   const menu: MenuItem[] = [
     {
-      path: "/",
+      path: "/admin",
       label: "Dashboard",
       icon: (
         <svg
@@ -38,7 +38,7 @@ export const Sidebar = () => {
       ),
     },
     {
-      path: "/products",
+      path: "/admin/products",
       label: "Sản phẩm",
       icon: (
         <svg
@@ -58,7 +58,7 @@ export const Sidebar = () => {
       ),
     },
     {
-      path: "/categories",
+      path: "/admin/categories",
       label: "Danh mục",
       icon: (
         <svg
@@ -78,7 +78,7 @@ export const Sidebar = () => {
       ),
     },
     {
-      path: "/orders",
+      path: "/admin/orders",
       label: "Đơn hàng",
       icon: (
         <svg
@@ -98,7 +98,7 @@ export const Sidebar = () => {
       ),
     },
     {
-      path: "/revenue",
+      path: "/admin/revenue",
       label: "Doanh thu",
       icon: (
         <svg
