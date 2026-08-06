@@ -92,9 +92,11 @@ export const UserLayout = () => {
             </Link>
 
             {/* Book Table Button */}
-            <button className="hidden sm:block rounded-xl border border-[#B7913C] text-[#B7913C] px-5 py-2.5 text-xs font-semibold tracking-widest uppercase hover:bg-[#B7913C] hover:text-[#121B16] transition-all duration-300">
-              Đặt bàn ngay
-            </button>
+            <Link to="/login">
+              <button className="hidden sm:block rounded-xl border border-[#B7913C] text-[#B7913C] px-5 py-2.5 text-xs font-semibold tracking-widest uppercase hover:bg-[#B7913C] hover:text-[#121B16] transition-all duration-300">
+                Đăng nhập ngay
+              </button>
+            </Link>
           </div>
         </div>
       </header>
