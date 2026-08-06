@@ -1,0 +1,416 @@
+/* ===========================================================
+   Le Cellier — Cart page styles (customer-facing dark theme)
+   Import once in CartPage.tsx:  import './cart.css';
+   =========================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Cormorant+Garamond:ital@0;1&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap");
+
+:root {
+  --bg: #121b16;
+  --bg-panel: #182720;
+  --bg-panel-2: #1c2b22;
+  --ink: #f1e9d8;
+  --ink-dim: #a9b4a4;
+  --ink-faint: #6c7a6f;
+  --hairline: rgba(241, 233, 216, 0.14);
+  --hairline-strong: rgba(241, 233, 216, 0.28);
+  --wine: #7c2233;
+  --wine-soft: #5c1a27;
+  --gold: #b7913c;
+}
+
+.cart-page * {
+  box-sizing: border-box;
+}
+
+.cart-page {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 300;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.cart-page a {
+  color: inherit;
+  text-decoration: none;
+}
+.cart-page h1,
+.cart-page h2,
+.cart-page h3 {
+  font-family: "Fraunces", serif;
+  font-weight: 500;
+}
+
+.cart-eyebrow {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+}
+
+/* ---------- HEADER ---------- */
+.cart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px 56px;
+  border-bottom: 1px solid var(--hairline);
+}
+.cart-logo {
+  font-family: "Fraunces", serif;
+  font-size: 21px;
+  letter-spacing: 0.1em;
+}
+.cart-logo em {
+  font-style: italic;
+  color: var(--gold);
+  font-weight: 500;
+}
+.cart-back-link {
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s ease;
+}
+.cart-back-link:hover {
+  color: var(--gold);
+}
+.cart-back-link svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+}
+
+/* ---------- WRAP ---------- */
+.cart-wrap {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 48px 56px 100px;
+}
+
+.cart-page-head {
+  margin-bottom: 40px;
+}
+.cart-page-head .cart-eyebrow {
+  display: block;
+  margin-bottom: 10px;
+}
+.cart-page-head h1 {
+  font-size: 32px;
+}
+.cart-page-head .count {
+  color: var(--ink-faint);
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+.cart-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+/* ---------- CART ITEM LIST ---------- */
+.cart-items {
+  border-top: 1px solid var(--hairline);
+}
+.cart-item {
+  display: grid;
+  grid-template-columns: 84px 1fr auto auto auto;
+  align-items: center;
+  gap: 24px;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.cart-item-thumb {
+  width: 84px;
+  height: 84px;
+  flex-shrink: 0;
+}
+.cart-item-name {
+  font-size: 16.5px;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.cart-item-note {
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}
+.cart-item-unit-price {
+  font-size: 13px;
+  color: var(--ink-dim);
+}
+
+.cart-qty {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--hairline-strong);
+}
+.cart-qty button {
+  width: 34px;
+  height: 34px;
+  background: none;
+  border: none;
+  color: var(--ink);
+  font-size: 15px;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+.cart-qty button:hover {
+  color: var(--gold);
+  background: rgba(183, 145, 60, 0.08);
+}
+.cart-qty button:disabled {
+  color: var(--ink-faint);
+  cursor: not-allowed;
+  background: none;
+}
+.cart-qty span {
+  width: 36px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.cart-item-total {
+  font-family: "Fraunces", serif;
+  font-size: 16px;
+  color: var(--ink);
+  min-width: 110px;
+  text-align: right;
+}
+
+.cart-remove-btn {
+  width: 34px;
+  height: 34px;
+  background: none;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ink-faint);
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+.cart-remove-btn:hover {
+  color: #d68a97;
+  border-color: rgba(214, 138, 151, 0.4);
+}
+.cart-remove-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+
+/* ---------- EMPTY STATE ---------- */
+.cart-empty {
+  text-align: center;
+  padding: 90px 20px;
+  border: 1px solid var(--hairline);
+}
+.cart-empty svg {
+  width: 44px;
+  height: 44px;
+  stroke: var(--ink-faint);
+  margin-bottom: 20px;
+}
+.cart-empty h2 {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+.cart-empty p {
+  font-size: 13.5px;
+  color: var(--ink-faint);
+  margin-bottom: 28px;
+}
+
+/* ---------- SUMMARY PANEL ---------- */
+.cart-summary {
+  border: 1px solid var(--hairline-strong);
+  background: var(--bg-panel);
+  padding: 32px;
+  position: sticky;
+  top: 28px;
+}
+.cart-summary h2 {
+  font-size: 19px;
+  margin-bottom: 24px;
+}
+
+.cart-order-type {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 26px;
+}
+.cart-order-type button {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--hairline-strong);
+  background: none;
+  color: var(--ink-dim);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: "Be Vietnam Pro", sans-serif;
+}
+.cart-order-type button.is-active {
+  border-color: var(--gold);
+  color: var(--ink);
+  background: rgba(183, 145, 60, 0.08);
+}
+
+.cart-promo {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 26px;
+}
+.cart-promo input {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--hairline-strong);
+  color: var(--ink);
+  padding: 12px 14px;
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-size: 13px;
+  outline: none;
+}
+.cart-promo input::placeholder {
+  color: var(--ink-faint);
+}
+.cart-promo input:focus {
+  border-color: var(--gold);
+}
+.cart-promo button {
+  padding: 0 18px;
+  border: 1px solid var(--gold);
+  background: none;
+  color: var(--gold);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+  font-family: "Be Vietnam Pro", sans-serif;
+}
+.cart-promo button:hover {
+  background: var(--gold);
+  color: #121b16;
+}
+.cart-promo-msg {
+  font-size: 12px;
+  color: var(--gold);
+  margin: -16px 0 22px;
+}
+.cart-promo-msg.is-error {
+  color: #d68a97;
+}
+
+.cart-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13.5px;
+  color: var(--ink-dim);
+  padding: 10px 0;
+}
+.cart-line.discount {
+  color: var(--gold);
+}
+.cart-line-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 18px;
+  margin-top: 8px;
+  border-top: 1px solid var(--hairline-strong);
+}
+.cart-line-total .label {
+  font-size: 13px;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.cart-line-total .amount {
+  font-family: "Fraunces", serif;
+  font-size: 24px;
+  color: var(--gold);
+}
+
+.cart-checkout-btn {
+  width: 100%;
+  margin-top: 26px;
+  padding: 17px;
+  background: var(--wine);
+  border: none;
+  color: var(--ink);
+  font-size: 11.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background 0.25s ease,
+    opacity 0.2s ease;
+  font-family: "Be Vietnam Pro", sans-serif;
+}
+.cart-checkout-btn:hover {
+  background: var(--wine-soft);
+}
+.cart-checkout-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cart-summary-note {
+  margin-top: 16px;
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .cart-header {
+    padding: 20px 24px;
+  }
+  .cart-wrap {
+    padding: 32px 24px 70px;
+  }
+  .cart-grid {
+    grid-template-columns: 1fr;
+  }
+  .cart-item {
+    grid-template-columns: 60px 1fr;
+    grid-template-rows: auto auto;
+    row-gap: 12px;
+  }
+  .cart-item-thumb {
+    width: 60px;
+    height: 60px;
+  }
+  .cart-item-qty,
+  .cart-item-total,
+  .cart-item-remove {
+    grid-column: 2;
+  }
+  .cart-item-qty {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .cart-summary {
+    position: static;
+  }
+}

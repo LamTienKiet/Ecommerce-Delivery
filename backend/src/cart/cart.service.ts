@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCartDto } from './dto/create-cart.dto';
 
@@ -19,7 +23,7 @@ export class CartService {
 
       if (!product) {
         throw new BadRequestException(
-          'Product with id ${productId} is not found',
+          `Product with id ${productId} is not found`,
         );
       }
 
@@ -48,6 +52,58 @@ export class CartService {
           quantity: quantity,
         },
       });
+
+      return await tx.cart.findUnique({
+        where: {
+          id: cart.id,
+        },
+        include: {
+          cartItems: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      });
+    });
+  }
+
+  async removeCartItem(cartItemId: number) {
+    return this.prismaService.cart.delete({
+      where: {
+        id: cartItemId,
+      },
+    });
+  }
+
+  async findCartByUserId(userId: number) {
+    const cart = await this.prismaService.cart.findUnique({
+      where: { id: userId },
+      include: {
+        cartItems: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    if (!cart) {
+      throw new NotFoundException(`Cart of User with Id ${userId} not found`);
+    }
+
+    return cart;
+  }
+
+  async clearCart(userId: number) {
+    const cartFound = await this.prismaService.cart.findUnique({
+      where: { userId },
+    });
+
+    if (!cartFound) return;
+
+    return this.prismaService.cartItem.deleteMany({
+      where: { cartId: cartFound.id },
     });
   }
 }
