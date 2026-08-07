@@ -1,13 +1,11 @@
 import { Link } from "react-router-dom";
 import type { ProductResponse } from "../../../type_auth_api/products/product.api";
 import { getImageUrl } from "../../../utils/image";
-
 interface ProductCardProps {
   product: ProductResponse;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-
   const getCategoryName = (id: number) => {
     if (product.category?.name) {
       return product.category.name;
@@ -28,10 +26,15 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
   };
 
+  const addToCart = () => {};
+
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-emerald-950 bg-[#16251e] transition-all duration-300 hover:-translate-y-2 hover:border-[#B7913C] hover:shadow-2xl hover:shadow-[#B7913C]/10 flex flex-col h-full">
       {/* Product Image */}
-      <Link to={`/detail/${product.id}`} className="block relative h-56 w-full overflow-hidden">
+      <Link
+        to={`/detail/${product.id}`}
+        className="block relative h-56 w-full overflow-hidden"
+      >
         <img
           src={getImageUrl(product.imageUrl)}
           alt={product.name}
@@ -112,6 +115,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           <button
             disabled={!product.isAvailable}
+            onClick={addToCart}
             className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${
               product.isAvailable
                 ? "bg-[#B7913C] text-[#121B16] hover:bg-[#c9a34d] hover:shadow-lg hover:shadow-[#B7913C]/20 active:scale-95"

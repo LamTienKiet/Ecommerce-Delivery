@@ -6,28 +6,34 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { CreateCartDto } from './dto/create-cart.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
+import { Request } from '@nestjs/common';
 
 @Controller('cart')
+@UseGuards(JwtAuthGuard)
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   @Post()
-  create(@Body() createCartDto: CreateCartDto) {
-    return this.cartService.addToCart(createCartDto);
+  create(@Request() req, @Body() createCartDto: CreateCartDto) {
+    const userId = req.user.sub;
+    return this.cartService.addToCart(userId, createCartDto);
   }
-  @Get('user/:userId')
-  findOne(@Param('userId') userId: string) {
-    return this.cartService.findCartByUserId(+userId);
+  @Get()
+  findOne(@Request() req) {
+    return this.cartService.findCartByUserId(req.user.sub);
   }
   @Delete('item/:cartItemId')
   removeItem(@Param('cartItemId') cartItemId: string) {
     return this.cartService.removeCartItem(+cartItemId);
   }
-  @Delete('clear/:userId')
-  clear(@Param('userId') userId: string) {
-    return this.cartService.clearCart(+userId);
+  @Delete('clear')
+  clear(@Request() req) {
+    return this.cartService.clearCart(req.user.sub);
   }
 }
