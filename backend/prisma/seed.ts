@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { PrismaMssql } from '@prisma/adapter-mssql';
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 const adapter = new PrismaMssql({
   server: 'localhost',
@@ -43,7 +44,7 @@ async function main() {
     create: {
       username: 'admin',
       email: 'admin@latiukey.com',
-      password: 'admin123',
+      password: await bcrypt.hash('admin123', 10),
 
       status: 'ACTIVE',
       roleId: adminRole.id,

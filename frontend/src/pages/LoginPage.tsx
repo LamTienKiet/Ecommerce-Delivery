@@ -50,7 +50,11 @@ export const LoginPage = () => {
       );
 
       alert("Đăng nhập thành công!");
-      navigate("/");
+      if (data.role === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/menu");
+      }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setFormError(error.response?.data?.message || "Đăng ký thất bại");
