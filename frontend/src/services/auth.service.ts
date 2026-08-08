@@ -6,7 +6,7 @@ import {
   type LoginResponse,
 } from "../type_auth_api/auth.api";
 
-const API_URL = "http://localhost:3000/auth";
+const API_URL = `${import.meta.env.VITE_API_URL}/auth`;
 
 export async function registerApi(
   data: RegisterRequest,

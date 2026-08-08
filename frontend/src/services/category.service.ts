@@ -5,7 +5,7 @@ import type {
   CreateCategoryRequest,
 } from "../type_auth_api/category/category.api";
 
-const API_URL = "http://localhost:3000/category";
+const API_URL = `${import.meta.env.VITE_API_URL}/category`;
 
 export async function getCategory(): Promise<CategoryResponse[]> {
   const res = await axios.get<CategoryResponse[]>(API_URL);

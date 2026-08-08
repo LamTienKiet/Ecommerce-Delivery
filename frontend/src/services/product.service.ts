@@ -5,7 +5,7 @@ import type {
   UpdateProductRequest,
 } from "../type_auth_api/products/product.api";
 
-const API_URL = "http://localhost:3000/product";
+const API_URL = `${import.meta.env.VITE_API_URL}/product`;
 
 export async function getProducts(): Promise<ProductResponse[]> {
   const res = await axios.get<ProductResponse[]>(API_URL);
@@ -47,3 +47,5 @@ export async function uploadProductImage(file: File): Promise<{ url: string }> {
   });
   return res.data;
 }
+
+export async function addToCart() {}
