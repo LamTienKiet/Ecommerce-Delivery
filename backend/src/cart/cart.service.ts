@@ -10,8 +10,8 @@ import { CreateCartDto } from './dto/create-cart.dto';
 export class CartService {
   constructor(private prismaService: PrismaService) {}
 
-  async addToCart(createCartDto: CreateCartDto) {
-    const { userId, productId, quantity } = createCartDto;
+  async addToCart(userId: number, createCartDto: CreateCartDto) {
+    const { productId, quantity } = createCartDto;
 
     //transaction
     return this.prismaService.$transaction(async (tx) => {
@@ -69,7 +69,7 @@ export class CartService {
   }
 
   async removeCartItem(cartItemId: number) {
-    return this.prismaService.cart.delete({
+    return this.prismaService.cartItem.delete({
       where: {
         id: cartItemId,
       },
@@ -78,7 +78,7 @@ export class CartService {
 
   async findCartByUserId(userId: number) {
     const cart = await this.prismaService.cart.findUnique({
-      where: { id: userId },
+      where: { userId: userId },
       include: {
         cartItems: {
           include: {

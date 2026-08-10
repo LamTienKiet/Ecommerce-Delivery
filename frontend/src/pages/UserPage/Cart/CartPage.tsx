@@ -1,5 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "../../../assets/css/cart.css";
+import type { CartItemResponse } from "../../../type_auth_api/cart/cart.api";
+import { getCart } from "../../../services/cart.service";
 // ---------- Types khớp với schema Cart / CartItem / Product ----------
 
 interface CartLineItem {
@@ -53,6 +55,20 @@ export function CartPage() {
   const [promoInput, setPromoInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
   const [promoError, setPromoError] = useState("");
+  const [cartItem, setCartItem] = useState<CartItemResponse[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchItem() {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getCart();
+        setCartItem(data || []);
+      } catch (err) {}
+    }
+  });
 
   function updateQuantity(id: string, delta: number) {
     setItems((prev) =>
