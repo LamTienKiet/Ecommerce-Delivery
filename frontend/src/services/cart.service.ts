@@ -4,27 +4,21 @@ import type {
   CartResponse,
   CreateCartRequest,
 } from "../type_auth_api/cart/cart.api";
-
-const API_URL = `${import.meta.env.VITE_API_URL}/cart`;
+import axiosClient from "../utils/axiosClient";
 
 export async function addToCart(
   data: CreateCartRequest,
 ): Promise<CartItemResponse> {
-  const res = await axios.post<CartItemResponse>(API_URL, data);
-  return res.data;
+  return await axiosClient.post<any, CartItemResponse>("/cart", data);
 }
 
 export async function getCart(): Promise<CartResponse> {
-  const res = await axios.get<CartResponse>(API_URL);
-  return res.data;
+  return await axiosClient.get<any, CartResponse>("/cart");
 }
 
 export async function removeItem(cartItemId: number) {
-  const res = await axios.delete(`${API_URL}/${cartItemId}`);
-  return res.data;
+  return await axiosClient.delete(`/cart/${cartItemId}`);
 }
-
 export async function clearCart(userId: number) {
-  const res = await axios.delete(`${API_URL}/${userId}`);
-  return res.data;
+  return await axiosClient.delete(`/cart/${userId}`);
 }
