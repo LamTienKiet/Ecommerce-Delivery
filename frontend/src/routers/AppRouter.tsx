@@ -15,6 +15,7 @@ import { CartPage } from "../pages/UserPage/Cart/CartPage";
 import { OrderDetail } from "../pages/UserPage/Orders/OrderDetail";
 import { RevenueAdmin } from "../pages/AdminPage/RevenueAdmin";
 import { ProtectedRoute } from "../components/ProtectedRoute";
+import { ProfilePage } from "../pages/UserPage/Profile/ProfilePage";
 
 export default function AppRouters() {
   return (
@@ -33,6 +34,7 @@ export default function AppRouters() {
         {/* --- ROUTES CẦN ĐĂNG NHẬP MỚI ĐƯỢC VÀO ---*/}
         <Route element={<ProtectedRoute allowedRoles={["USER"]} />}>
           <Route element={<UserLayout />}>
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/order" element={<OrderPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/order/:id" element={<OrderDetail />} />

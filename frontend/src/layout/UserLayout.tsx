@@ -96,14 +96,22 @@ export const UserLayout = () => {
             {/* Book Table Button / User Profile */}
             {user ? (
               <div className="hidden sm:flex items-center gap-3">
-                <div className="flex flex-col text-right">
-                  <span className="text-[10px] text-[#A9B4A4] uppercase tracking-widest">
-                    Xin chào
-                  </span>
-                  <span className="text-sm font-semibold text-[#B7913C]">
-                    {user.username}
-                  </span>
-                </div>
+                <Link to="/profile" className="flex items-center gap-2 group cursor-pointer transition-all duration-300">
+                  <div className="p-2 rounded-full bg-[#16251e] border border-[#2a3c31] text-[#A9B4A4] group-hover:text-[#B7913C] group-hover:border-[#B7913C] transition-all duration-300">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="text-[10px] text-[#A9B4A4] uppercase tracking-widest">
+                      Xin chào
+                    </span>
+                    <span className="text-sm font-semibold text-[#B7913C] group-hover:text-[#F1E9D8] transition-colors duration-300">
+                      {user.username}
+                    </span>
+                  </div>
+                </Link>
+                <div className="w-px h-6 bg-[#2a3c31] hidden sm:block"></div>
                 <button
                   onClick={() => logout()}
                   className="rounded-xl border border-[#2a3c31] bg-[#16251e] p-2 text-[#A9B4A4] hover:text-[#B7913C] hover:border-[#B7913C] transition-all duration-300"

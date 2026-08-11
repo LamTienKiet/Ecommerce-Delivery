@@ -48,6 +48,9 @@ export class AuthService {
         accountId: account.id,
         username: account.username,
         role: account.role.name,
+        email: account.email,
+        fullName: account.user?.fullName || '',
+        phone: account.user?.phone || null,
       };
     }
     return null;
@@ -59,6 +62,9 @@ export class AuthService {
       accountId: user.accountId,
       username: user.username,
       role: user.role,
+      email: user.email,
+      fullName: user.fullName,
+      phone: user.phone,
     };
 
     const accessToken = await this.jwtService.signAsync(tokenPayload);
@@ -67,6 +73,9 @@ export class AuthService {
       id: user.id,
       username: user.username,
       role: user.role,
+      email: user.email,
+      fullName: user.fullName,
+      phone: user.phone,
     };
   }
 

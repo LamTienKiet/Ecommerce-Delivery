@@ -12,6 +12,7 @@ import { OrderModule } from './order/order.module';
 import { PaymentModule } from './payment/payment.module';
 import { ReviewModule } from './review/review.module';
 import { NotificationModule } from './notification/notification.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { NotificationModule } from './notification/notification.module';
     PaymentModule,
     ReviewModule,
     NotificationModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],

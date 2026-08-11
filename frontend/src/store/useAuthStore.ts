@@ -4,6 +4,9 @@ interface User {
   id: number;
   username: string;
   role: string;
+  email: string;
+  fullName: string;
+  phone: string | null;
 }
 
 interface AuthenState {

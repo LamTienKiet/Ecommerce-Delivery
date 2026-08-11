@@ -7,12 +7,18 @@ export interface SignInData {
   accountId: number;
   username: string;
   role: string;
+  email: string;
+  fullName: string;
+  phone: string | null;
 }
 export interface AuthResult {
   accessToken: string;
   username: string;
   id: number;
   role: string;
+  email: string;
+  fullName: string;
+  phone: string | null;
 }
 
 export interface SignUpData {
