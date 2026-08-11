@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import type { ProductResponse } from "../../../type_auth_api/products/product.api";
 import { getProductById } from "../../../services/product.service";
 import { getCategoryById } from "../../../services/category.service";
+import { addToCart as apiAddToCart } from "../../../services/cart.service";
 import { getImageUrl } from "../../../utils/image";
 
 export const ProductDetail = () => {
@@ -57,6 +58,17 @@ export const ProductDetail = () => {
         return "Tráng Miệng";
       default:
         return "Món ăn";
+    }
+  };
+
+  const handleAddToCart = async () => {
+    if (!product) return;
+    try {
+      await apiAddToCart({ productId: product.id, quantity });
+      alert("Đã thêm món ăn vào giỏ hàng!");
+    } catch (err) {
+      console.error(err);
+      alert("Có lỗi xảy ra khi thêm vào giỏ hàng. Bạn đã đăng nhập chưa?");
     }
   };
 
@@ -291,6 +303,7 @@ export const ProductDetail = () => {
               <div className="flex-grow">
                 <button
                   disabled={!product.isAvailable}
+                  onClick={handleAddToCart}
                   className={`w-full flex items-center justify-center gap-3 rounded-xl py-3.5 px-6 text-sm font-bold tracking-wider uppercase transition-all duration-300 ${
                     product.isAvailable
                       ? "bg-[#B7913C] text-[#121B16] hover:bg-[#c9a34d] hover:shadow-xl hover:shadow-[#B7913C]/20 active:scale-[0.98] cursor-pointer"

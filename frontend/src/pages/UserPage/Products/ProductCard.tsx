@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { ProductResponse } from "../../../type_auth_api/products/product.api";
 import { getImageUrl } from "../../../utils/image";
+import { addToCart as apiAddToCart } from "../../../services/cart.service";
 interface ProductCardProps {
   product: ProductResponse;
 }
@@ -26,7 +27,16 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
   };
 
-  const addToCart = () => {};
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigating to detail page if button is inside a Link or similar
+    try {
+      await apiAddToCart({ productId: product.id, quantity: 1 });
+      alert(`Đã thêm 1 x ${product.name} vào giỏ hàng!`);
+    } catch (err) {
+      console.error(err);
+      alert("Có lỗi xảy ra khi thêm vào giỏ hàng. Bạn đã đăng nhập chưa?");
+    }
+  };
 
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-emerald-950 bg-[#16251e] transition-all duration-300 hover:-translate-y-2 hover:border-[#B7913C] hover:shadow-2xl hover:shadow-[#B7913C]/10 flex flex-col h-full">
@@ -115,7 +125,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           <button
             disabled={!product.isAvailable}
-            onClick={addToCart}
+            onClick={handleAddToCart}
             className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${
               product.isAvailable
                 ? "bg-[#B7913C] text-[#121B16] hover:bg-[#c9a34d] hover:shadow-lg hover:shadow-[#B7913C]/20 active:scale-95"

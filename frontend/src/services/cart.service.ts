@@ -1,4 +1,3 @@
-
 import type {
   CartItemResponse,
   CartResponse,
@@ -17,8 +16,8 @@ export async function getCart(): Promise<CartResponse> {
 }
 
 export async function removeItem(cartItemId: number) {
-  return await axiosClient.delete(`/cart/${cartItemId}`);
+  return await axiosClient.delete(`/cart/item/${cartItemId}`);
 }
-export async function clearCart(userId: number) {
-  return await axiosClient.delete(`/cart/${userId}`);
+export async function clearCart() {
+  return await axiosClient.delete(`/cart/clear`);
 }

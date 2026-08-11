@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import "../../../assets/css/cart.css";
-import type { CartItemResponse } from "../../../type_auth_api/cart/cart.api";
-import { getCart } from "../../../services/cart.service";
+
+import {
+  getCart,
+  removeItem as apiRemoveItem,
+} from "../../../services/cart.service";
+import { getImageUrl } from "../../../utils/image";
 // ---------- Types khớp với schema Cart / CartItem / Product ----------
 
 interface CartLineItem {
@@ -11,64 +15,54 @@ interface CartLineItem {
   note?: string;
   unitPrice: number; // VNĐ
   quantity: number;
-  thumbColor: string; // placeholder cho ProductImage
+  imageUrl: string; // placeholder cho ProductImage
 }
 
 type OrderType = "delivery" | "pickup";
 
-const INITIAL_ITEMS: CartLineItem[] = [
-  {
-    id: "CI-1",
-    productId: "P-004",
-    name: "Bò Wellington Sốt Truffle",
-    note: "Chín vừa (medium)",
-    unitPrice: 890000,
-    quantity: 1,
-    thumbColor: "linear-gradient(160deg,#3A2226,#1C1416)",
-  },
-  {
-    id: "CI-2",
-    productId: "P-006",
-    name: "Risotto Nấm Porcini",
-    unitPrice: 380000,
-    quantity: 2,
-    thumbColor: "linear-gradient(160deg,#4C4130,#241F16)",
-  },
-  {
-    id: "CI-3",
-    productId: "P-007",
-    name: "Crème Brûlée Vani Madagascar",
-    unitPrice: 145000,
-    quantity: 1,
-    thumbColor: "linear-gradient(160deg,#EFE6D3,#C9BB9C)",
-  },
-];
+const cartItems: CartLineItem[] = [];
 
 const DELIVERY_FEE = 35000;
-const PROMO_CODE = "LECELLIER10"; // giảm 10%
+const PROMO_CODE = "LATIUKY10"; // giảm 10%
 
 const formatVnd = (n: number) => n.toLocaleString("vi-VN") + "₫";
 
 export function CartPage() {
-  const [items, setItems] = useState<CartLineItem[]>(INITIAL_ITEMS);
+  const [items, setItems] = useState<CartLineItem[]>(cartItems);
   const [orderType, setOrderType] = useState<OrderType>("delivery");
   const [promoInput, setPromoInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
   const [promoError, setPromoError] = useState("");
-  const [cartItem, setCartItem] = useState<CartItemResponse[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchItem() {
+    let ignore = false;
+
+    async function fetchCart() {
       try {
-        setLoading(true);
-        setError(null);
-        const data = await getCart();
-        setCartItem(data || []);
-      } catch (err) {}
+        const res = await getCart();
+        if (!ignore && res && res.cartItems) {
+          const mappedItems: CartLineItem[] = res.cartItems.map((item) => ({
+            id: String(item.id),
+            productId: String(item.productId),
+            name: item.product.name,
+            unitPrice: Number(item.product.price),
+            quantity: item.quantity,
+            imageUrl: item.product.imageUrl,
+            // thumbColor: "linear-gradient(160deg,#3A2226,#1C1416)",
+          }));
+          setItems(mappedItems);
+        }
+      } catch (err) {
+        console.error("Failed to load cart:", err);
+      }
     }
-  });
+
+    fetchCart();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   function updateQuantity(id: string, delta: number) {
     setItems((prev) =>
@@ -80,8 +74,13 @@ export function CartPage() {
     );
   }
 
-  function removeItem(id: string) {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+  async function removeItem(id: string) {
+    try {
+      await apiRemoveItem(Number(id));
+      setItems((prev) => prev.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("Failed to remove item:", error);
+    }
   }
 
   function applyPromo() {
@@ -106,7 +105,7 @@ export function CartPage() {
     <div className="cart-page">
       <header className="cart-header">
         <div className="cart-logo">
-          LE <em>CELLIER</em>
+          LA <em>TiuKy</em>
         </div>
         <a className="cart-back-link" href="/menu">
           <svg
@@ -138,11 +137,12 @@ export function CartPage() {
             <div className="cart-items">
               {items.map((item) => (
                 <div className="cart-item" key={item.id}>
-                  <div
-                    className="cart-item-thumb"
-                    style={{ background: item.thumbColor }}
+                  <img 
+                    src={getImageUrl(item.imageUrl)} 
+                    alt={item.name} 
+                    className="cart-item-thumb" 
+                    style={{ objectFit: 'cover' }}
                   />
-
                   <div>
                     <div className="cart-item-name">{item.name}</div>
                     {item.note && (

@@ -1,6 +1,8 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
 
 export const UserLayout = () => {
+  const { user, logout } = useAuthStore();
   return (
     <div className="min-h-screen bg-[#121B16] text-[#F1E9D8] font-sans selection:bg-[#B7913C] selection:text-[#121B16] flex flex-col">
       {/* Client Luxury Header / Navigation */}
@@ -91,12 +93,34 @@ export const UserLayout = () => {
               </button>
             </Link>
 
-            {/* Book Table Button */}
-            <Link to="/login">
-              <button className="hidden sm:block rounded-xl border border-[#B7913C] text-[#B7913C] px-5 py-2.5 text-xs font-semibold tracking-widest uppercase hover:bg-[#B7913C] hover:text-[#121B16] transition-all duration-300">
-                Đăng nhập ngay
-              </button>
-            </Link>
+            {/* Book Table Button / User Profile */}
+            {user ? (
+              <div className="hidden sm:flex items-center gap-3">
+                <div className="flex flex-col text-right">
+                  <span className="text-[10px] text-[#A9B4A4] uppercase tracking-widest">
+                    Xin chào
+                  </span>
+                  <span className="text-sm font-semibold text-[#B7913C]">
+                    {user.username}
+                  </span>
+                </div>
+                <button
+                  onClick={() => logout()}
+                  className="rounded-xl border border-[#2a3c31] bg-[#16251e] p-2 text-[#A9B4A4] hover:text-[#B7913C] hover:border-[#B7913C] transition-all duration-300"
+                  title="Đăng xuất"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                </button>
+              </div>
+            ) : (
+              <Link to="/login">
+                <button className="hidden sm:block rounded-xl border border-[#B7913C] text-[#B7913C] px-5 py-2.5 text-xs font-semibold tracking-widest uppercase hover:bg-[#B7913C] hover:text-[#121B16] transition-all duration-300">
+                  Đăng nhập ngay
+                </button>
+              </Link>
+            )}
           </div>
         </div>
       </header>

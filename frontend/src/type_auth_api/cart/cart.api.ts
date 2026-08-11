@@ -14,5 +14,5 @@ export interface CartItemResponse {
 
 export interface CartResponse {
   id: number;
-  cartItem: CartItemResponse;
+  cartItems: CartItemResponse[];
 }
