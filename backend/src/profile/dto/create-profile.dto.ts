@@ -8,7 +8,7 @@ import {
 export class CreateProfileDto {
   @IsNotEmpty()
   @IsString()
-  fullName: string;
+  fullName!: string;
 
   @IsOptional()
   @IsString()

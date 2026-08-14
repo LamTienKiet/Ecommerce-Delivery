@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { useAuthStore } from "../../../store/useAuthStore";
+import { updateProfileApi } from "../../../services/profile.service";
+import toast from "react-hot-toast";
 
 export const ProfilePage = () => {
-  const { user, logout } = useAuthStore(); // đổi tên "logout" nếu store của bạn đặt tên hàm khác
+  const { user, logout, updateUser } = useAuthStore(); // đổi tên "logout" nếu store của bạn đặt tên hàm khác
 
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState({
     fullName: user?.fullName ?? "",
-    phone: user?.phone ?? "",
+    phone: user?.phone?.toString() ?? "",
   });
 
   function startEditing() {
-    setDraft({ fullName: user?.fullName ?? "", phone: user?.phone ?? "" });
+    setDraft({ fullName: user?.fullName ?? "", phone: user?.phone?.toString() ?? "" });
     setIsEditing(true);
   }
 
@@ -19,10 +21,22 @@ export const ProfilePage = () => {
     setIsEditing(false);
   }
 
-  function saveEditing() {
-    // TODO: gọi API cập nhật hồ sơ, ví dụ:
-    // await fetch('/api/user/me', { method: 'PATCH', body: JSON.stringify(draft) })
-    setIsEditing(false);
+  async function saveEditing() {
+    try {
+      await updateProfileApi({
+        fullName: draft.fullName,
+        phone: draft.phone,
+      });
+      updateUser({
+        fullName: draft.fullName,
+        phone: draft.phone,
+      });
+      toast.success("Cập nhật hồ sơ thành công!");
+      setIsEditing(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("Có lỗi xảy ra khi cập nhật hồ sơ");
+    }
   }
 
   const initials =
@@ -143,7 +157,7 @@ export const ProfilePage = () => {
           <InfoRow
             icon={<PhoneIcon />}
             label="Số Điện Thoại"
-            value={user?.phone}
+            value={user?.phone?.toString()}
             editable
             isEditing={isEditing}
             inputValue={draft.phone}
