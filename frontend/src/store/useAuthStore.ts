@@ -6,7 +6,7 @@ interface User {
   role: string;
   email: string;
   fullName: string;
-  phone: string | null;
+  phone: number | null;
 }
 
 interface AuthenState {

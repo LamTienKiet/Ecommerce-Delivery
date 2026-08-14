@@ -45,16 +45,15 @@ export const LoginPage = () => {
           id: data.id,
           username: data.username,
           role: data.role,
+          fullName: data.fullName,
+          email: data.email,
+          phone: data.phone,
         },
         data.accessToken,
       );
 
       alert("Đăng nhập thành công!");
-      if (data.role === "ADMIN") {
-        navigate("/admin");
-      } else {
-        navigate("/menu");
-      }
+      navigate("/menu");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setFormError(error.response?.data?.message || "Đăng ký thất bại");

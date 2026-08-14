@@ -31,8 +31,11 @@ export interface LoginRequest {
 export interface LoginResponse {
   accessToken: string;
   id: number;
+  fullName: string;
   username: string;
   role: string;
+  phone: number;
+  email: string;
 }
 
 export interface RegisterResponse {
