@@ -1,26 +1,50 @@
-import { Injectable } from '@nestjs/common';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { CreateOrderDto, CreateOrderItemDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class OrderService {
-  create(createOrderDto: CreateOrderDto) {
-    return 'This action adds a new order';
-  }
+  constructor(private prismaService: PrismaService) {}
+  async createOrder(userId: number, createOrderDto: CreateOrderDto) {
+    let totalAmount = 0;
+    return await this.prismaService.$transaction(async (tx) => {
+      const cart = await tx.cart.findUnique({
+        where: { userId },
+        include: {
+          cartItems: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      });
 
-  findAll() {
-    return `This action returns all order`;
-  }
+      if (!cart) {
+        throw new BadRequestException('Cart Not Found');
+      }
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
-  }
+      if (cart?.cartItems.length === 0) {
+        throw new BadRequestException('Cart is empty');
+      }
 
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
-  }
+      for (const items of cart.cartItems) {
+        if (!items.product.isAvailable) {
+          throw new BadRequestException('This products is not available');
+        }
+        totalAmount += items.product.price * items.quantity;
+      }
 
-  remove(id: number) {
-    return `This action removes a #${id} order`;
+      const order = await this.prismaService.order.create({
+        data: {
+          userId,
+          totalAmount,
+          shippingAddress: createOrderDto.shippingAddress,
+          currentStatus: 'PENDING',
+        },
+      });
+
+      return order;
+    });
   }
 }

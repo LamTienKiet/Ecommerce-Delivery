@@ -13,7 +13,10 @@ export const ProfilePage = () => {
   });
 
   function startEditing() {
-    setDraft({ fullName: user?.fullName ?? "", phone: user?.phone?.toString() ?? "" });
+    setDraft({
+      fullName: user?.fullName ?? "",
+      phone: user?.phone?.toString() ?? "",
+    });
     setIsEditing(true);
   }
 
