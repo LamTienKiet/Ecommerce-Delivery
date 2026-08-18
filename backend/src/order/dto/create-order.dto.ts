@@ -1,4 +1,4 @@
-import { Types } from '@prisma/client/runtime/client';
+import { Type } from 'class-transformer';
 import {
   IsInt,
   IsNotEmpty,
@@ -7,16 +7,6 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-
-export class CreateOrderDto {
-  @IsString()
-  @IsNotEmpty()
-  shippingAddress!: string;
-
-  @ValidateNested({ each: true })
-  @Type(() => CreateOrderItemDto)
-  items!: CreateOrderItemDto[];
-}
 
 export class CreateOrderItemDto {
   @IsInt()
@@ -30,4 +20,14 @@ export class CreateOrderItemDto {
   @IsNumber()
   @IsPositive()
   price!: number;
+}
+
+export class CreateOrderDto {
+  @IsString()
+  @IsNotEmpty()
+  shippingAddress!: string;
+
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderItemDto)
+  items!: CreateOrderItemDto[];
 }
