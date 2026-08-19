@@ -201,7 +201,7 @@ export function CartPage() {
             </div>
 
             <aside className="cart-summary">
-              <h2>Tóm Tắt Đơn Hàng</h2>
+              <h2>Hóa Đơn Tạm Tính</h2>
 
               <div className="cart-order-type">
                 <button
@@ -261,7 +261,7 @@ export function CartPage() {
                 <span className="label">Tổng Cộng</span>
                 <span className="amount">{formatVnd(total)}</span>
               </div>
-              <Link to="/order">
+              <Link to="/checkout">
                 <button className="cart-checkout-btn" type="button">
                   Tiến Hành Thanh Toán
                 </button>

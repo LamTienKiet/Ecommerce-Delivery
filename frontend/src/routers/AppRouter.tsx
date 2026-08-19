@@ -12,6 +12,7 @@ import { CategoryPage } from "../pages/UserPage/Categories/CategoryPage";
 import { ProductDetail } from "../pages/UserPage/Products/ProductDetail";
 import { OrderAdmin } from "../pages/AdminPage/OrderAdmin";
 import { CartPage } from "../pages/UserPage/Cart/CartPage";
+import { CheckoutPage } from "../pages/UserPage/Checkout/CheckoutPage";
 import { OrderDetail } from "../pages/UserPage/Orders/OrderDetail";
 import { RevenueAdmin } from "../pages/AdminPage/RevenueAdmin";
 import { ProtectedRoute } from "../components/ProtectedRoute";
@@ -37,6 +38,7 @@ export default function AppRouters() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/order" element={<OrderPage />} />
             <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order/:id" element={<OrderDetail />} />
           </Route>
         </Route>
