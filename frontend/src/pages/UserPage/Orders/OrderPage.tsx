@@ -1,163 +1,209 @@
 import { useState } from 'react';
+import '../../../assets/css/order.css'; // Nhúng CSS giao diện tối (dark theme)
 
-// Giả lập dữ liệu, bạn có thể thay thế bằng dữ liệu lấy từ API sau
+// Giả lập dữ liệu món ăn Âu (Fine Dining)
 const MOCK_ORDERS = [
   {
     id: 'ORD-2023-1001',
-    date: '25/10/2023',
-    totalAmount: 1250000,
+    date: '24/11/2023 19:30',
     status: 'COMPLETED',
+    statusText: 'Đã Thưởng Thức',
+    totalAmount: 3250000,
     items: [
-      { id: 1, name: 'Tai nghe Bluetooth không dây', quantity: 1, price: 850000 },
-      { id: 2, name: 'Ốp lưng iPhone 14 Pro Max', quantity: 2, price: 200000 },
+      {
+        id: 1,
+        name: 'Classic Beef Wellington',
+        description: 'Kèm sốt rượu vang đỏ và khoai tây nghiền nấm Truffle',
+        quantity: 1,
+        price: 1550000,
+        image: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&q=80&w=200&h=200',
+      },
+      {
+        id: 2,
+        name: 'Château Margaux 2015 (Ly)',
+        description: 'Vang đỏ vùng Bordeaux',
+        quantity: 2,
+        price: 850000,
+        image: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&q=80&w=200&h=200',
+      },
     ],
   },
   {
     id: 'ORD-2023-1002',
-    date: '28/10/2023',
-    totalAmount: 450000,
-    status: 'PENDING',
+    date: '25/11/2023 11:45',
+    status: 'PREPARING',
+    statusText: 'Đang Chuẩn Bị',
+    totalAmount: 850000,
     items: [
-      { id: 3, name: 'Cáp sạc Type-C siêu nhanh', quantity: 3, price: 150000 },
+      {
+        id: 3,
+        name: 'Pan-seared Foie Gras',
+        description: 'Gan ngỗng Pháp áp chảo, mứt sung và bánh mì brioche',
+        quantity: 1,
+        price: 850000,
+        image: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&q=80&w=200&h=200',
+      },
     ],
   },
   {
     id: 'ORD-2023-1003',
-    date: '02/11/2023',
-    totalAmount: 2100000,
+    date: '26/11/2023 18:00',
     status: 'DELIVERING',
+    statusText: 'Đang Giao',
+    totalAmount: 1450000,
     items: [
-      { id: 4, name: 'Bàn phím cơ không dây', quantity: 1, price: 2100000 },
+      {
+        id: 4,
+        name: 'Truffle Mushroom Risotto',
+        description: 'Cơm Ý nấm Truffle với phô mai Parmesan 24 tháng',
+        quantity: 1,
+        price: 550000,
+        image: 'https://images.unsplash.com/photo-1633337474563-1d00eea386fb?auto=format&fit=crop&q=80&w=200&h=200',
+      },
+      {
+        id: 5,
+        name: 'Lobster Thermidor',
+        description: 'Tôm hùm nướng sốt kem phô mai Gruyère',
+        quantity: 1,
+        price: 900000,
+        image: 'https://images.unsplash.com/photo-1559742811-822873691fc8?auto=format&fit=crop&q=80&w=200&h=200',
+      },
     ],
   },
   {
     id: 'ORD-2023-1004',
-    date: '05/11/2023',
-    totalAmount: 320000,
+    date: '20/11/2023 12:30',
     status: 'CANCELLED',
+    statusText: 'Đã Hủy',
+    totalAmount: 1200000,
     items: [
-      { id: 5, name: 'Chuột không dây Silent', quantity: 1, price: 320000 },
+      {
+        id: 6,
+        name: 'Set Menu Dành Cho 2 Người',
+        description: 'Appetizer, Main course (Salmon), Dessert',
+        quantity: 1,
+        price: 1200000,
+        image: 'https://images.unsplash.com/photo-1544025162-8315ea07525b?auto=format&fit=crop&q=80&w=200&h=200',
+      },
     ],
   },
 ];
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'COMPLETED':
-      return 'bg-green-100 text-green-700 border-green-200';
-    case 'PENDING':
-      return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-    case 'DELIVERING':
-      return 'bg-blue-100 text-blue-700 border-blue-200';
-    case 'CANCELLED':
-      return 'bg-red-100 text-red-700 border-red-200';
-    default:
-      return 'bg-gray-100 text-gray-700 border-gray-200';
-  }
-};
+const TABS = [
+  { id: 'ALL', label: 'Tất cả' },
+  { id: 'PENDING', label: 'Chờ xác nhận' },
+  { id: 'PREPARING', label: 'Đang chuẩn bị' },
+  { id: 'DELIVERING', label: 'Đang giao' },
+  { id: 'COMPLETED', label: 'Hoàn thành' },
+  { id: 'CANCELLED', label: 'Đã hủy' },
+];
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
 };
 
 export const OrderPage = () => {
-  const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('ALL');
 
-  const toggleOrderDetails = (orderId: string) => {
-    setSelectedOrder(selectedOrder === orderId ? null : orderId);
-  };
+  const displayOrders = activeTab === 'ALL' 
+    ? MOCK_ORDERS 
+    : MOCK_ORDERS.filter(order => order.status === activeTab);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-8 tracking-tight">
-          Lịch sử Đơn hàng
-        </h1>
+    <div className="order-page">
+      <header className="order-header">
+        <div className="order-logo">
+          LA <em>TiuKy</em>
+        </div>
+      </header>
 
-        <div className="space-y-6">
-          {MOCK_ORDERS.map((order) => (
-            <div
-              key={order.id}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300"
+      <div className="order-wrap">
+        <div className="order-page-head">
+          <span className="order-eyebrow">Trải nghiệm ẩm thực</span>
+          <h1>Lịch sử Đặt món</h1>
+        </div>
+
+        {/* Tabs Navigation */}
+        <div className="order-tabs">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`order-tab ${activeTab === tab.id ? 'is-active' : ''}`}
             >
-              {/* Card Header / Summary */}
-              <div 
-                className="p-6 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                onClick={() => toggleOrderDetails(order.id)}
-              >
-                <div className="flex flex-col sm:flex-row sm:gap-8 gap-2">
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Orders List */}
+        <div>
+          {displayOrders.length === 0 ? (
+            <div className="order-empty">
+              <svg viewBox="0 0 24 24" fill="none" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" style={{ margin: "0 auto" }}>
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+              <h2>Không có đơn hàng nào</h2>
+              <p>Bạn chưa có đơn đặt món nào trong trạng thái này.</p>
+            </div>
+          ) : (
+            displayOrders.map((order) => (
+              <div key={order.id} className="order-card">
+                
+                {/* Order Header */}
+                <div className="order-card-header">
                   <div>
-                    <p className="text-sm font-medium text-gray-500">Mã đơn hàng</p>
-                    <p className="text-lg font-semibold text-gray-900">{order.id}</p>
+                    <span className="order-id">Mã đơn: {order.id}</span>
+                    <span className="order-date">{order.date}</span>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-500">Ngày đặt</p>
-                    <p className="text-base font-medium text-gray-900">{order.date}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Tổng tiền</p>
-                    <p className="text-base font-semibold text-blue-600">
-                      {formatCurrency(order.totalAmount)}
-                    </p>
+                    <span className={`order-status ${order.status}`}>
+                      {order.statusText}
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-end gap-4">
-                  <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${getStatusColor(order.status)}`}>
-                    {order.status}
-                  </span>
-                  
-                  <button className="text-gray-400 hover:text-gray-600 transition-colors">
-                    <svg
-                      className={`w-6 h-6 transform transition-transform duration-300 ${selectedOrder === order.id ? 'rotate-180' : ''}`}
-                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              {/* Collapsible Details */}
-              <div 
-                className={`transition-all duration-500 ease-in-out ${
-                  selectedOrder === order.id ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
-                }`}
-              >
-                <div className="border-t border-gray-100 p-6 bg-gray-50/50">
-                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4">
-                    Chi tiết sản phẩm
-                  </h3>
-                  <div className="space-y-4">
-                    {order.items.map((item) => (
-                      <div key={item.id} className="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">{item.name}</p>
-                            <p className="text-sm text-gray-500">Số lượng: <span className="font-semibold text-gray-700">{item.quantity}</span></p>
-                          </div>
-                        </div>
-                        <p className="font-medium text-gray-900">
-                          {formatCurrency(item.price)}
-                        </p>
+                {/* Order Items */}
+                <div className="order-items">
+                  {order.items.map((item) => (
+                    <div key={item.id} className="order-item">
+                      <img src={item.image} alt={item.name} className="order-item-thumb" />
+                      
+                      <div className="order-item-details">
+                        <div className="order-item-name">{item.name}</div>
+                        <div className="order-item-note">{item.description}</div>
                       </div>
-                    ))}
+                      
+                      <div className="order-item-price-qty">
+                        <div className="order-item-price">{formatCurrency(item.price)}</div>
+                        <div className="order-item-qty">x {item.quantity}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Order Footer */}
+                <div className="order-card-footer">
+                  <div>
+                    <span className="order-total-label">Tổng hóa đơn:</span>
+                    <span className="order-total-amount">{formatCurrency(order.totalAmount)}</span>
                   </div>
                   
-                  <div className="mt-6 flex justify-end">
-                    <button className="px-6 py-2 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors shadow-sm">
-                      Mua lại
+                  <div className="order-actions">
+                    {order.status === 'COMPLETED' && (
+                      <button className="order-btn order-btn-primary">
+                        Đánh giá món
+                      </button>
+                    )}
+                    <button className="order-btn">
+                      Đặt lại món này
                     </button>
                   </div>
                 </div>
+
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

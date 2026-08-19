@@ -6,6 +6,7 @@ import {
   removeItem as apiRemoveItem,
 } from "../../../services/cart.service";
 import { getImageUrl } from "../../../utils/image";
+import { Link } from "react-router-dom";
 // ---------- Types khớp với schema Cart / CartItem / Product ----------
 
 interface CartLineItem {
@@ -137,11 +138,11 @@ export function CartPage() {
             <div className="cart-items">
               {items.map((item) => (
                 <div className="cart-item" key={item.id}>
-                  <img 
-                    src={getImageUrl(item.imageUrl)} 
-                    alt={item.name} 
-                    className="cart-item-thumb" 
-                    style={{ objectFit: 'cover' }}
+                  <img
+                    src={getImageUrl(item.imageUrl)}
+                    alt={item.name}
+                    className="cart-item-thumb"
+                    style={{ objectFit: "cover" }}
                   />
                   <div>
                     <div className="cart-item-name">{item.name}</div>
@@ -260,10 +261,11 @@ export function CartPage() {
                 <span className="label">Tổng Cộng</span>
                 <span className="amount">{formatVnd(total)}</span>
               </div>
-
-              <button className="cart-checkout-btn" type="button">
-                Tiến Hành Thanh Toán
-              </button>
+              <Link to="/order">
+                <button className="cart-checkout-btn" type="button">
+                  Tiến Hành Thanh Toán
+                </button>
+              </Link>
               <div className="cart-summary-note">
                 {orderType === "delivery"
                   ? "Thời gian giao dự kiến: 35–45 phút"

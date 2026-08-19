@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -8,7 +12,6 @@ export class OrderService {
 
   async createOrder(userId: number, createOrderDto: CreateOrderDto) {
     return await this.prismaService.$transaction(async (tx) => {
-      // 1. Fetch cart
       const cart = await tx.cart.findUnique({
         where: { userId },
         include: {
@@ -27,10 +30,11 @@ export class OrderService {
       let totalAmount = 0;
       const orderItemsData: any[] = [];
 
-      // 2. Validate items and calculate total amount
       for (const item of cart.cartItems) {
         if (!item.product.isAvailable) {
-          throw new BadRequestException(`Product ${item.product.name} is not available`);
+          throw new BadRequestException(
+            `Product ${item.product.name} is not available`,
+          );
         }
         const itemTotal = Number(item.product.price) * item.quantity;
         totalAmount += itemTotal;
@@ -42,7 +46,6 @@ export class OrderService {
         });
       }
 
-      // 3. Create Order
       const order = await tx.order.create({
         data: {
           userId,
@@ -111,22 +114,27 @@ export class OrderService {
 
   async updateOrderStatus(orderId: number, status: string) {
     return await this.prismaService.$transaction(async (tx) => {
-      const order = await tx.order.findUnique({ where: { id: orderId } });
-      if (!order) throw new NotFoundException('Order not found');
-
-      const updatedOrder = await tx.order.update({
+      const order = await this.prismaService.order.findUnique({
         where: { id: orderId },
-        data: { currentStatus: status },
       });
 
-      await tx.orderStatusHistory.create({
+      if (!order) {
+        throw new BadRequestException('Order not found');
+      }
+
+      const updateOrder = await tx.order.update({
+        where: { id: orderId },
         data: {
-          orderId,
-          status,
+          currentStatus: status,
         },
       });
 
-      return updatedOrder;
+      await tx.orderStatusHistory.update({
+        where: { id: orderId },
+        data: { orderId, status },
+      });
+
+      return updateOrder;
     });
   }
 }

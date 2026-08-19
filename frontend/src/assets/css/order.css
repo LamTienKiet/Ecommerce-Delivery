@@ -1,0 +1,286 @@
+/* ===========================================================
+   Le Cellier — Order page styles (customer-facing dark theme)
+   Import once in OrderPage.tsx:  import '../../../assets/css/order.css';
+   =========================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Cormorant+Garamond:ital@0;1&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap");
+
+.order-page {
+  min-height: 100vh;
+  background: var(--bg, #121b16);
+  color: var(--ink, #f1e9d8);
+  font-family: "Be Vietnam Pro", sans-serif;
+  font-weight: 300;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.order-page * {
+  box-sizing: border-box;
+}
+
+.order-page a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.order-page h1,
+.order-page h2,
+.order-page h3 {
+  font-family: "Fraunces", serif;
+  font-weight: 500;
+}
+
+.order-eyebrow {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: var(--gold, #b7913c);
+  margin-bottom: 10px;
+  display: block;
+}
+
+.order-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px 56px;
+  border-bottom: 1px solid var(--hairline, rgba(241, 233, 216, 0.14));
+}
+
+.order-logo {
+  font-family: "Fraunces", serif;
+  font-size: 21px;
+  letter-spacing: 0.1em;
+}
+
+.order-logo em {
+  font-style: italic;
+  color: var(--gold, #b7913c);
+  font-weight: 500;
+}
+
+.order-wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 48px 24px 100px;
+}
+
+.order-page-head {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.order-page-head h1 {
+  font-size: 32px;
+}
+
+/* Tabs */
+.order-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-bottom: 40px;
+  border-bottom: 1px solid var(--hairline-strong, rgba(241, 233, 216, 0.28));
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+.order-tab {
+  background: none;
+  border: none;
+  color: var(--ink-faint, #6c7a6f);
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 8px 0;
+  position: relative;
+  white-space: nowrap;
+  transition: color 0.2s;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.order-tab:hover {
+  color: var(--ink, #f1e9d8);
+}
+.order-tab.is-active {
+  color: var(--gold, #b7913c);
+}
+.order-tab.is-active::after {
+  content: "";
+  position: absolute;
+  bottom: -11px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--gold, #b7913c);
+}
+
+/* Order Card */
+.order-card {
+  background: var(--bg-panel, #182720);
+  border: 1px solid var(--hairline-strong, rgba(241, 233, 216, 0.28));
+  margin-bottom: 32px;
+}
+.order-card-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--hairline, rgba(241, 233, 216, 0.14));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.order-card-header .order-id {
+  font-size: 14px;
+  color: var(--ink, #f1e9d8);
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+.order-card-header .order-date {
+  font-size: 13px;
+  color: var(--ink-dim, #a9b4a4);
+  display: block;
+  margin-top: 4px;
+}
+.order-status {
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 6px 14px;
+  border: 1px solid var(--gold, #b7913c);
+  color: var(--gold, #b7913c);
+  background: rgba(183, 145, 60, 0.1);
+}
+.order-status.COMPLETED {
+  border-color: #8fb996;
+  color: #8fb996;
+  background: rgba(143, 185, 150, 0.1);
+}
+.order-status.CANCELLED {
+  border-color: #d68a97;
+  color: #d68a97;
+  background: rgba(214, 138, 151, 0.1);
+}
+
+.order-items {
+  padding: 0 24px;
+}
+.order-item {
+  display: flex;
+  gap: 24px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--hairline, rgba(241, 233, 216, 0.14));
+}
+.order-item:last-child {
+  border-bottom: none;
+}
+.order-item-thumb {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border: 1px solid var(--hairline-strong, rgba(241, 233, 216, 0.28));
+}
+.order-item-details {
+  flex: 1;
+}
+.order-item-name {
+  font-size: 16.5px;
+  color: var(--ink, #f1e9d8);
+  font-family: "Fraunces", serif;
+  margin-bottom: 6px;
+}
+.order-item-note {
+  font-size: 13px;
+  color: var(--ink-dim, #a9b4a4);
+}
+.order-item-price-qty {
+  text-align: right;
+  min-width: 100px;
+}
+.order-item-price {
+  font-size: 15px;
+  color: var(--ink, #f1e9d8);
+  font-family: "Fraunces", serif;
+}
+.order-item-qty {
+  font-size: 13px;
+  color: var(--ink-faint, #6c7a6f);
+  margin-top: 6px;
+}
+
+.order-card-footer {
+  padding: 24px;
+  background: var(--bg-panel-2, #1c2b22);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--hairline, rgba(241, 233, 216, 0.14));
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.order-total-label {
+  font-size: 13.5px;
+  color: var(--ink-dim, #a9b4a4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.order-total-amount {
+  font-family: "Fraunces", serif;
+  font-size: 24px;
+  color: var(--gold, #b7913c);
+  margin-left: 12px;
+}
+.order-actions {
+  display: flex;
+  gap: 12px;
+}
+.order-btn {
+  padding: 12px 24px;
+  background: transparent;
+  border: 1px solid var(--gold, #b7913c);
+  color: var(--gold, #b7913c);
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+.order-btn:hover {
+  background: var(--gold, #b7913c);
+  color: var(--bg, #121b16);
+}
+.order-btn-primary {
+  background: var(--wine, #7c2233);
+  border-color: var(--wine, #7c2233);
+  color: var(--ink, #f1e9d8);
+}
+.order-btn-primary:hover {
+  background: var(--wine-soft, #5c1a27);
+  border-color: var(--wine-soft, #5c1a27);
+  color: var(--ink, #f1e9d8);
+}
+
+/* Empty State */
+.order-empty {
+  text-align: center;
+  padding: 90px 20px;
+  border: 1px solid var(--hairline);
+  background: var(--bg-panel);
+}
+.order-empty svg {
+  width: 44px;
+  height: 44px;
+  stroke: var(--ink-faint);
+  margin-bottom: 20px;
+}
+.order-empty h2 {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+.order-empty p {
+  font-size: 13.5px;
+  color: var(--ink-faint);
+  margin-bottom: 28px;
+}
