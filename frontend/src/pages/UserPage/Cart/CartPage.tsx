@@ -4,6 +4,7 @@ import "../../../assets/css/cart.css";
 import {
   getCart,
   removeItem as apiRemoveItem,
+  updateQuantityAPI,
 } from "../../../services/cart.service";
 import { getImageUrl } from "../../../utils/image";
 import { Link } from "react-router-dom";
@@ -30,10 +31,7 @@ const formatVnd = (n: number) => n.toLocaleString("vi-VN") + "₫";
 
 export function CartPage() {
   const [items, setItems] = useState<CartLineItem[]>(cartItems);
-  const [orderType, setOrderType] = useState<OrderType>("delivery");
-  const [promoInput, setPromoInput] = useState("");
-  const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
-  const [promoError, setPromoError] = useState("");
+
 
   useEffect(() => {
     let ignore = false;
@@ -65,14 +63,27 @@ export function CartPage() {
     };
   }, []);
 
-  function updateQuantity(id: string, delta: number) {
+  async function updateQuantity(id: string, delta: number) {
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
+
+    const newQty = Math.max(1, item.quantity + delta);
+    if (newQty === item.quantity) return;
+
+    // Cập nhật UI trước (Optimistic update)
     setItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item,
-      ),
+      prev.map((i) => (i.id === id ? { ...i, quantity: newQty } : i))
     );
+
+    try {
+      await updateQuantityAPI(Number(id), newQty);
+    } catch (error) {
+      console.error("Failed to update quantity on server:", error);
+      // Nếu lỗi thì hoàn tác lại UI
+      setItems((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, quantity: item.quantity } : i))
+      );
+    }
   }
 
   async function removeItem(id: string) {
@@ -84,23 +95,10 @@ export function CartPage() {
     }
   }
 
-  function applyPromo() {
-    setPromoError("");
-    if (promoInput.trim().toUpperCase() === PROMO_CODE) {
-      setAppliedPromo(PROMO_CODE);
-    } else {
-      setAppliedPromo(null);
-      setPromoError("Mã giảm giá không hợp lệ hoặc đã hết hạn.");
-    }
-  }
-
   const subtotal = useMemo(
     () => items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0),
     [items],
   );
-  const deliveryFee = orderType === "delivery" ? DELIVERY_FEE : 0;
-  const discount = appliedPromo ? Math.round(subtotal * 0.1) : 0;
-  const total = subtotal + deliveryFee - discount;
 
   return (
     <div className="cart-page">
@@ -203,74 +201,16 @@ export function CartPage() {
             <aside className="cart-summary">
               <h2>Hóa Đơn Tạm Tính</h2>
 
-              <div className="cart-order-type">
-                <button
-                  type="button"
-                  className={orderType === "delivery" ? "is-active" : ""}
-                  onClick={() => setOrderType("delivery")}
-                >
-                  Giao Hàng
-                </button>
-                <button
-                  type="button"
-                  className={orderType === "pickup" ? "is-active" : ""}
-                  onClick={() => setOrderType("pickup")}
-                >
-                  Tự Đến Lấy
-                </button>
-              </div>
-
-              <div className="cart-promo">
-                <input
-                  type="text"
-                  placeholder="Mã giảm giá"
-                  value={promoInput}
-                  onChange={(e) => setPromoInput(e.target.value)}
-                />
-                <button type="button" onClick={applyPromo}>
-                  Áp Dụng
-                </button>
-              </div>
-              {promoError && (
-                <div className="cart-promo-msg is-error">{promoError}</div>
-              )}
-              {appliedPromo && (
-                <div className="cart-promo-msg">
-                  Đã áp dụng mã {appliedPromo} — giảm 10%
-                </div>
-              )}
-
-              <div className="cart-line">
-                <span>Tạm tính</span>
-                <span>{formatVnd(subtotal)}</span>
-              </div>
-              <div className="cart-line">
-                <span>Phí giao hàng</span>
-                <span>
-                  {deliveryFee > 0 ? formatVnd(deliveryFee) : "Miễn phí"}
-                </span>
-              </div>
-              {discount > 0 && (
-                <div className="cart-line discount">
-                  <span>Giảm giá</span>
-                  <span>−{formatVnd(discount)}</span>
-                </div>
-              )}
-
-              <div className="cart-line-total">
-                <span className="label">Tổng Cộng</span>
-                <span className="amount">{formatVnd(total)}</span>
+              <div className="cart-line-total" style={{ borderTop: "none", paddingTop: 0, marginTop: "10px" }}>
+                <span className="label">Tổng Tạm Tính</span>
+                <span className="amount">{formatVnd(subtotal)}</span>
               </div>
               <Link to="/checkout">
                 <button className="cart-checkout-btn" type="button">
                   Tiến Hành Thanh Toán
                 </button>
               </Link>
-              <div className="cart-summary-note">
-                {orderType === "delivery"
-                  ? "Thời gian giao dự kiến: 35–45 phút"
-                  : "Món sẽ sẵn sàng sau khoảng 20 phút"}
-              </div>
+
             </aside>
           </div>
         )}

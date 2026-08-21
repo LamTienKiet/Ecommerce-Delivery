@@ -1,113 +1,58 @@
-import { useState } from 'react';
-import '../../../assets/css/order.css'; // Nhúng CSS giao diện tối (dark theme)
+import { useState, useEffect } from "react";
+import "../../../assets/css/order.css";
+
+// Import service và type
+import { getMyOrders } from "../../../services/order.service";
+import type { OrderResponse } from "../../../type_auth_api/order/order.api";
+import { getImageUrl } from "../../../utils/image";
 
 // Giả lập dữ liệu món ăn Âu (Fine Dining)
-const MOCK_ORDERS = [
-  {
-    id: 'ORD-2023-1001',
-    date: '24/11/2023 19:30',
-    status: 'COMPLETED',
-    statusText: 'Đã Thưởng Thức',
-    totalAmount: 3250000,
-    items: [
-      {
-        id: 1,
-        name: 'Classic Beef Wellington',
-        description: 'Kèm sốt rượu vang đỏ và khoai tây nghiền nấm Truffle',
-        quantity: 1,
-        price: 1550000,
-        image: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&q=80&w=200&h=200',
-      },
-      {
-        id: 2,
-        name: 'Château Margaux 2015 (Ly)',
-        description: 'Vang đỏ vùng Bordeaux',
-        quantity: 2,
-        price: 850000,
-        image: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&q=80&w=200&h=200',
-      },
-    ],
-  },
-  {
-    id: 'ORD-2023-1002',
-    date: '25/11/2023 11:45',
-    status: 'PREPARING',
-    statusText: 'Đang Chuẩn Bị',
-    totalAmount: 850000,
-    items: [
-      {
-        id: 3,
-        name: 'Pan-seared Foie Gras',
-        description: 'Gan ngỗng Pháp áp chảo, mứt sung và bánh mì brioche',
-        quantity: 1,
-        price: 850000,
-        image: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&q=80&w=200&h=200',
-      },
-    ],
-  },
-  {
-    id: 'ORD-2023-1003',
-    date: '26/11/2023 18:00',
-    status: 'DELIVERING',
-    statusText: 'Đang Giao',
-    totalAmount: 1450000,
-    items: [
-      {
-        id: 4,
-        name: 'Truffle Mushroom Risotto',
-        description: 'Cơm Ý nấm Truffle với phô mai Parmesan 24 tháng',
-        quantity: 1,
-        price: 550000,
-        image: 'https://images.unsplash.com/photo-1633337474563-1d00eea386fb?auto=format&fit=crop&q=80&w=200&h=200',
-      },
-      {
-        id: 5,
-        name: 'Lobster Thermidor',
-        description: 'Tôm hùm nướng sốt kem phô mai Gruyère',
-        quantity: 1,
-        price: 900000,
-        image: 'https://images.unsplash.com/photo-1559742811-822873691fc8?auto=format&fit=crop&q=80&w=200&h=200',
-      },
-    ],
-  },
-  {
-    id: 'ORD-2023-1004',
-    date: '20/11/2023 12:30',
-    status: 'CANCELLED',
-    statusText: 'Đã Hủy',
-    totalAmount: 1200000,
-    items: [
-      {
-        id: 6,
-        name: 'Set Menu Dành Cho 2 Người',
-        description: 'Appetizer, Main course (Salmon), Dessert',
-        quantity: 1,
-        price: 1200000,
-        image: 'https://images.unsplash.com/photo-1544025162-8315ea07525b?auto=format&fit=crop&q=80&w=200&h=200',
-      },
-    ],
-  },
-];
 
 const TABS = [
-  { id: 'ALL', label: 'Tất cả' },
-  { id: 'PENDING', label: 'Chờ xác nhận' },
-  { id: 'PREPARING', label: 'Đang chuẩn bị' },
-  { id: 'DELIVERING', label: 'Đang giao' },
-  { id: 'COMPLETED', label: 'Hoàn thành' },
-  { id: 'CANCELLED', label: 'Đã hủy' },
+  { id: "ALL", label: "Tất cả" },
+  { id: "PENDING", label: "Chờ xác nhận" },
+  { id: "PREPARING", label: "Đang chuẩn bị" },
+  { id: "DELIVERING", label: "Đang giao" },
+  { id: "COMPLETED", label: "Hoàn thành" },
+  { id: "CANCELLED", label: "Đã hủy" },
 ];
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(amount);
+};
+
+const getStatusLabel = (status: string) => {
+  const tab = TABS.find((t) => t.id === status);
+  return tab ? tab.label : status;
 };
 
 export const OrderPage = () => {
-  const [activeTab, setActiveTab] = useState('ALL');
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("ALL");
+  const [orders, setOrders] = useState<OrderResponse[]>([]);
 
-  const displayOrders = activeTab === 'ALL' 
-    ? MOCK_ORDERS 
-    : MOCK_ORDERS.filter(order => order.status === activeTab);
+  useEffect(() => {
+    async function fetchOrder() {
+      try {
+        setIsLoading(true);
+        const res = await getMyOrders();
+        setOrders(res);
+      } catch (err) {
+        console.log("Failed to fetch Data", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchOrder();
+  }, []);
+
+  const displayOrders =
+    activeTab === "ALL"
+      ? orders
+      : orders.filter((order) => order.currentStatus === activeTab);
 
   return (
     <div className="order-page">
@@ -129,7 +74,7 @@ export const OrderPage = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`order-tab ${activeTab === tab.id ? 'is-active' : ''}`}
+              className={`order-tab ${activeTab === tab.id ? "is-active" : ""}`}
             >
               {tab.label}
             </button>
@@ -138,9 +83,20 @@ export const OrderPage = () => {
 
         {/* Orders List */}
         <div>
-          {displayOrders.length === 0 ? (
+          {isLoading ? (
             <div className="order-empty">
-              <svg viewBox="0 0 24 24" fill="none" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" style={{ margin: "0 auto" }}>
+              <p>Đang tải lịch sử đơn hàng...</p>
+            </div>
+          ) : displayOrders.length === 0 ? (
+            <div className="order-empty">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ margin: "0 auto" }}
+              >
                 <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
               </svg>
               <h2>Không có đơn hàng nào</h2>
@@ -149,33 +105,46 @@ export const OrderPage = () => {
           ) : (
             displayOrders.map((order) => (
               <div key={order.id} className="order-card">
-                
                 {/* Order Header */}
                 <div className="order-card-header">
                   <div>
                     <span className="order-id">Mã đơn: {order.id}</span>
-                    <span className="order-date">{order.date}</span>
+                    <span className="order-date">
+                      {new Date(order.createdAt).toLocaleString()}
+                    </span>
                   </div>
                   <div>
-                    <span className={`order-status ${order.status}`}>
-                      {order.statusText}
+                    <span className={`order-status ${order.currentStatus}`}>
+                      {getStatusLabel(order.currentStatus)}
                     </span>
                   </div>
                 </div>
 
                 {/* Order Items */}
                 <div className="order-items">
-                  {order.items.map((item) => (
+                  {order.orderItems.map((item) => (
                     <div key={item.id} className="order-item">
-                      <img src={item.image} alt={item.name} className="order-item-thumb" />
-                      
+                      <img
+                        src={getImageUrl(item.product.imageUrl)}
+                        alt={item.product.name}
+                        className="order-item-thumb"
+                      />
+
                       <div className="order-item-details">
-                        <div className="order-item-name">{item.name}</div>
-                        <div className="order-item-note">{item.description}</div>
+                        <div className="order-item-name">
+                          {item.product.name}
+                        </div>
+                        {item.note && (
+                          <div className="order-item-note" style={{ fontStyle: "italic", marginTop: "2px" }}>
+                            Ghi chú: {item.note}
+                          </div>
+                        )}
                       </div>
-                      
+
                       <div className="order-item-price-qty">
-                        <div className="order-item-price">{formatCurrency(item.price)}</div>
+                        <div className="order-item-price">
+                          {formatCurrency(item.price)}
+                        </div>
                         <div className="order-item-qty">x {item.quantity}</div>
                       </div>
                     </div>
@@ -186,21 +155,20 @@ export const OrderPage = () => {
                 <div className="order-card-footer">
                   <div>
                     <span className="order-total-label">Tổng hóa đơn:</span>
-                    <span className="order-total-amount">{formatCurrency(order.totalAmount)}</span>
+                    <span className="order-total-amount">
+                      {formatCurrency(order.totalAmount)}
+                    </span>
                   </div>
-                  
+
                   <div className="order-actions">
-                    {order.status === 'COMPLETED' && (
+                    {order.currentStatus === "COMPLETED" && (
                       <button className="order-btn order-btn-primary">
                         Đánh giá món
                       </button>
                     )}
-                    <button className="order-btn">
-                      Đặt lại món này
-                    </button>
+                    <button className="order-btn">Đặt lại món này</button>
                   </div>
                 </div>
-
               </div>
             ))
           )}

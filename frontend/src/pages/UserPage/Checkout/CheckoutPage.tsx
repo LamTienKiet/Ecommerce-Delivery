@@ -7,7 +7,7 @@ import { getCart } from "../../../services/cart.service";
 import { createOrder } from "../../../services/order.service";
 import type { CreateOrderRequest } from "../../../type_auth_api/order/order.api";
 import type { CartItemResponse } from "../../../type_auth_api/cart/cart.api";
-import { get } from "http";
+import { getImageUrl } from "../../../utils/image";
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -25,9 +25,14 @@ export const CheckoutPage = () => {
   // State quản lý thông tin form giao hàng
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  const [shippingAddress, setShippingAddress] = useState("");
   const [note, setNote] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cash");
+
+  const [orderType, setOrderType] = useState<"delivery" | "pickup">("delivery");
+  const [promoInput, setPromoInput] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
+  const [promoError, setPromoError] = useState("");
 
   useEffect(() => {
     async function fetchCartData() {
@@ -51,8 +56,19 @@ export const CheckoutPage = () => {
     (sum, item) => sum + Number(item.product.price * item.quantity),
     0,
   );
-  const deliveryFee = 35000;
-  const total = subtotal + deliveryFee;
+  const deliveryFee = orderType === "delivery" ? 35000 : 0;
+  const discount = appliedPromo ? Math.round(subtotal * 0.1) : 0;
+  const total = subtotal + deliveryFee - discount;
+
+  function applyPromo() {
+    setPromoError("");
+    if (promoInput.trim().toUpperCase() === "LATIUKY10") {
+      setAppliedPromo("LATIUKY10");
+    } else {
+      setAppliedPromo(null);
+      setPromoError("Mã giảm giá không hợp lệ hoặc đã hết hạn.");
+    }
+  }
 
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +81,10 @@ export const CheckoutPage = () => {
       const orderPayload: CreateOrderRequest = {
         fullName,
         phone,
-        address,
+        shippingAddress:
+          orderType === "delivery"
+            ? shippingAddress
+            : "Tự đến lấy tại nhà hàng",
         note,
         paymentMethod,
       };
@@ -135,8 +154,55 @@ export const CheckoutPage = () => {
                   <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
                   <circle cx="12" cy="10" r="3"></circle>
                 </svg>
-                Thông tin giao hàng
+                Thông tin nhận hàng
               </h2>
+
+              <div
+                style={{ display: "flex", gap: "10px", marginBottom: "20px" }}
+              >
+                <button
+                  type="button"
+                  style={{
+                    flex: 1,
+                    padding: "12px",
+                    background:
+                      orderType === "delivery"
+                        ? "var(--gold-faint)"
+                        : "transparent",
+                    border: `1px solid ${orderType === "delivery" ? "var(--gold)" : "var(--hairline-strong)"}`,
+                    color:
+                      orderType === "delivery" ? "var(--gold)" : "var(--ink)",
+                    cursor: "pointer",
+                    textTransform: "uppercase",
+                    fontSize: "12px",
+                    letterSpacing: "0.05em",
+                  }}
+                  onClick={() => setOrderType("delivery")}
+                >
+                  Giao Hàng
+                </button>
+                <button
+                  type="button"
+                  style={{
+                    flex: 1,
+                    padding: "12px",
+                    background:
+                      orderType === "pickup"
+                        ? "var(--gold-faint)"
+                        : "transparent",
+                    border: `1px solid ${orderType === "pickup" ? "var(--gold)" : "var(--hairline-strong)"}`,
+                    color:
+                      orderType === "pickup" ? "var(--gold)" : "var(--ink)",
+                    cursor: "pointer",
+                    textTransform: "uppercase",
+                    fontSize: "12px",
+                    letterSpacing: "0.05em",
+                  }}
+                  onClick={() => setOrderType("pickup")}
+                >
+                  Tự Đến Lấy
+                </button>
+              </div>
 
               <div className="checkout-row">
                 <div className="checkout-form-group">
@@ -163,17 +229,19 @@ export const CheckoutPage = () => {
                 </div>
               </div>
 
-              <div className="checkout-form-group">
-                <label>Địa chỉ giao hàng</label>
-                <input
-                  type="text"
-                  className="checkout-input"
-                  placeholder="Số nhà, tên đường, phường/xã, quận/huyện..."
-                  value={address ?? ""}
-                  onChange={(e) => setAddress(e.target.value)}
-                  required
-                />
-              </div>
+              {orderType === "delivery" && (
+                <div className="checkout-form-group">
+                  <label>Địa chỉ giao hàng</label>
+                  <input
+                    type="text"
+                    className="checkout-input"
+                    placeholder="Số nhà, tên đường, phường/xã, quận/huyện..."
+                    value={shippingAddress ?? ""}
+                    onChange={(e) => setShippingAddress(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
 
               <div className="checkout-form-group">
                 <label>Ghi chú cho nhà hàng (Tùy chọn)</label>
@@ -256,7 +324,7 @@ export const CheckoutPage = () => {
               {cartItems.map((item) => (
                 <div key={item.id} className="checkout-item">
                   <img
-                    src={item.product.imageUrl}
+                    src={getImageUrl(item.product.imageUrl)}
                     alt={item.product.name}
                     className="checkout-item-thumb"
                   />
@@ -264,6 +332,11 @@ export const CheckoutPage = () => {
                     <div className="checkout-item-name">
                       {item.product.name}
                     </div>
+                    {item.note && (
+                      <div className="checkout-item-note" style={{ fontSize: "12px", color: "var(--ink-faint)", marginTop: "2px", fontStyle: "italic" }}>
+                        Ghi chú: {item.note}
+                      </div>
+                    )}
                     <div className="checkout-item-price">
                       {formatCurrency(item.product.price)} x {item.quantity}
                     </div>
@@ -287,6 +360,8 @@ export const CheckoutPage = () => {
               <input
                 type="text"
                 placeholder="Mã giảm giá"
+                value={promoInput}
+                onChange={(e) => setPromoInput(e.target.value)}
                 style={{
                   flex: 1,
                   background: "transparent",
@@ -299,6 +374,7 @@ export const CheckoutPage = () => {
               />
               <button
                 type="button"
+                onClick={applyPromo}
                 style={{
                   padding: "0 18px",
                   border: "1px solid var(--gold)",
@@ -313,14 +389,45 @@ export const CheckoutPage = () => {
               </button>
             </div>
 
+            {promoError && (
+              <div
+                style={{
+                  color: "#d9534f",
+                  fontSize: "12px",
+                  marginBottom: "15px",
+                }}
+              >
+                {promoError}
+              </div>
+            )}
+            {appliedPromo && (
+              <div
+                style={{
+                  color: "var(--gold)",
+                  fontSize: "12px",
+                  marginBottom: "15px",
+                }}
+              >
+                Đã áp dụng mã {appliedPromo} — giảm 10%
+              </div>
+            )}
+
             <div className="checkout-line">
               <span>Tạm tính ({cartItems.length} món)</span>
               <span>{formatCurrency(subtotal)}</span>
             </div>
             <div className="checkout-line">
               <span>Phí giao hàng</span>
-              <span>{formatCurrency(deliveryFee)}</span>
+              <span>
+                {deliveryFee > 0 ? formatCurrency(deliveryFee) : "Miễn phí"}
+              </span>
             </div>
+            {discount > 0 && (
+              <div className="checkout-line" style={{ color: "var(--gold)" }}>
+                <span>Giảm giá</span>
+                <span>−{formatCurrency(discount)}</span>
+              </div>
+            )}
 
             <div className="checkout-line-total">
               <span className="label">Tổng cộng</span>

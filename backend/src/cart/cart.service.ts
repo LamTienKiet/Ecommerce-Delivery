@@ -11,7 +11,7 @@ export class CartService {
   constructor(private prismaService: PrismaService) {}
 
   async addToCart(userId: number, createCartDto: CreateCartDto) {
-    const { productId, quantity } = createCartDto;
+    const { productId, quantity, note } = createCartDto;
 
     //transaction
     return this.prismaService.$transaction(async (tx) => {
@@ -45,11 +45,13 @@ export class CartService {
           quantity: {
             increment: quantity,
           },
+          note: note !== undefined ? note : undefined,
         },
         create: {
           cartId: cart.id,
           productId: productId,
           quantity: quantity,
+          note: note,
         },
       });
 
@@ -73,6 +75,16 @@ export class CartService {
       where: {
         id: cartItemId,
       },
+    });
+  }
+
+  async updateCartItemQuantity(cartItemId: number, quantity: number) {
+    if (quantity <= 0) {
+      return this.removeCartItem(cartItemId);
+    }
+    return this.prismaService.cartItem.update({
+      where: { id: cartItemId },
+      data: { quantity },
     });
   }
 

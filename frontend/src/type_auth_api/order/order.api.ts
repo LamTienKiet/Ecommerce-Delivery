@@ -10,7 +10,7 @@ export interface OrderItemRequest {
 export interface CreateOrderRequest {
   fullName: string;
   phone: string;
-  address: string;
+  shippingAddress: string;
   note?: string;
   paymentMethod: string;
   items?: OrderItemRequest[];
@@ -22,6 +22,7 @@ export interface OrderItemResponse {
   productId: number;
   quantity: number;
   price: number;
+  note?: string;
   product: ProductResponse;
 }
 
@@ -29,7 +30,7 @@ export interface OrderResponse {
   id: number;
   userId: number;
   totalAmount: number;
-  status: string; // 'PENDING' | 'PREPARING' | 'DELIVERING' | 'COMPLETED' | 'CANCELLED'
+  currentStatus: string; // 'PENDING' | 'PREPARING' | 'DELIVERING' | 'COMPLETED' | 'CANCELLED'
   fullName: string;
   phone: string;
   address: string;

@@ -18,6 +18,9 @@ export async function getCart(): Promise<CartResponse> {
 export async function removeItem(cartItemId: number) {
   return await axiosClient.delete(`/cart/item/${cartItemId}`);
 }
+export async function updateQuantityAPI(cartItemId: number, quantity: number) {
+  return await axiosClient.patch(`/cart/item/${cartItemId}`, { quantity });
+}
 export async function clearCart() {
   return await axiosClient.delete(`/cart/clear`);
 }

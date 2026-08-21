@@ -43,6 +43,7 @@ export class OrderService {
           productId: item.productId,
           quantity: item.quantity,
           price: item.product.price,
+          note: item.note,
         });
       }
 

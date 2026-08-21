@@ -9,8 +9,9 @@ export async function createOrder(
 ): Promise<OrderResponse> {
   return await axiosClient.post<any, OrderResponse>("/order", data);
 }
+// Lấy danh sách đơn hàng của người dùng hiện tại
 export async function getMyOrders(): Promise<OrderResponse[]> {
-  return await axiosClient.get<any, OrderResponse[]>("/order/my-orders");
+  return await axiosClient.get<any, OrderResponse[]>("/order");
 }
 // Lấy chi tiết một đơn hàng theo ID
 export async function getOrderById(orderId: number): Promise<OrderResponse> {

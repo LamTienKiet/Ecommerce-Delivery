@@ -12,6 +12,7 @@ export const ProductDetail = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
+  const [note, setNote] = useState<string>("");
   const { id } = useParams<{ id: string }>();
 
   useEffect(() => {
@@ -64,8 +65,9 @@ export const ProductDetail = () => {
   const handleAddToCart = async () => {
     if (!product) return;
     try {
-      await apiAddToCart({ productId: product.id, quantity });
+      await apiAddToCart({ productId: product.id, quantity, note: note.trim() || undefined });
       alert("Đã thêm món ăn vào giỏ hàng!");
+      setNote("");
     } catch (err) {
       console.error(err);
       alert("Có lỗi xảy ra khi thêm vào giỏ hàng. Bạn đã đăng nhập chưa?");
@@ -297,6 +299,20 @@ export const ProductDetail = () => {
                     </svg>
                   </button>
                 </div>
+              </div>
+
+              {/* Note Input */}
+              <div className="flex flex-col gap-2 flex-grow sm:max-w-xs">
+                <span className="text-[10px] uppercase tracking-widest text-[#A9B4A4] font-semibold">
+                  Ghi chú cho bếp (Tùy chọn)
+                </span>
+                <input
+                  type="text"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="VD: Không hành, ít cay..."
+                  className="w-full px-4 py-3 bg-[#0f1814] border border-[#2a3c31] rounded-xl text-[#F1E9D8] text-sm focus:outline-none focus:border-[#B7913C] transition-colors"
+                />
               </div>
 
               {/* Add to Cart Button */}

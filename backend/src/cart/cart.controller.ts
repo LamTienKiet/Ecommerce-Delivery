@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Body,
   Param,
   Delete,
@@ -25,6 +26,14 @@ export class CartController {
   @Get()
   findOne(@Request() req) {
     return this.cartService.findCartByUserId(req.user.sub);
+  }
+
+  @Patch('item/:cartItemId')
+  updateQuantity(
+    @Param('cartItemId') cartItemId: string,
+    @Body('quantity') quantity: number,
+  ) {
+    return this.cartService.updateCartItemQuantity(+cartItemId, quantity);
   }
   @Delete('item/:cartItemId')
   removeItem(@Param('cartItemId') cartItemId: string) {
