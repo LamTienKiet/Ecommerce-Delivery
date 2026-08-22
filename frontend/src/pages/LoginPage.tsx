@@ -53,7 +53,11 @@ export const LoginPage = () => {
       );
 
       alert("Đăng nhập thành công!");
-      navigate("/menu");
+      if (data.role?.toUpperCase() === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/menu");
+      }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setFormError(error.response?.data?.message || "Đăng ký thất bại");

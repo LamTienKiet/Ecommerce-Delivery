@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import ProductCard from "./ProductCard";
 import { ProductToolbar } from "./ProductToolbar";
 import type { ProductResponse } from "../../../type_auth_api/products/product.api";
@@ -8,13 +9,24 @@ import { getProducts } from "../../../services/product.service";
 // Mock data to prevent compilation/network errors
 
 export const ProductList = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoryParam = searchParams.get("category");
+
   const [products, setProducts] = useState<ProductResponse[]>([]);
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(
+    categoryParam ? Number(categoryParam) : null
+  );
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("name-asc");
+
+  useEffect(() => {
+    if (categoryParam) {
+      setSelectedCategory(Number(categoryParam));
+    }
+  }, [categoryParam]);
 
   useEffect(() => {
     async function fetchData() {
@@ -117,7 +129,11 @@ export const ProductList = () => {
       <div className="flex flex-wrap items-center justify-center gap-2 border-b border-[#2a3c31] pb-4">
         {/* Nút Tất Cả */}
         <button
-          onClick={() => setSelectedCategory(null)}
+          onClick={() => {
+            searchParams.delete("category");
+            setSearchParams(searchParams);
+            setSelectedCategory(null);
+          }}
           className={`rounded-full px-5 py-2.5 text-sm font-medium tracking-wide transition-all duration-300 ${
             selectedCategory === null
               ? "bg-[#B7913C] text-[#121B16] font-semibold"
@@ -131,7 +147,11 @@ export const ProductList = () => {
         {categories.map((cat) => (
           <button
             key={cat.id}
-            onClick={() => setSelectedCategory(cat.id)}
+            onClick={() => {
+              searchParams.set("category", String(cat.id));
+              setSearchParams(searchParams);
+              setSelectedCategory(cat.id);
+            }}
             className={`rounded-full px-5 py-2.5 text-sm font-medium tracking-wide transition-all duration-300 ${
               selectedCategory === cat.id
                 ? "bg-[#B7913C] text-[#121B16] font-semibold"

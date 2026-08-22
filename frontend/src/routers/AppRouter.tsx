@@ -15,6 +15,7 @@ import { CartPage } from "../pages/UserPage/Cart/CartPage";
 import { CheckoutPage } from "../pages/UserPage/Checkout/CheckoutPage";
 import { OrderDetail } from "../pages/UserPage/Orders/OrderDetail";
 import { RevenueAdmin } from "../pages/AdminPage/RevenueAdmin";
+import { UserAdmin } from "../pages/AdminPage/UserAdmin";
 import { ProtectedRoute } from "../components/ProtectedRoute";
 import { ProfilePage } from "../pages/UserPage/Profile/ProfilePage";
 
@@ -30,6 +31,7 @@ export default function AppRouters() {
             <Route path="orders" element={<OrderAdmin />} />
             <Route path="categories" element={<CategoryAdmin />} />
             <Route path="revenue" element={<RevenueAdmin />} />
+            <Route path="users" element={<UserAdmin />} />
           </Route>
         </Route>
         {/* --- ROUTES CẦN ĐĂNG NHẬP MỚI ĐƯỢC VÀO ---*/}

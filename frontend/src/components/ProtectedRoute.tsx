@@ -18,7 +18,12 @@ export const ProtectedRoute = ({
   }
 
   // 2. Nếu đã đăng nhập nhưng role không khớp với quyền yêu cầu -> Chuyển về menu chính hoặc trang từ chối quyền
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  if (
+    allowedRoles &&
+    !allowedRoles.some(
+      (role) => role.toUpperCase() === user.role?.toUpperCase(),
+    )
+  ) {
     return <Navigate to="/menu" replace />;
   }
 
