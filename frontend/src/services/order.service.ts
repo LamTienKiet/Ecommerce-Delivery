@@ -23,7 +23,7 @@ export async function cancelOrder(orderId: number): Promise<OrderResponse> {
 }
 
 export async function getAllOrders(): Promise<OrderResponse[]> {
-  return await axiosClient.get<any, OrderResponse[]>("/order");
+  return await axiosClient.get<any, OrderResponse[]>("/order/all");
 }
 
 export async function updateOrderStatus(

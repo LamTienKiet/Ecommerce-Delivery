@@ -27,6 +27,11 @@ export class OrderController {
     return this.orderService.getOrdersByUser(req.user.sub);
   }
 
+  @Get('all')
+  getAllOrders() {
+    return this.orderService.getAllOrders();
+  }
+
   @Get(':id')
   getOrderById(@Request() req, @Param('id') id: string) {
     return this.orderService.getOrderById(req.user.sub, +id);

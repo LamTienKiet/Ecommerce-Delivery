@@ -1,45 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getAllOrders, updateOrderStatus } from "../../services/order.service";
+import type { OrderResponse } from "../../type_auth_api/order/order.api";
+import toast from "react-hot-toast";
 
 export const OrderAdmin = () => {
-  // Mock data cho UI
-  const mockOrders = [
-    {
-      id: "ORD-20231001-01",
-      customerName: "Nguyễn Văn A",
-      phone: "0901234567",
-      totalAmount: 450000,
-      paymentMethod: "MOMO",
-      status: "PENDING",
-      createdAt: "2023-10-01T10:30:00Z",
-    },
-    {
-      id: "ORD-20231001-02",
-      customerName: "Trần Thị B",
-      phone: "0912345678",
-      totalAmount: 125000,
-      paymentMethod: "COD",
-      status: "PROCESSING",
-      createdAt: "2023-10-01T11:15:00Z",
-    },
-    {
-      id: "ORD-20231001-03",
-      customerName: "Lê Văn C",
-      phone: "0987654321",
-      totalAmount: 850000,
-      paymentMethod: "VNPAY",
-      status: "COMPLETED",
-      createdAt: "2023-10-01T14:45:00Z",
-    },
-    {
-      id: "ORD-20231001-04",
-      customerName: "Phạm D",
-      phone: "0909090909",
-      totalAmount: 320000,
-      paymentMethod: "COD",
-      status: "CANCELLED",
-      createdAt: "2023-10-01T16:20:00Z",
-    },
-  ];
+  const [orders, setOrders] = useState<OrderResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const fetchOrders = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getAllOrders();
+      setOrders(data);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      toast.error("Không thể tải danh sách đơn hàng");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const handleUpdateStatus = async (orderId: number, newStatus: string) => {
+    try {
+      setIsUpdating(true);
+      await updateOrderStatus(orderId, newStatus);
+      toast.success("Cập nhật trạng thái thành công");
+      fetchOrders(); // Refresh data
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      toast.error("Cập nhật trạng thái thất bại");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   // Hàm helper để render UI của badge trạng thái
   const getStatusBadge = (status: string) => {
@@ -96,10 +94,10 @@ export const OrderAdmin = () => {
       {/* Stats row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Tổng Đơn", value: "156", color: "text-indigo-600", bg: "bg-indigo-50" },
-          { label: "Chờ Xử Lý", value: "12", color: "text-amber-600", bg: "bg-amber-50" },
-          { label: "Đang Chuẩn Bị", value: "8", color: "text-blue-600", bg: "bg-blue-50" },
-          { label: "Hoàn Thành", value: "130", color: "text-emerald-600", bg: "bg-emerald-50" },
+          { label: "Tổng Đơn", value: orders.length, color: "text-indigo-600", bg: "bg-indigo-50" },
+          { label: "Chờ Xử Lý", value: orders.filter((o) => o.currentStatus === "PENDING").length, color: "text-amber-600", bg: "bg-amber-50" },
+          { label: "Đang Chuẩn Bị", value: orders.filter((o) => o.currentStatus === "PROCESSING").length, color: "text-blue-600", bg: "bg-blue-50" },
+          { label: "Hoàn Thành", value: orders.filter((o) => o.currentStatus === "COMPLETED").length, color: "text-emerald-600", bg: "bg-emerald-50" },
         ].map((stat, idx) => (
           <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
             <div>
@@ -158,70 +156,88 @@ export const OrderAdmin = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm text-slate-600">
-              {mockOrders.map((order) => (
-                <tr
-                  key={order.id}
-                  className="hover:bg-slate-50/50 transition-colors"
-                >
-                  <td className="px-6 py-4">
-                    <h4 className="font-bold text-slate-900 text-sm font-mono">
-                      {order.id}
-                    </h4>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      {new Date(order.createdAt).toLocaleString("vi-VN", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })}
-                    </p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="font-bold text-slate-800">{order.customerName}</div>
-                    <div className="text-slate-500 text-xs mt-0.5">{order.phone}</div>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="font-extrabold text-slate-900 text-base">
-                      {order.totalAmount.toLocaleString("vi-VN")}đ
-                    </div>
-                    <div className="text-slate-400 text-xs mt-0.5 uppercase tracking-wide">
-                      {order.paymentMethod}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    {getStatusBadge(order.status)}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-center space-x-2">
-                      <button
-                        title="Xem chi tiết"
-                        className="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 bg-indigo-50/50 transition font-medium text-xs px-3"
-                      >
-                        Chi tiết
-                      </button>
-                      
-                      {order.status === "PENDING" && (
-                        <button
-                          title="Chuyển sang Đang chuẩn bị"
-                          className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 bg-blue-50/50 transition font-medium text-xs px-3"
-                        >
-                          Duyệt đơn
-                        </button>
-                      )}
-                      
-                      {order.status === "PROCESSING" && (
-                        <button
-                          title="Hoàn thành đơn"
-                          className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 bg-emerald-50/50 transition font-medium text-xs px-3"
-                        >
-                          Hoàn tất
-                        </button>
-                      )}
-                    </div>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
+                    Đang tải dữ liệu...
                   </td>
                 </tr>
-              ))}
+              ) : orders.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
+                    Không có đơn hàng nào
+                  </td>
+                </tr>
+              ) : (
+                orders.map((order) => (
+                  <tr
+                    key={order.id}
+                    className="hover:bg-slate-50/50 transition-colors"
+                  >
+                    <td className="px-6 py-4">
+                      <h4 className="font-bold text-slate-900 text-sm font-mono">
+                        #{order.id}
+                      </h4>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {new Date(order.createdAt).toLocaleString("vi-VN", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="font-bold text-slate-800">{order.user?.fullName || "Khách Hàng"}</div>
+                      <div className="text-slate-500 text-xs mt-0.5">{order.user?.phone || order.shippingAddress}</div>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="font-extrabold text-slate-900 text-base">
+                        {Number(order.totalAmount).toLocaleString("vi-VN")}đ
+                      </div>
+                      <div className="text-slate-400 text-xs mt-0.5 uppercase tracking-wide">
+                        {order.payment?.paymentMethod || "COD"}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      {getStatusBadge(order.currentStatus)}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-center space-x-2">
+                        <button
+                          title="Xem chi tiết"
+                          className="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 bg-indigo-50/50 transition font-medium text-xs px-3"
+                        >
+                          Chi tiết
+                        </button>
+                        
+                        {order.currentStatus === "PENDING" && (
+                          <button
+                            title="Chuyển sang Đang chuẩn bị"
+                            onClick={() => handleUpdateStatus(order.id, "PROCESSING")}
+                            disabled={isUpdating}
+                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 bg-blue-50/50 transition font-medium text-xs px-3 disabled:opacity-50"
+                          >
+                            Duyệt đơn
+                          </button>
+                        )}
+                        
+                        {order.currentStatus === "PROCESSING" && (
+                          <button
+                            title="Hoàn thành đơn"
+                            onClick={() => handleUpdateStatus(order.id, "COMPLETED")}
+                            disabled={isUpdating}
+                            className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 bg-emerald-50/50 transition font-medium text-xs px-3 disabled:opacity-50"
+                          >
+                            Hoàn tất
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

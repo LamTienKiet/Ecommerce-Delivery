@@ -92,6 +92,21 @@ export class OrderService {
     });
   }
 
+  async getAllOrders() {
+    return this.prismaService.order.findMany({
+      include: {
+        user: true,
+        orderItems: {
+          include: {
+            product: true,
+          },
+        },
+        payment: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async getOrderById(userId: number, orderId: number) {
     const order = await this.prismaService.order.findUnique({
       where: { id: orderId, userId },
