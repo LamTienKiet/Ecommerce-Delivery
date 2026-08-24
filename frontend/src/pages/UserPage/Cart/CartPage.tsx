@@ -70,7 +70,7 @@ export function CartPage() {
     const newQty = Math.max(1, item.quantity + delta);
     if (newQty === item.quantity) return;
 
-    // Cập nhật UI trước (Optimistic update)
+    
     setItems((prev) =>
       prev.map((i) => (i.id === id ? { ...i, quantity: newQty } : i))
     );
@@ -79,7 +79,7 @@ export function CartPage() {
       await updateQuantityAPI(Number(id), newQty);
     } catch (error) {
       console.error("Failed to update quantity on server:", error);
-      // Nếu lỗi thì hoàn tác lại UI
+      
       setItems((prev) =>
         prev.map((i) => (i.id === id ? { ...i, quantity: item.quantity } : i))
       );

@@ -29,3 +29,7 @@ export interface User {
 export async function getAllUsers(): Promise<User[]> {
   return await axiosClient.get<any, User[]>("/user");
 }
+
+export async function updateUserAccount(id: number, data: { status?: string; roleName?: string }) {
+  return await axiosClient.patch(`/user/${id}`, data);
+}

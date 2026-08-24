@@ -135,7 +135,10 @@ export const OrderPage = () => {
                           {item.product.name}
                         </div>
                         {item.note && (
-                          <div className="order-item-note" style={{ fontStyle: "italic", marginTop: "2px" }}>
+                          <div
+                            className="order-item-note"
+                            style={{ fontStyle: "italic", marginTop: "2px" }}
+                          >
                             Ghi chú: {item.note}
                           </div>
                         )}

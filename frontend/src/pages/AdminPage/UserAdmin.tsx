@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getAllUsers, type User } from "../../services/user.service";
+import { getAllUsers, updateUserAccount, type User } from "../../services/user.service";
 
 export const UserAdmin = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -19,6 +19,40 @@ export const UserAdmin = () => {
     };
     fetchUsers();
   }, []);
+
+  const handleToggleStatus = async (user: User) => {
+    try {
+      const currentStatus = user.account?.status || "INACTIVE";
+      const newStatus = currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+      await updateUserAccount(user.id, { status: newStatus });
+      
+      setUsers((prevUsers) =>
+        prevUsers.map((u) =>
+          u.id === user.id
+            ? { ...u, account: { ...u.account, status: newStatus } }
+            : u
+        )
+      );
+    } catch (error) {
+      console.error("Error toggling user status:", error);
+    }
+  };
+
+  const handleChangeRole = async (user: User, newRole: string) => {
+    try {
+      await updateUserAccount(user.id, { roleName: newRole });
+      
+      setUsers((prevUsers) =>
+        prevUsers.map((u) =>
+          u.id === user.id
+            ? { ...u, account: { ...u.account, role: { ...u.account.role, name: newRole } } }
+            : u
+        )
+      );
+    } catch (error) {
+      console.error("Error changing user role:", error);
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -143,15 +177,18 @@ export const UserAdmin = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+                      <select
+                        value={user.account?.role?.name || "USER"}
+                        onChange={(e) => handleChangeRole(user, e.target.value)}
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border outline-none cursor-pointer ${
                           user.account?.role?.name === "ADMIN"
                             ? "bg-purple-50 text-purple-700 border-purple-200"
                             : "bg-blue-50 text-blue-700 border-blue-200"
                         }`}
                       >
-                        {user.account?.role?.name || "USER"}
-                      </span>
+                        <option value="ADMIN">ADMIN</option>
+                        <option value="USER">USER</option>
+                      </select>
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span
@@ -175,25 +212,8 @@ export const UserAdmin = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center space-x-2">
                         <button
-                          title="Sửa"
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                        </button>
-                        <button
                           title={user.account?.status === "ACTIVE" ? "Khóa tài khoản" : "Mở khóa"}
+                          onClick={() => handleToggleStatus(user)}
                           className={`p-1.5 rounded-lg transition ${
                             user.account?.status === "ACTIVE"
                               ? "text-slate-500 hover:text-amber-600 hover:bg-slate-100"
@@ -221,24 +241,6 @@ export const UserAdmin = () => {
                                 d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
                               />
                             )}
-                          </svg>
-                        </button>
-                        <button
-                          title="Xóa"
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-slate-100 transition"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
                           </svg>
                         </button>
                       </div>
