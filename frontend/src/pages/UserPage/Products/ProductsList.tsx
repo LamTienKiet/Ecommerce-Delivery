@@ -15,12 +15,14 @@ export const ProductList = () => {
   const [products, setProducts] = useState<ProductResponse[]>([]);
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(
-    categoryParam ? Number(categoryParam) : null
+    categoryParam ? Number(categoryParam) : null,
   );
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("name-asc");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
   useEffect(() => {
     if (categoryParam) {
@@ -33,12 +35,13 @@ export const ProductList = () => {
       try {
         setLoading(true);
         setError(null);
-        const [products, categories] = await Promise.all([
-          getProducts(),
+        const [productsResponse, categories] = await Promise.all([
+          getProducts(currentPage, 12),
           getCategory(),
         ]);
 
-        setProducts(products);
+        setProducts(productsResponse.data);
+        setTotalPages(productsResponse.meta.totalPages);
         setCategories(categories);
       } catch (err) {
         console.log("Failed to fetch data from Database", err);
@@ -51,7 +54,7 @@ export const ProductList = () => {
     }
 
     fetchData();
-  }, []);
+  }, [currentPage]);
 
   const filteredProducts = useMemo(() => {
     let result = [...products];
@@ -163,7 +166,6 @@ export const ProductList = () => {
         ))}
       </div>
 
-     
       <ProductToolbar
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
@@ -171,12 +173,50 @@ export const ProductList = () => {
         onSortChange={setSortBy}
       />
 
-     
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         {filteredProducts.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center space-x-2 mt-12 pb-12">
+          <button
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+            className="px-4 py-2 rounded-lg border border-[#2a3c31] text-[#B7913C] font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#16251e] transition-colors"
+          >
+            Đầu
+          </button>
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 rounded-lg border border-[#2a3c31] text-[#B7913C] font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#16251e] transition-colors"
+          >
+            Trang trước
+          </button>
+
+          <span className="px-4 py-2 text-[#A9B4A4] font-medium">
+            Trang {currentPage} / {totalPages}
+          </span>
+
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 rounded-lg border border-[#2a3c31] text-[#B7913C] font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#16251e] transition-colors"
+          >
+            Trang sau
+          </button>
+          <button
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 rounded-lg border border-[#2a3c31] text-[#B7913C] font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#16251e] transition-colors"
+          >
+            Cuối
+          </button>
+        </div>
+      )}
     </div>
   );
 };

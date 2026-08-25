@@ -128,8 +128,11 @@ model Order {
   id              Int                  @id @default(autoincrement())
   userId          Int
   user            User                 @relation(fields: [userId], references: [id])
+  fullName        String               @default("") @db.NVarChar(100)
+  phone           String               @default("") @db.VarChar(20)
   totalAmount     Decimal              @db.Decimal(18, 2)
   shippingAddress String               @db.NVarChar(255)
+  note            String?              @db.NVarChar(500)
   currentStatus   String               @default("PENDING") @db.VarChar(20) // PENDING, CONFIRMED, PREPARING, DELIVERING, COMPLETED, CANCELLED
   orderItems      OrderItem[]
   payment         Payment?

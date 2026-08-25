@@ -5,8 +5,23 @@ import type {
   UpdateProductRequest,
 } from "../type_auth_api/products/product.api";
 
-export async function getProducts(): Promise<ProductResponse[]> {
-  return await axiosClient.get<any, ProductResponse[]>("/product");
+export interface PaginatedProductResponse {
+  data: ProductResponse[];
+  meta: {
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    itemsPerPage: number;
+  };
+}
+
+export async function getProducts(
+  page: number = 1,
+  limit: number = 12,
+): Promise<PaginatedProductResponse> {
+  return await axiosClient.get<any, PaginatedProductResponse>(
+    `/product?page=${page}&limit=${limit}`,
+  );
 }
 
 export async function getProductById(id: number): Promise<ProductResponse> {
@@ -33,9 +48,13 @@ export async function deleteProduct(id: number): Promise<void> {
 export async function uploadProductImage(file: File): Promise<{ url: string }> {
   const formData = new FormData();
   formData.append("file", file);
-  return await axiosClient.post<any, { url: string }>("/product/upload", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
+  return await axiosClient.post<any, { url: string }>(
+    "/product/upload",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     },
-  });
+  );
 }

@@ -34,12 +34,33 @@ export class ProductService {
     });
   }
 
-  findAll() {
-    return this.prismaService.product.findMany({
+  async findAll(page: number = 1, limit: number = 10) {
+    //tinh toan sl sp moi trang bo qua
+    const skip = (page - 1) * limit;
+
+    const products = await this.prismaService.product.findMany({
+      skip: skip,
+      take: limit,
       include: {
         category: true,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
+
+    const total = await this.prismaService.product.count();
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: products,
+      meta: {
+        totalItems: total,
+        currentPage: page,
+        totalPages: totalPages,
+        itemsPerPage: limit,
+      },
+    };
   }
 
   findOne(id: number) {

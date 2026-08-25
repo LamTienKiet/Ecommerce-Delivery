@@ -1,5 +1,5 @@
 import type { CartItemResponse } from "../cart/cart.api";
-import { ProductResponse } from "../products/product.api";
+import type { ProductResponse } from "../products/product.api";
 
 export interface OrderItemRequest {
   productId: number;

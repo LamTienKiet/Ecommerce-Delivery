@@ -2,11 +2,13 @@ import { Link } from "react-router-dom";
 import type { ProductResponse } from "../../../type_auth_api/products/product.api";
 import { getImageUrl } from "../../../utils/image";
 import { addToCart as apiAddToCart } from "../../../services/cart.service";
+import { useCartStore } from "../../../store/useCartStore";
 interface ProductCardProps {
   product: ProductResponse;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const { fetchCartCount } = useCartStore();
   const getCategoryName = (id: number) => {
     if (product.category?.name) {
       return product.category.name;
@@ -31,6 +33,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     e.preventDefault(); // Prevent navigating to detail page if button is inside a Link or similar
     try {
       await apiAddToCart({ productId: product.id, quantity: 1 });
+      await fetchCartCount(); // Cập nhật lại số lượng trên giỏ hàng
       alert(`Đã thêm 1 x ${product.name} vào giỏ hàng!`);
     } catch (err) {
       console.error(err);

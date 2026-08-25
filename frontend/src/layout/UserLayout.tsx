@@ -1,8 +1,18 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
+import { useCartStore } from "../store/useCartStore";
+import { useEffect } from "react";
 
 export const UserLayout = () => {
   const { user, logout } = useAuthStore();
+  const { cartCount, fetchCartCount } = useCartStore();
+
+  useEffect(() => {
+    if (user) {
+      fetchCartCount();
+    }
+  }, [user, fetchCartCount]);
+
   return (
     <div className="min-h-screen bg-[#121B16] text-[#F1E9D8] font-sans selection:bg-[#B7913C] selection:text-[#121B16] flex flex-col">
       {/* Client Luxury Header / Navigation */}
@@ -87,9 +97,11 @@ export const UserLayout = () => {
                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                   />
                 </svg>
-                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#B7913C] text-[#121B16] text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-[#121B16]">
-                  3
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#B7913C] text-[#121B16] text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-[#121B16]">
+                    {cartCount}
+                  </span>
+                )}
               </button>
             </Link>
 

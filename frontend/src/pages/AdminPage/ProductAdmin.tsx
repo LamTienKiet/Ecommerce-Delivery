@@ -43,6 +43,10 @@ export const ProductAdmin = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
 
+  // Khai báo state phục vụ phân trang
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+
   // Tải dữ liệu thực tế từ Database
   useEffect(() => {
     async function fetchData() {
@@ -50,11 +54,12 @@ export const ProductAdmin = () => {
         setLoading(true);
         setError(null);
         const [productsData, categoriesData] = await Promise.all([
-          getProducts(),
+          getProducts(currentPage, 10), // Phân trang 10 sản phẩm/trang
           getCategory(),
         ]);
 
-        setProducts(productsData);
+        setProducts(productsData.data);
+        setTotalPages(productsData.meta.totalPages);
         setCategories(categoriesData);
       } catch (err) {
         console.error("Failed to fetch data from Database", err);
@@ -67,7 +72,7 @@ export const ProductAdmin = () => {
     }
 
     fetchData();
-  }, []);
+  }, [currentPage]);
 
   // Tính toán nhanh chỉ số thống kê
   const total = products.length;
@@ -360,6 +365,49 @@ export const ProductAdmin = () => {
         onEdit={handleOpenEditModal}
         onDelete={handleDeleteProduct}
       />
+
+      {/* Giao diện Phân Trang */}
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-100 shadow-sm mt-4">
+          <button
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+            className="px-4 py-2 rounded-lg border border-[#2a3c31] text-[#B7913C] font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#16251e] transition-colors"
+          >
+            Đầu
+          </button>
+
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 font-medium transition"
+          >
+            Trang trước
+          </button>
+
+          <span className="text-slate-600 font-medium text-sm">
+            Trang {currentPage} / {totalPages}
+          </span>
+
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 font-medium transition"
+          >
+            Trang sau
+          </button>
+
+          <button
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 rounded-lg border border-[#2a3c31] text-[#B7913C] font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#16251e] transition-colors"
+          >
+            Cuối
+          </button>
+        </div>
+      )}
 
       {/* CREATE / EDIT OVERLAY MODAL (Giao diện Modal tĩnh) */}
       {isModalOpen && (

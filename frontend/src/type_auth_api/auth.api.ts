@@ -34,7 +34,7 @@ export interface LoginResponse {
   fullName: string;
   username: string;
   role: string;
-  phone: number;
+  phone: string | null;
   email: string;
 }
 

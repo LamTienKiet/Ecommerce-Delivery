@@ -6,6 +6,7 @@ import {
   IsPositive,
   IsString,
   ValidateNested,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateOrderItemDto {
@@ -25,9 +26,26 @@ export class CreateOrderItemDto {
 export class CreateOrderDto {
   @IsString()
   @IsNotEmpty()
+  fullName!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  phone!: string;
+
+  @IsString()
+  @IsNotEmpty()
   shippingAddress!: string;
+
+  @IsString()
+  @IsOptional()
+  note?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  paymentMethod!: string;
 
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)
-  items!: CreateOrderItemDto[];
+  @IsOptional()
+  items?: CreateOrderItemDto[];
 }

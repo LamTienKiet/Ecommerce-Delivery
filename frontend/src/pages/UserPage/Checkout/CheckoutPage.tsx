@@ -8,6 +8,7 @@ import { createOrder } from "../../../services/order.service";
 import type { CreateOrderRequest } from "../../../type_auth_api/order/order.api";
 import type { CartItemResponse } from "../../../type_auth_api/cart/cart.api";
 import { getImageUrl } from "../../../utils/image";
+import { useCartStore } from "../../../store/useCartStore";
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -70,6 +71,8 @@ export const CheckoutPage = () => {
     }
   }
 
+  const { fetchCartCount } = useCartStore();
+
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (cartItems.length === 0) {
@@ -90,6 +93,7 @@ export const CheckoutPage = () => {
       };
 
       await createOrder(orderPayload);
+      await fetchCartCount(); // Xóa số 0 trên giỏ hàng
       alert("Đặt hàng thành công");
 
       // Sau khi tạo thành công, chuyển hướng về trang lịch sử đơn hàng

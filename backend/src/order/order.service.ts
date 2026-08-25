@@ -50,6 +50,9 @@ export class OrderService {
       const order = await tx.order.create({
         data: {
           userId,
+          fullName: createOrderDto.fullName,
+          phone: createOrderDto.phone,
+          note: createOrderDto.note,
           totalAmount,
           shippingAddress: createOrderDto.shippingAddress,
           currentStatus: 'PENDING',
@@ -61,6 +64,13 @@ export class OrderService {
               status: 'PENDING',
             },
           },
+          payment: {
+            create: {
+              paymentMethod: createOrderDto.paymentMethod,
+              amount: totalAmount,
+              status: 'PENDING',
+            }
+          }
         },
         include: {
           orderItems: true,
