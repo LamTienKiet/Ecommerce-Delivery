@@ -4,6 +4,10 @@ import { getAllUsers, updateUserAccount, type User } from "../../services/user.s
 export const UserAdmin = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const [searchQuery, setSearchQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -54,6 +58,18 @@ export const UserAdmin = () => {
     }
   };
 
+  const filteredUsers = users.filter((user) => {
+    const matchRole = roleFilter === "all" || user.account?.role?.name === roleFilter;
+    const matchStatus = statusFilter === "all" || user.account?.status?.toLowerCase() === statusFilter;
+    const searchLower = searchQuery.toLowerCase();
+    const matchSearch =
+      user.id.toString().includes(searchLower) ||
+      (user.fullName && user.fullName.toLowerCase().includes(searchLower)) ||
+      (user.account?.email && user.account.email.toLowerCase().includes(searchLower)) ||
+      (user.phone && user.phone.includes(searchLower));
+    return matchRole && matchStatus && matchSearch;
+  });
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -103,16 +119,26 @@ export const UserAdmin = () => {
           <input
             type="text"
             placeholder="Tìm kiếm theo tên, email, SĐT..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
           />
         </div>
         <div className="flex gap-4">
-          <select className="bg-slate-50 border border-slate-200 text-slate-700 py-2.5 pl-4 pr-10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 appearance-none font-medium cursor-pointer transition-all">
+          <select 
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            className="bg-slate-50 border border-slate-200 text-slate-700 py-2.5 pl-4 pr-10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 appearance-none font-medium cursor-pointer transition-all"
+          >
             <option value="all">Tất cả vai trò</option>
             <option value="ADMIN">Quản trị viên (Admin)</option>
             <option value="USER">Người dùng (User)</option>
           </select>
-          <select className="bg-slate-50 border border-slate-200 text-slate-700 py-2.5 pl-4 pr-10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 appearance-none font-medium cursor-pointer transition-all">
+          <select 
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="bg-slate-50 border border-slate-200 text-slate-700 py-2.5 pl-4 pr-10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 appearance-none font-medium cursor-pointer transition-all"
+          >
             <option value="all">Tất cả trạng thái</option>
             <option value="active">Đang hoạt động</option>
             <option value="inactive">Đã khóa</option>
@@ -141,14 +167,14 @@ export const UserAdmin = () => {
                     Đang tải dữ liệu...
                   </td>
                 </tr>
-              ) : users.length === 0 ? (
+              ) : filteredUsers.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
-                    Không có dữ liệu người dùng
+                    Không tìm thấy người dùng phù hợp
                   </td>
                 </tr>
               ) : (
-                users.map((user) => (
+                filteredUsers.map((user) => (
                   <tr
                     key={user.id}
                     className="hover:bg-slate-50/50 transition-colors"

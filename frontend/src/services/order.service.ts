@@ -30,7 +30,7 @@ export async function updateOrderStatus(
   orderId: number,
   status: string,
 ): Promise<OrderResponse> {
-  return await axiosClient.put<any, OrderResponse>(`/order/${orderId}/status`, {
+  return await axiosClient.patch<any, OrderResponse>(`/order/${orderId}/status`, {
     status,
   });
 }

@@ -17,12 +17,12 @@ export class UserService {
         account: {
           include: {
             role: true,
-          }
-        }
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
   }
 
@@ -33,16 +33,16 @@ export class UserService {
         account: {
           include: {
             role: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      include: { account: true }
+      include: { account: true },
     });
 
     if (!user || !user.account) {
@@ -56,7 +56,7 @@ export class UserService {
 
     if (updateUserDto.roleName) {
       const role = await this.prisma.role.findUnique({
-        where: { name: updateUserDto.roleName }
+        where: { name: updateUserDto.roleName },
       });
       if (role) {
         dataToUpdate.roleId = role.id;
@@ -66,7 +66,7 @@ export class UserService {
     if (Object.keys(dataToUpdate).length > 0) {
       await this.prisma.account.update({
         where: { id: user.accountId },
-        data: dataToUpdate
+        data: dataToUpdate,
       });
     }
 
