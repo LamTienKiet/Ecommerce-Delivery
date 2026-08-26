@@ -36,7 +36,7 @@ export const ProductList = () => {
         setLoading(true);
         setError(null);
         const [productsResponse, categories] = await Promise.all([
-          getProducts(currentPage, 12),
+          getProducts(currentPage, 6, selectedCategory),
           getCategory(),
         ]);
 
@@ -54,14 +54,10 @@ export const ProductList = () => {
     }
 
     fetchData();
-  }, [currentPage]);
+  }, [currentPage, selectedCategory]);
 
   const filteredProducts = useMemo(() => {
     let result = [...products];
-
-    if (selectedCategory !== null) {
-      result = result.filter((p) => p.categoryId === selectedCategory);
-    }
 
     if (searchTerm.trim() !== "") {
       const keyword = searchTerm.toLowerCase();
@@ -136,6 +132,7 @@ export const ProductList = () => {
             searchParams.delete("category");
             setSearchParams(searchParams);
             setSelectedCategory(null);
+            setCurrentPage(1); // Reset về trang 1
           }}
           className={`rounded-full px-5 py-2.5 text-sm font-medium tracking-wide transition-all duration-300 ${
             selectedCategory === null
@@ -154,6 +151,7 @@ export const ProductList = () => {
               searchParams.set("category", String(cat.id));
               setSearchParams(searchParams);
               setSelectedCategory(cat.id);
+              setCurrentPage(1); // Reset về trang 1
             }}
             className={`rounded-full px-5 py-2.5 text-sm font-medium tracking-wide transition-all duration-300 ${
               selectedCategory === cat.id

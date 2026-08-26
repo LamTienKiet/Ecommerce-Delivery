@@ -18,10 +18,12 @@ export interface PaginatedProductResponse {
 export async function getProducts(
   page: number = 1,
   limit: number = 12,
+  categoryId?: number | null,
 ): Promise<PaginatedProductResponse> {
-  return await axiosClient.get<any, PaginatedProductResponse>(
-    `/product?page=${page}&limit=${limit}`,
-  );
+  const url = categoryId
+    ? `/product?page=${page}&limit=${limit}&categoryId=${categoryId}`
+    : `/product?page=${page}&limit=${limit}`;
+  return await axiosClient.get<any, PaginatedProductResponse>(url);
 }
 
 export async function getProductById(id: number): Promise<ProductResponse> {

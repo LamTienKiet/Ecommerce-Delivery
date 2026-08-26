@@ -12,7 +12,6 @@ export const UserLayout = () => {
       fetchCartCount();
     }
   }, [user, fetchCartCount]);
-
   return (
     <div className="min-h-screen bg-[#121B16] text-[#F1E9D8] font-sans selection:bg-[#B7913C] selection:text-[#121B16] flex flex-col">
       {/* Client Luxury Header / Navigation */}
@@ -97,11 +96,9 @@ export const UserLayout = () => {
                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                   />
                 </svg>
-                {cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#B7913C] text-[#121B16] text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-[#121B16]">
-                    {cartCount}
-                  </span>
-                )}
+                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#B7913C] text-[#121B16] text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-[#121B16]">
+                  {}
+                </span>
               </button>
             </Link>
 
@@ -112,20 +109,24 @@ export const UserLayout = () => {
                   to="/profile"
                   className="flex items-center gap-2 group cursor-pointer transition-all duration-300"
                 >
-                  <div className="p-2 rounded-full bg-[#16251e] border border-[#2a3c31] text-[#A9B4A4] group-hover:text-[#B7913C] group-hover:border-[#B7913C] transition-all duration-300">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
+                  <div className="w-8 h-8 rounded-full bg-[#16251e] border border-[#2a3c31] text-[#A9B4A4] group-hover:text-[#B7913C] group-hover:border-[#B7913C] transition-all duration-300 flex items-center justify-center overflow-hidden">
+                    {user.avatar ? (
+                      <img src={`http://localhost:3000${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
+                      </svg>
+                    )}
                   </div>
                   <div className="flex flex-col text-left">
                     <span className="text-[10px] text-[#A9B4A4] uppercase tracking-widest">

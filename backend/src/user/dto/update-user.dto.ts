@@ -8,4 +8,8 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   roleName?: string;
+
+  @IsOptional()
+  @IsString()
+  avatar?: string;
 }

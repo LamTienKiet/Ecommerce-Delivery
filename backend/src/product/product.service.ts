@@ -34,11 +34,14 @@ export class ProductService {
     });
   }
 
-  async findAll(page: number = 1, limit: number = 10) {
+  async findAll(page: number = 1, limit: number = 10, categoryId?: number) {
     //tinh toan sl sp moi trang bo qua
     const skip = (page - 1) * limit;
 
+    const where = categoryId ? { categoryId: categoryId } : {};
+
     const products = await this.prismaService.product.findMany({
+      where: where,
       skip: skip,
       take: limit,
       include: {
@@ -49,7 +52,7 @@ export class ProductService {
       },
     });
 
-    const total = await this.prismaService.product.count();
+    const total = await this.prismaService.product.count({ where });
     const totalPages = Math.ceil(total / limit);
 
     return {

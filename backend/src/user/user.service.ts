@@ -70,6 +70,13 @@ export class UserService {
       });
     }
 
+    if (updateUserDto.avatar !== undefined) {
+      await this.prisma.user.update({
+        where: { id },
+        data: { avatar: updateUserDto.avatar },
+      });
+    }
+
     return this.findOne(id);
   }
 

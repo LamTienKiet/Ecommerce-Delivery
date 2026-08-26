@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuthStore } from "../../../store/useAuthStore";
-import { updateProfileApi } from "../../../services/profile.service";
+import { updateProfileApi, uploadAvatarApi, updateAvatarApi } from "../../../services/profile.service";
+import { getImageUrl } from "../../../utils/image";
 import toast from "react-hot-toast";
 
 export const ProfilePage = () => {
@@ -42,6 +43,35 @@ export const ProfilePage = () => {
     }
   }
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      toast.loading("Đang tải ảnh lên...", { id: "avatar-upload" });
+      const uploadRes = await uploadAvatarApi(file) as any;
+      const newAvatarUrl = uploadRes?.url || uploadRes?.data?.url;
+
+      if (!newAvatarUrl) {
+        throw new Error("Không nhận được đường dẫn ảnh từ server");
+      }
+
+      await updateAvatarApi(newAvatarUrl);
+      updateUser({ avatar: newAvatarUrl });
+
+      toast.success("Cập nhật ảnh đại diện thành công!", { id: "avatar-upload" });
+    } catch (error) {
+      console.error("Avatar upload error", error);
+      toast.error("Lỗi khi tải ảnh lên", { id: "avatar-upload" });
+    }
+  };
+
   const initials =
     user?.fullName
       ?.split(" ")
@@ -77,9 +107,26 @@ export const ProfilePage = () => {
         />
 
         <div className="relative flex flex-col sm:flex-row sm:items-center gap-6 p-8">
-          <div className="w-24 h-24 shrink-0 rounded-full bg-[#121B16] border-2 border-[#B7913C] flex items-center justify-center text-[#B7913C] shadow-lg shadow-[#B7913C]/10 text-2xl font-serif font-semibold">
-            {initials}
+          <div 
+            onClick={handleAvatarClick}
+            className="group relative w-24 h-24 shrink-0 rounded-full bg-[#121B16] border-2 border-[#B7913C] flex items-center justify-center text-[#B7913C] shadow-lg shadow-[#B7913C]/10 text-2xl font-serif font-semibold cursor-pointer overflow-hidden transition-all duration-300 hover:border-[#F1E9D8]"
+          >
+            {user?.avatar ? (
+              <img src={getImageUrl(user.avatar)} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              initials
+            )}
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            </div>
           </div>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileChange} 
+            accept="image/*" 
+            className="hidden" 
+          />
 
           <div className="flex-1 min-w-0">
             <div className="text-2xl font-serif font-semibold text-[#F1E9D8] truncate">

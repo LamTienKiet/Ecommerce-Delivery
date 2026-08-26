@@ -63,10 +63,15 @@ export class ProductController {
   }
 
   @Get()
-  findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
+  findAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('categoryId') categoryId?: string,
+  ) {
     const pageNumber = page ? parseInt(page) : 1;
     const limitNumber = limit ? parseInt(limit) : 10;
-    return this.productService.findAll(pageNumber, limitNumber);
+    const catId = categoryId ? parseInt(categoryId) : undefined;
+    return this.productService.findAll(pageNumber, limitNumber, catId);
   }
 
   @Get(':id')
