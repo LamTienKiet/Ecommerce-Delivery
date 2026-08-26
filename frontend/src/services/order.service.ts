@@ -6,8 +6,8 @@ import axiosClient from "../utils/axiosClient";
 
 export async function createOrder(
   data: CreateOrderRequest,
-): Promise<OrderResponse> {
-  return await axiosClient.post<any, OrderResponse>("/order", data);
+): Promise<{ message: string, order: OrderResponse, vnpayUrl?: string }> {
+  return await axiosClient.post<any, any>("/order", data);
 }
 // Lấy danh sách đơn hàng của người dùng hiện tại
 export async function getMyOrders(): Promise<OrderResponse[]> {

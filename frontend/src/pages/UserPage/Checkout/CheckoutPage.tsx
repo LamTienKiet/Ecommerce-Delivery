@@ -92,11 +92,15 @@ export const CheckoutPage = () => {
         paymentMethod,
       };
 
-      await createOrder(orderPayload);
+      const response = await createOrder(orderPayload);
       await fetchCartCount(); // Xóa số 0 trên giỏ hàng
-      alert("Đặt hàng thành công");
 
-      // Sau khi tạo thành công, chuyển hướng về trang lịch sử đơn hàng
+      if (response.vnpayUrl) {
+        window.location.href = response.vnpayUrl;
+        return;
+      }
+
+      alert("Đặt hàng thành công");
       navigate("/order");
     } catch (err) {
       console.error("Lỗi khi đặt hàng:", err);
