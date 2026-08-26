@@ -98,10 +98,10 @@ export class PaymentService {
     return { status: 'invalid_signature', orderId: null };
   }
 
-  // MoMo Sandbox Config
-  private momo_PartnerCode = 'MOMO';
-  private momo_AccessKey = 'F8BBA842ECF85';
-  private momo_SecretKey = 'K951B6PE1waRuI1c72';
+  // Momo Sandbox Config
+  private momo_PartnerCode = 'MOMOBKUN20180529';
+  private momo_AccessKey = 'klm05TvNCzjOaHU1';
+  private momo_SecretKey = 'at67qH6nd8BlTpyaB6pe50ZmJUqH2U7S';
   private momo_Url = 'https://test-payment.momo.vn/v2/gateway/api/create';
   private momo_ReturnUrl = 'http://localhost:3000/payment/momo_return';
 

@@ -97,7 +97,7 @@ export const UserLayout = () => {
                   />
                 </svg>
                 <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#B7913C] text-[#121B16] text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-[#121B16]">
-                  {}
+                  {cartCount}
                 </span>
               </button>
             </Link>
