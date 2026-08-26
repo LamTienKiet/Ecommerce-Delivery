@@ -32,9 +32,9 @@ export class PaymentService {
     vnp_Params['vnp_TxnRef'] = orderId + '-' + new Date().getTime(); // Unique transaction per attempt
     vnp_Params['vnp_OrderInfo'] = 'Thanh toan don hang ' + orderId;
     vnp_Params['vnp_OrderType'] = 'other';
-    vnp_Params['vnp_Amount'] = amount * 100; // VNPay requires multiplying by 100
+    vnp_Params['vnp_Amount'] = Math.round(amount * 100); // VNPay requires multiplying by 100 and must be integer
     vnp_Params['vnp_ReturnUrl'] = this.vnp_ReturnUrl;
-    vnp_Params['vnp_IpAddr'] = ipAddr || '127.0.0.1';
+    vnp_Params['vnp_IpAddr'] = (ipAddr && ipAddr !== '::1') ? ipAddr : '127.0.0.1';
     vnp_Params['vnp_CreateDate'] = vnp_CreateDate;
     vnp_Params['vnp_ExpireDate'] = vnp_ExpireDate;
 
@@ -95,6 +95,105 @@ export class PaymentService {
       return { status: isSuccess ? 'success' : 'failed', orderId };
     }
 
+    return { status: 'invalid_signature', orderId: null };
+  }
+
+  // MoMo Sandbox Config
+  private momo_PartnerCode = 'MOMO';
+  private momo_AccessKey = 'F8BBA842ECF85';
+  private momo_SecretKey = 'K951B6PE1waRuI1c72';
+  private momo_Url = 'https://test-payment.momo.vn/v2/gateway/api/create';
+  private momo_ReturnUrl = 'http://localhost:3000/payment/momo_return';
+
+  async createMomoUrl(order: any) {
+    const accessKey = this.momo_AccessKey;
+    const secretKey = this.momo_SecretKey;
+    const orderInfo = 'Thanh toan don hang ' + order.id;
+    const partnerCode = this.momo_PartnerCode;
+    const redirectUrl = this.momo_ReturnUrl;
+    const ipnUrl = this.momo_ReturnUrl;
+    const requestType = "captureWallet";
+    const amountNum = Math.round(Number(order.totalAmount));
+    const amount = amountNum.toString();
+    const orderId = order.id + '-' + new Date().getTime();
+    const requestId = orderId;
+    const extraData = "";
+    
+    const rawSignature = `accessKey=${accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
+    
+    const signature = crypto.createHmac('sha256', secretKey)
+        .update(rawSignature)
+        .digest('hex');
+    
+    const requestBody = JSON.stringify({
+        partnerCode: partnerCode,
+        partnerName: "Test",
+        storeId: "MomoTestStore",
+        requestId: requestId,
+        amount: amountNum,
+        orderId: orderId,
+        orderInfo: orderInfo,
+        redirectUrl: redirectUrl,
+        ipnUrl: ipnUrl,
+        lang: 'vi',
+        requestType: requestType,
+        autoCapture: true,
+        extraData: extraData,
+        signature: signature
+    });
+    
+    const response = await fetch(this.momo_Url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: requestBody
+    });
+    
+    const result: any = await response.json();
+    console.log("Momo Response: ", result);
+    return result.payUrl;
+  }
+
+  async momoReturn(query: any) {
+    const { partnerCode, orderId, requestId, amount, orderInfo, orderType, transId, resultCode, message, payType, responseTime, extraData, signature } = query;
+    const rawSignature = `accessKey=${this.momo_AccessKey}&amount=${amount}&extraData=${extraData}&message=${message}&orderId=${orderId}&orderInfo=${orderInfo}&orderType=${orderType}&partnerCode=${partnerCode}&payType=${payType}&requestId=${requestId}&responseTime=${responseTime}&resultCode=${resultCode}&transId=${transId}`;
+    
+    const expectedSignature = crypto.createHmac('sha256', this.momo_SecretKey).update(rawSignature).digest('hex');
+    
+    if (signature === expectedSignature) {
+        const originalOrderId = parseInt(orderId.split('-')[0], 10);
+        const isSuccess = resultCode === '0';
+        
+        const payment = await this.prisma.payment.findUnique({
+          where: { orderId: originalOrderId },
+        });
+        if (payment) {
+          await this.prisma.payment.update({
+            where: { orderId: originalOrderId },
+            data: { status: isSuccess ? 'SUCCESS' : 'FAILED' },
+          });
+
+          await this.prisma.paymentTransaction.create({
+            data: {
+              paymentId: payment.id,
+              transactionCode: transId || orderId,
+              gatewayResponse: JSON.stringify(query),
+            },
+          });
+
+          if (isSuccess) {
+            await this.prisma.order.update({
+              where: { id: originalOrderId },
+              data: { currentStatus: 'CONFIRMED' },
+            });
+            await this.prisma.orderStatusHistory.create({
+              data: { orderId: originalOrderId, status: 'CONFIRMED' },
+            });
+          }
+        }
+        return { status: isSuccess ? 'success' : 'failed', orderId: originalOrderId };
+    }
     return { status: 'invalid_signature', orderId: null };
   }
 

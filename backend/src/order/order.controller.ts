@@ -31,6 +31,11 @@ export class OrderController {
       return { message: "Order created successfully", order, vnpayUrl };
     }
     
+    if (createOrderDto.paymentMethod === 'momo') {
+      const momoUrl = await this.paymentService.createMomoUrl(order);
+      return { message: "Order created successfully", order, momoUrl };
+    }
+    
     return { message: "Order created successfully", order };
   }
 

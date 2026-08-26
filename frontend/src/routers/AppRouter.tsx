@@ -18,7 +18,7 @@ import { RevenueAdmin } from "../pages/AdminPage/RevenueAdmin";
 import { UserAdmin } from "../pages/AdminPage/UserAdmin";
 import { ProtectedRoute } from "../components/ProtectedRoute";
 import { ProfilePage } from "../pages/UserPage/Profile/ProfilePage";
-import { VnpayReturnPage } from "../pages/UserPage/Checkout/VnpayReturnPage";
+import { PaymentReturnPage } from "../pages/UserPage/Checkout/PaymentReturnPage";
 
 export default function AppRouters() {
   return (
@@ -43,7 +43,7 @@ export default function AppRouters() {
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order/:id" element={<OrderDetail />} />
-            <Route path="/vnpay-return" element={<VnpayReturnPage />} />
+            <Route path="/payment-return" element={<PaymentReturnPage />} />
           </Route>
         </Route>
         {/* --- ROUTES CÔNG KHAI --- */}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-export const VnpayReturnPage: React.FC = () => {
+export const PaymentReturnPage: React.FC = () => {
   const [status, setStatus] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
   const location = useLocation();
