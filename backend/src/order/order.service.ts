@@ -5,16 +5,24 @@ import {
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { OrderCreatedEvent } from './events/order-created.event';
 
 @Injectable()
 export class OrderService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private eventEmitter: EventEmitter2,
+  ) {}
 
   async createOrder(userId: number, createOrderDto: CreateOrderDto) {
     return await this.prismaService.$transaction(async (tx) => {
       const cart = await tx.cart.findUnique({
         where: { userId },
         include: {
+          user: {
+            include: { account: true }
+          },
           cartItems: {
             include: {
               product: true,
@@ -82,6 +90,13 @@ export class OrderService {
       await tx.cartItem.deleteMany({
         where: { cartId: cart.id },
       });
+
+      // 5. Emit Event
+      const email = cart.user?.account?.email;
+      this.eventEmitter.emit(
+        'order.created',
+        new OrderCreatedEvent(order.id, userId, Number(totalAmount), orderItemsData, email),
+      );
 
       return order;
     });

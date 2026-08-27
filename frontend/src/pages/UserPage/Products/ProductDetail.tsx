@@ -340,7 +340,7 @@ export const ProductDetail = () => {
                     />
                   </svg>
                   <span>
-                    {product.isAvailable ? "Đặt món ngay" : "Tạm hết món"}
+                    {product.isAvailable ? "Đặt món ngay" : "Hiện đang tạm ngưng món"}
                   </span>
                 </button>
               </div>

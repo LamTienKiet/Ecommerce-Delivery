@@ -23,20 +23,30 @@ export class OrderController {
   ) {}
 
   @Post()
-  async createOrder(@Request() req, @Ip() ip, @Body() createOrderDto: CreateOrderDto) {
-    const order = await this.orderService.createOrder(req.user.sub, createOrderDto);
-    
-    if (createOrderDto.paymentMethod === 'bank' || createOrderDto.paymentMethod === 'vnpay') {
+  async createOrder(
+    @Request() req,
+    @Ip() ip,
+    @Body() createOrderDto: CreateOrderDto,
+  ) {
+    const order = await this.orderService.createOrder(
+      req.user.sub,
+      createOrderDto,
+    );
+
+    if (
+      createOrderDto.paymentMethod === 'bank' ||
+      createOrderDto.paymentMethod === 'vnpay'
+    ) {
       const vnpayUrl = this.paymentService.createVnpayUrl(order, ip);
-      return { message: "Order created successfully", order, vnpayUrl };
+      return { message: 'Order created successfully', order, vnpayUrl };
     }
-    
+
     if (createOrderDto.paymentMethod === 'momo') {
       const momoUrl = await this.paymentService.createMomoUrl(order);
-      return { message: "Order created successfully", order, momoUrl };
+      return { message: 'Order created successfully', order, momoUrl };
     }
-    
-    return { message: "Order created successfully", order };
+
+    return { message: 'Order created successfully', order };
   }
 
   @Get()
@@ -55,10 +65,7 @@ export class OrderController {
   }
 
   @Patch(':id/status')
-  updateOrderStatus(
-    @Param('id') id: string,
-    @Body('status') status: string,
-  ) {
+  updateOrderStatus(@Param('id') id: string, @Body('status') status: string) {
     // Note: In a real app, this should probably be restricted to admin/staff roles
     return this.orderService.updateOrderStatus(+id, status);
   }
