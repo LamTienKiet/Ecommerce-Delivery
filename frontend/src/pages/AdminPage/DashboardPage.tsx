@@ -1,95 +1,89 @@
+import { useState, useEffect } from "react";
+import { getDashboardStats, DashboardStatsResponse } from "../../services/dashboard.service";
+import toast from "react-hot-toast";
+
 export const DashboardPage = () => {
-  const recentOrders = [
-    {
-      id: "#1024",
-      customer: "Nguyễn Văn A",
-      items: "Combo Gà Rán A, Coca-Cola",
-      amount: "150.000đ",
-      status: "PENDING",
-      statusLabel: "Chờ xác nhận",
-      time: "5 phút trước",
-    },
-    {
-      id: "#1023",
-      customer: "Trần Thị B",
-      items: "Pizza Hải Sản Size L",
-      amount: "220.000đ",
-      status: "PREPARING",
-      statusLabel: "Đang chuẩn bị",
-      time: "15 phút trước",
-    },
-    {
-      id: "#1022",
-      customer: "Lê Văn C",
-      items: "Trà Sữa Trân Châu Đường Đen x2",
-      amount: "90.000đ",
-      status: "DELIVERING",
-      statusLabel: "Đang giao hàng",
-      time: "30 phút trước",
-    },
-    {
-      id: "#1021",
-      customer: "Phạm Văn D",
-      items: "Lẩu Thái Hải Sản Đặc Biệt",
-      amount: "350.000đ",
-      status: "COMPLETED",
-      statusLabel: "Đã hoàn thành",
-      time: "1 giờ trước",
-    },
-    {
-      id: "#1020",
-      customer: "Hoàng Thị E",
-      items: "Mỳ Ý Sốt Bò Bằm",
-      amount: "85.000đ",
-      status: "CANCELLED",
-      statusLabel: "Đã hủy",
-      time: "3 giờ trước",
-    },
-  ];
+  const [data, setData] = useState<DashboardStatsResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setIsLoading(true);
+        const stats = await getDashboardStats();
+        setData(stats);
+      } catch (error) {
+        console.error("Lỗi khi tải thống kê", error);
+        toast.error("Không thể tải dữ liệu thống kê");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
 
   const handleExportForm = () => {};
 
   // Helper để render badge trạng thái đơn hàng
-  const getStatusBadge = (status: string, label: string) => {
+  const getStatusBadge = (status: string, label?: string) => {
+    const text = label || status;
     switch (status) {
       case "PENDING":
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-            {label}
+            {text}
           </span>
         );
       case "PREPARING":
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-            {label}
+            {text}
           </span>
         );
       case "DELIVERING":
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
-            {label}
+            {text}
           </span>
         );
       case "COMPLETED":
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            {label}
+            {text}
           </span>
         );
       case "CANCELLED":
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-            {label}
+            {text}
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
-            {label}
+            {text}
           </span>
         );
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[500px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  // Calculate percentages for pie chart legend
+  const getCountByStatus = (status: string) => {
+    return data?.statusDistribution.find(s => s.status === status)?.count || 0;
+  };
+
+  const total = data?.totalOrders || 1; // prevent divide by zero
+  const completedCount = getCountByStatus("COMPLETED");
+  const deliveringCount = getCountByStatus("DELIVERING");
+  const preparingCount = getCountByStatus("PREPARING") + getCountByStatus("PENDING");
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -99,8 +93,7 @@ export const DashboardPage = () => {
             Tổng Quan Hệ Thống
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Chào mừng quay lại, Chef! Đây là báo cáo hiệu suất hoạt động hôm
-            nay.
+            Chào mừng quay lại, Chef! Đây là báo cáo hiệu suất hoạt động.
           </p>
         </div>
         <div className="flex items-center space-x-3">
@@ -120,7 +113,7 @@ export const DashboardPage = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-slate-400">
-              Doanh Thu Ngày
+              Tổng Doanh Thu
             </span>
             <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
               <svg
@@ -140,23 +133,11 @@ export const DashboardPage = () => {
             </div>
           </div>
           <div className="mt-4">
-            <h3 className="text-2xl font-bold text-slate-900">4,280,000đ</h3>
+            <h3 className="text-2xl font-bold text-slate-900">
+              {data?.totalRevenue.toLocaleString("vi-VN")}đ
+            </h3>
             <span className="inline-flex items-center text-xs font-medium text-emerald-600 mt-1 bg-emerald-50 px-2 py-0.5 rounded-md">
-              <svg
-                className="w-3.5 h-3.5 mr-0.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2.5"
-                  d="M5 10l7-7m0 0l7 7m-7-7v18"
-                />
-              </svg>
-              +12.5% tuần trước
+              Cập nhật lúc {new Date().toLocaleTimeString("vi-VN")}
             </span>
           </div>
         </div>
@@ -165,7 +146,7 @@ export const DashboardPage = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-slate-400">
-              Đơn Hàng Mới
+              Tổng Đơn Hàng
             </span>
             <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
               <svg
@@ -185,23 +166,11 @@ export const DashboardPage = () => {
             </div>
           </div>
           <div className="mt-4">
-            <h3 className="text-2xl font-bold text-slate-900">48 đơn</h3>
+            <h3 className="text-2xl font-bold text-slate-900">
+              {data?.totalOrders} đơn
+            </h3>
             <span className="inline-flex items-center text-xs font-medium text-indigo-600 mt-1 bg-indigo-50 px-2 py-0.5 rounded-md">
-              <svg
-                className="w-3.5 h-3.5 mr-0.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2.5"
-                  d="M5 10l7-7m0 0l7 7m-7-7v18"
-                />
-              </svg>
-              +8.3% hôm qua
+              Tổng số lượng đơn hàng
             </span>
           </div>
         </div>
@@ -230,23 +199,11 @@ export const DashboardPage = () => {
             </div>
           </div>
           <div className="mt-4">
-            <h3 className="text-2xl font-bold text-slate-900">120 món</h3>
+            <h3 className="text-2xl font-bold text-slate-900">
+              {data?.activeProducts} món
+            </h3>
             <span className="inline-flex items-center text-xs font-medium text-amber-600 mt-1 bg-amber-50 px-2 py-0.5 rounded-md">
-              <svg
-                className="w-3.5 h-3.5 mr-0.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2.5"
-                  d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              5 món mới tuần này
+              Đang mở bán
             </span>
           </div>
         </div>
@@ -254,7 +211,7 @@ export const DashboardPage = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-slate-400">
-              Khách Hàng Mới
+              Tổng Khách Hàng
             </span>
             <div className="w-10 h-10 bg-cyan-50 rounded-xl flex items-center justify-center text-cyan-600">
               <svg
@@ -274,36 +231,25 @@ export const DashboardPage = () => {
             </div>
           </div>
           <div className="mt-4">
-            <h3 className="text-2xl font-bold text-slate-900">1,240 người</h3>
+            <h3 className="text-2xl font-bold text-slate-900">
+              {data?.totalCustomers} người
+            </h3>
             <span className="inline-flex items-center text-xs font-medium text-cyan-600 mt-1 bg-cyan-50 px-2 py-0.5 rounded-md">
-              <svg
-                className="w-3.5 h-3.5 mr-0.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2.5"
-                  d="M5 10l7-7m0 0l7 7m-7-7v18"
-                />
-              </svg>
-              +15.2% tháng này
+              Trên toàn hệ thống
             </span>
           </div>
         </div>
       </div>
 
       {/* Charts & Graphs simulated via SVGs */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Doanh thu 7 ngày qua */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 opacity-75 grayscale hover:grayscale-0 transition-all duration-500 cursor-not-allowed">
+        {/* Doanh thu 7 ngày qua - Giữ nguyen giao diện mô phỏng để sau làm Analytics xịn */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-2 space-y-6 pointer-events-none">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-slate-900 text-lg">
-                Biểu Đồ Doanh Thu Tuần
+              <h3 className="font-bold text-slate-900 text-lg flex items-center gap-2">
+                Biểu Đồ Doanh Thu Tuần 
+                <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">Đang mô phỏng</span>
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
                 Xu hướng từ Thứ 2 đến Chủ nhật
@@ -414,7 +360,7 @@ export const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Trạng thái đơn hàng */}
+        {/* Trạng thái đơn hàng - Cập nhật dữ liệu thật nhưng dùng mock chart */}
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
           <div>
             <h3 className="font-bold text-slate-900 text-lg">
@@ -425,7 +371,7 @@ export const DashboardPage = () => {
             </p>
           </div>
 
-          <div className="py-6 flex items-center justify-center relative">
+          <div className="py-6 flex items-center justify-center relative pointer-events-none">
             {/* SVG Pie Chart Mockup */}
             <svg className="w-36 h-36" viewBox="0 0 36 36">
               {/* Background circle */}
@@ -472,34 +418,40 @@ export const DashboardPage = () => {
               />
             </svg>
             <div className="absolute flex flex-col items-center">
-              <span className="text-2xl font-bold text-slate-800">48</span>
+              <span className="text-2xl font-bold text-slate-800">{data?.totalOrders}</span>
               <span className="text-[10px] font-semibold text-slate-400 uppercase">
                 Đơn hàng
               </span>
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 pointer-events-none">
             <div className="flex items-center justify-between text-xs font-medium text-slate-600">
               <div className="flex items-center space-x-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
                 <span>Đã hoàn thành</span>
               </div>
-              <span className="font-semibold text-slate-800">29 đơn (60%)</span>
+              <span className="font-semibold text-slate-800">
+                {completedCount} đơn ({Math.round((completedCount / total) * 100)}%)
+              </span>
             </div>
             <div className="flex items-center justify-between text-xs font-medium text-slate-600">
               <div className="flex items-center space-x-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
                 <span>Đang giao</span>
               </div>
-              <span className="font-semibold text-slate-800">12 đơn (25%)</span>
+              <span className="font-semibold text-slate-800">
+                {deliveringCount} đơn ({Math.round((deliveringCount / total) * 100)}%)
+              </span>
             </div>
             <div className="flex items-center justify-between text-xs font-medium text-slate-600">
               <div className="flex items-center space-x-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
                 <span>Đang xử lý</span>
               </div>
-              <span className="font-semibold text-slate-800">7 đơn (15%)</span>
+              <span className="font-semibold text-slate-800">
+                {preparingCount} đơn ({Math.round((preparingCount / total) * 100)}%)
+              </span>
             </div>
           </div>
         </div>
@@ -512,7 +464,7 @@ export const DashboardPage = () => {
               Đơn Hàng Gần Đây
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Danh sách các đơn hàng mới nhất trên hệ thống
+              Danh sách 5 đơn hàng mới nhất trên hệ thống
             </p>
           </div>
           <button className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors self-start sm:self-auto">
@@ -534,7 +486,7 @@ export const DashboardPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm text-slate-600">
-              {recentOrders.map((order) => (
+              {data?.recentOrders?.map((order) => (
                 <tr
                   key={order.id}
                   className="hover:bg-slate-50/40 transition-colors"
@@ -550,10 +502,10 @@ export const DashboardPage = () => {
                     {order.amount}
                   </td>
                   <td className="px-6 py-4 text-xs text-slate-400">
-                    {order.time}
+                    {new Date(order.time).toLocaleString('vi-VN')}
                   </td>
                   <td className="px-6 py-4">
-                    {getStatusBadge(order.status, order.statusLabel)}
+                    {getStatusBadge(order.status)}
                   </td>
                   <td className="px-6 py-4 text-center">
                     <button className="text-xs font-semibold text-indigo-600 hover:underline">
@@ -562,6 +514,13 @@ export const DashboardPage = () => {
                   </td>
                 </tr>
               ))}
+              {!data?.recentOrders?.length && (
+                <tr>
+                  <td colSpan={7} className="px-6 py-8 text-center text-slate-500">
+                    Chưa có đơn hàng nào
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

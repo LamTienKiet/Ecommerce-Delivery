@@ -15,6 +15,7 @@ import { NotificationModule } from './notification/notification.module';
 import { ProfileModule } from './profile/profile.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     NotificationModule,
     ProfileModule,
     CloudinaryModule,
+    DashboardModule,
     EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
