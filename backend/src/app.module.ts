@@ -14,6 +14,7 @@ import { ReviewModule } from './review/review.module';
 import { NotificationModule } from './notification/notification.module';
 import { ProfileModule } from './profile/profile.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     ReviewModule,
     NotificationModule,
     ProfileModule,
+    CloudinaryModule,
     EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],

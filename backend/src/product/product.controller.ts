@@ -16,28 +16,23 @@ import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { memoryStorage } from 'multer';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles/roles.guard';
 import { Roles } from 'src/auth/roles/roles.decorator';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Controller('product')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Post('upload')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, callback) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname);
-          callback(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-        },
-      }),
+      storage: memoryStorage(),
       fileFilter: (req, file, callback) => {
         if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
           return callback(new Error('Chỉ chấp nhận file ảnh!'), false);
@@ -46,12 +41,16 @@ export class ProductController {
       },
     }),
   )
-  uploadFile(@UploadedFile() file?: any) {
+  async uploadFile(@UploadedFile() file?: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('Không tìm thấy file để upload');
     }
+    
+    // Upload thẳng lên Cloudinary
+    const result = await this.cloudinaryService.uploadFile(file);
+
     return {
-      url: `/uploads/${file.filename}`,
+      url: result.secure_url,
     };
   }
 
