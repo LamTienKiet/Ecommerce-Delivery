@@ -13,8 +13,9 @@ export interface SignInData {
 }
 export interface AuthResult {
   accessToken: string;
-  username: string;
+  refreshToken: string;
   id: number;
+  username: string;
   role: string;
   email: string;
   fullName: string;

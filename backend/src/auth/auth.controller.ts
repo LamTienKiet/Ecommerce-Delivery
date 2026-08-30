@@ -19,4 +19,10 @@ export class AuthController {
   register(@Body() input: RegisterDto) {
     return this.authService.register(input);
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('refresh')
+  refresh(@Body('refreshToken') refreshToken: string) {
+    return this.authService.refreshToken(refreshToken);
+  }
 }

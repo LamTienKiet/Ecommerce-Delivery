@@ -12,26 +12,37 @@ interface User {
 interface AuthenState {
   user: User | null;
   token: string | null;
-  login: (user: User, token: string) => void;
+  refreshToken: string | null;
+  login: (user: User, token: string, refreshToken: string) => void;
+  setTokens: (token: string, refreshToken: string) => void;
   logout: () => void;
   updateUser: (user: Partial<User>) => void;
 }
 
 const storedUser = localStorage.getItem("user");
 const storedToken = localStorage.getItem("token");
+const storedRefreshToken = localStorage.getItem("refreshToken");
 
 export const useAuthStore = create<AuthenState>((set) => ({
   user: storedUser ? JSON.parse(storedUser) : null,
   token: storedToken,
-  login: (user, token) => {
+  refreshToken: storedRefreshToken,
+  login: (user, token, refreshToken) => {
     localStorage.setItem("token", token);
+    localStorage.setItem("refreshToken", refreshToken);
     localStorage.setItem("user", JSON.stringify(user));
-    set({ user, token });
+    set({ user, token, refreshToken });
+  },
+  setTokens: (token, refreshToken) => {
+    localStorage.setItem("token", token);
+    localStorage.setItem("refreshToken", refreshToken);
+    set({ token, refreshToken });
   },
   logout: () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
-    set({ user: null, token: null });
+    set({ user: null, token: null, refreshToken: null });
   },
   updateUser: (updatedFields: Partial<User>) => {
     set((state) => {

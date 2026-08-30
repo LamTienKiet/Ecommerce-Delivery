@@ -11,7 +11,9 @@ export class DashboardService {
       where: { currentStatus: 'COMPLETED' },
       _sum: { totalAmount: true },
     });
-    const totalRevenue = revenueAgg._sum.totalAmount ? Number(revenueAgg._sum.totalAmount) : 0;
+    const totalRevenue = revenueAgg._sum.totalAmount
+      ? Number(revenueAgg._sum.totalAmount)
+      : 0;
 
     // 2. Tổng số đơn hàng (Tất cả trừ Hủy)
     const totalOrders = await this.prisma.order.count({
@@ -35,7 +37,7 @@ export class DashboardService {
     });
 
     // Map orderStatusGroups thành dạng dễ đọc cho frontend
-    const statusDistribution = orderStatusGroups.map(group => ({
+    const statusDistribution = orderStatusGroups.map((group) => ({
       status: group.currentStatus,
       count: group._count.id,
     }));
@@ -49,7 +51,7 @@ export class DashboardService {
         orderItems: {
           include: {
             product: true,
-          }
+          },
         },
         payment: true,
       },

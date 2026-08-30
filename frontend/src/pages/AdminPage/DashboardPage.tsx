@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { getDashboardStats, DashboardStatsResponse } from "../../services/dashboard.service";
+import { getDashboardStats } from "../../services/dashboard.service";
+import type { DashboardStatsResponse } from "../../services/dashboard.service";
 import toast from "react-hot-toast";
 
 export const DashboardPage = () => {
@@ -77,7 +78,7 @@ export const DashboardPage = () => {
 
   // Calculate percentages for pie chart legend
   const getCountByStatus = (status: string) => {
-    return data?.statusDistribution.find(s => s.status === status)?.count || 0;
+    return data?.statusDistribution?.find(s => s.status === status)?.count || 0;
   };
 
   const total = data?.totalOrders || 1; // prevent divide by zero
@@ -134,7 +135,7 @@ export const DashboardPage = () => {
           </div>
           <div className="mt-4">
             <h3 className="text-2xl font-bold text-slate-900">
-              {data?.totalRevenue.toLocaleString("vi-VN")}đ
+              {(data?.totalRevenue || 0).toLocaleString("vi-VN")}đ
             </h3>
             <span className="inline-flex items-center text-xs font-medium text-emerald-600 mt-1 bg-emerald-50 px-2 py-0.5 rounded-md">
               Cập nhật lúc {new Date().toLocaleTimeString("vi-VN")}

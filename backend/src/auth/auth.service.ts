@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import {
   SignInData,
@@ -68,8 +69,23 @@ export class AuthService {
     };
 
     const accessToken = await this.jwtService.signAsync(tokenPayload);
+
+    // Generate Refresh Token
+    const refreshToken = crypto.randomBytes(40).toString('hex');
+    const expiredAt = new Date();
+    expiredAt.setDate(expiredAt.getDate() + 7); // 7 days expiration
+
+    await this.prismaService.refreshToken.create({
+      data: {
+        token: refreshToken,
+        expiredAt,
+        accountId: user.accountId,
+      },
+    });
+
     return {
       accessToken,
+      refreshToken,
       id: user.id,
       username: user.username,
       role: user.role,
@@ -77,6 +93,46 @@ export class AuthService {
       fullName: user.fullName,
       phone: user.phone,
     };
+  }
+
+  async refreshToken(token: string): Promise<AuthResult> {
+    const existingToken = await this.prismaService.refreshToken.findUnique({
+      where: { token },
+      include: {
+        account: {
+          include: { role: true, user: true },
+        },
+      },
+    });
+
+    if (!existingToken) {
+      throw new UnauthorizedException('Refresh token không hợp lệ');
+    }
+
+    if (new Date() > existingToken.expiredAt) {
+      await this.prismaService.refreshToken.delete({ where: { id: existingToken.id } });
+      throw new UnauthorizedException('Refresh token đã hết hạn');
+    }
+
+    // Xóa token cũ (Token Rotation)
+    await this.prismaService.refreshToken.delete({ where: { id: existingToken.id } });
+
+    const account = existingToken.account;
+    if (account.status !== 'ACTIVE') {
+      throw new UnauthorizedException('Tài khoản đã bị khóa');
+    }
+
+    const userData: SignInData = {
+      id: account.user?.id || 0,
+      accountId: account.id,
+      username: account.username,
+      role: account.role.name,
+      email: account.email,
+      fullName: account.user?.fullName || '',
+      phone: account.user?.phone || null,
+    };
+
+    return this.signIn(userData);
   }
 
   async register(input: SignUpData): Promise<RegisterResponseDto> {

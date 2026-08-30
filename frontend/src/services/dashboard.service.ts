@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import axiosClient from "../utils/axiosClient";
 
 export interface DashboardStatsResponse {
   totalRevenue: number;
@@ -21,6 +21,5 @@ export interface DashboardStatsResponse {
 }
 
 export const getDashboardStats = async (): Promise<DashboardStatsResponse> => {
-  const response = await apiClient.get('/dashboard/stats');
-  return response.data;
+  return await axiosClient.get<any, DashboardStatsResponse>('/dashboard/stats');
 };

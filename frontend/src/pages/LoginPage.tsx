@@ -50,6 +50,7 @@ export const LoginPage = () => {
           phone: data.phone,
         },
         data.accessToken,
+        data.refreshToken,
       );
 
       alert("Đăng nhập thành công!");
