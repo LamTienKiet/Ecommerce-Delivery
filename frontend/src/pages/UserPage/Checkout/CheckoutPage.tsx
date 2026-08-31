@@ -35,6 +35,12 @@ export const CheckoutPage = () => {
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
   const [promoError, setPromoError] = useState("");
 
+  const [formErrors, setFormErrors] = useState<{
+    fullName?: string;
+    phone?: string;
+    shippingAddress?: string;
+  }>({});
+
   useEffect(() => {
     async function fetchCartData() {
       try {
@@ -73,11 +79,35 @@ export const CheckoutPage = () => {
 
   const { fetchCartCount } = useCartStore();
 
+  const validateForm = () => {
+    const errors: { fullName?: string; phone?: string; shippingAddress?: string } = {};
+    if (!fullName.trim()) {
+      errors.fullName = "Vui lòng nhập họ và tên";
+    }
+    if (!phone.trim()) {
+      errors.phone = "Vui lòng nhập số điện thoại";
+    } else if (!/^(0[3|5|7|8|9])+([0-9]{8})$/.test(phone)) {
+      errors.phone = "Số điện thoại không hợp lệ (VD: 0912345678)";
+    }
+    
+    if (orderType === "delivery" && (!shippingAddress || !shippingAddress.trim())) {
+      errors.shippingAddress = "Vui lòng nhập địa chỉ giao hàng";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (cartItems.length === 0) {
       return alert("Your Cart is Empty");
     }
+    
+    if (!validateForm()) {
+      return;
+    }
+
     // TODO: Viết logic xử lý tạo đơn hàng ở đây
     try {
       setIsSubmitting(true);
@@ -217,41 +247,50 @@ export const CheckoutPage = () => {
               </div>
 
               <div className="checkout-row">
-                <div className="checkout-form-group">
+                <div className={`checkout-form-group ${formErrors.fullName ? "has-error" : ""}`}>
                   <label>Họ và tên người nhận</label>
                   <input
                     type="text"
                     className="checkout-input"
                     placeholder="Ví dụ: Nguyễn Văn A"
                     value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
+                    onChange={(e) => {
+                      setFullName(e.target.value);
+                      if (formErrors.fullName) setFormErrors({ ...formErrors, fullName: undefined });
+                    }}
                   />
+                  {formErrors.fullName && <div className="checkout-error-text" style={{color: "#d9534f", fontSize: "12px", marginTop: "4px"}}>{formErrors.fullName}</div>}
                 </div>
-                <div className="checkout-form-group">
+                <div className={`checkout-form-group ${formErrors.phone ? "has-error" : ""}`}>
                   <label>Số điện thoại</label>
                   <input
                     type="tel"
                     className="checkout-input"
-                    placeholder="090 123 4567"
+                    placeholder="0901234567"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
+                    onChange={(e) => {
+                      setPhone(e.target.value);
+                      if (formErrors.phone) setFormErrors({ ...formErrors, phone: undefined });
+                    }}
                   />
+                  {formErrors.phone && <div className="checkout-error-text" style={{color: "#d9534f", fontSize: "12px", marginTop: "4px"}}>{formErrors.phone}</div>}
                 </div>
               </div>
 
               {orderType === "delivery" && (
-                <div className="checkout-form-group">
+                <div className={`checkout-form-group ${formErrors.shippingAddress ? "has-error" : ""}`}>
                   <label>Địa chỉ giao hàng</label>
                   <input
                     type="text"
                     className="checkout-input"
                     placeholder="Số nhà, tên đường, phường/xã, quận/huyện..."
                     value={shippingAddress ?? ""}
-                    onChange={(e) => setShippingAddress(e.target.value)}
-                    required
+                    onChange={(e) => {
+                      setShippingAddress(e.target.value);
+                      if (formErrors.shippingAddress) setFormErrors({ ...formErrors, shippingAddress: undefined });
+                    }}
                   />
+                  {formErrors.shippingAddress && <div className="checkout-error-text" style={{color: "#d9534f", fontSize: "12px", marginTop: "4px"}}>{formErrors.shippingAddress}</div>}
                 </div>
               )}
 
