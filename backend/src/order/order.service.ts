@@ -170,8 +170,7 @@ export class OrderService {
         },
       });
 
-      await tx.orderStatusHistory.update({
-        where: { id: orderId },
+      await tx.orderStatusHistory.create({
         data: { orderId, status },
       });
 

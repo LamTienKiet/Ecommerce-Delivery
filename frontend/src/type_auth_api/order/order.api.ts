@@ -26,6 +26,13 @@ export interface OrderItemResponse {
   product: ProductResponse;
 }
 
+export interface OrderStatusHistory {
+  id: number;
+  orderId: number;
+  status: string;
+  createdAt: string;
+}
+
 export interface OrderResponse {
   id: number;
   userId: number;
@@ -33,9 +40,16 @@ export interface OrderResponse {
   currentStatus: string; // 'PENDING' | 'PREPARING' | 'DELIVERING' | 'COMPLETED' | 'CANCELLED'
   fullName: string;
   phone: string;
-  address: string;
+  shippingAddress: string;
   note?: string;
-  paymentMethod: string;
   createdAt: string;
   orderItems: OrderItemResponse[];
+  histories?: OrderStatusHistory[];
+  payment?: {
+    id: number;
+    paymentMethod: string;
+    amount: number;
+    status: string;
+    createdAt: string;
+  };
 }

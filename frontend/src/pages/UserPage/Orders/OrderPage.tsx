@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import "../../../assets/css/order.css";
 
 // Import service và type
@@ -165,11 +166,17 @@ export const OrderPage = () => {
 
                   <div className="order-actions">
                     {order.currentStatus === "COMPLETED" && (
-                      <button className="order-btn order-btn-primary">
+                      <button className="order-btn">
                         Đánh giá món
                       </button>
                     )}
-                    <button className="order-btn">Đặt lại món này</button>
+                    <button className="order-btn">Đặt lại</button>
+                    <Link 
+                      to={`/order/${order.id}`} 
+                      className="order-btn order-btn-primary"
+                    >
+                      Theo dõi đơn hàng
+                    </Link>
                   </div>
                 </div>
               </div>
