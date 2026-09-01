@@ -174,6 +174,13 @@ export class OrderService {
         data: { orderId, status },
       });
 
+      // Bắn event để Gateway (WebSocket) gửi notify tới màn hình của đúng User đó
+      this.eventEmitter.emit('order.status_updated', {
+        userId: updateOrder.userId,
+        orderId: updateOrder.id,
+        status: updateOrder.currentStatus,
+      });
+
       return updateOrder;
     });
   }

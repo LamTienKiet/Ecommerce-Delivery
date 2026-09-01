@@ -22,9 +22,6 @@ export const HomePage = () => {
             <Link to="/menu" className="btn-primary-lux">
               Khám Phá Thực Đơn
             </Link>
-            <Link to="/booking" className="btn-outline-lux">
-              Đặt Bàn Ngay
-            </Link>
           </div>
         </div>
       </section>

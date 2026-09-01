@@ -7,6 +7,9 @@ import { getMyOrders } from "../../../services/order.service";
 import type { OrderResponse } from "../../../type_auth_api/order/order.api";
 import { getImageUrl } from "../../../utils/image";
 
+import { getSocket } from "../../../services/socket";
+import { useAuthStore } from "../../../store/useAuthStore";
+
 const TABS = [
   { id: "ALL", label: "Tất cả" },
   { id: "PENDING", label: "Chờ xác nhận" },
@@ -29,6 +32,7 @@ const getStatusLabel = (status: string) => {
 };
 
 export const OrderPage = () => {
+  const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("ALL");
   const [orders, setOrders] = useState<OrderResponse[]>([]);
@@ -47,6 +51,30 @@ export const OrderPage = () => {
     }
     fetchOrder();
   }, []);
+
+  // Lắng nghe socket để update trạng thái real-time
+  useEffect(() => {
+    if (!user?.id) return;
+    const socket = getSocket();
+    const eventName = `orderStatusUpdate_${user.id}`;
+
+    const handleStatusUpdate = (data: any) => {
+      setOrders(prevOrders => 
+        prevOrders.map(order => {
+          if (order.id === data.orderId) {
+            return { ...order, currentStatus: data.status };
+          }
+          return order;
+        })
+      );
+    };
+
+    socket.on(eventName, handleStatusUpdate);
+
+    return () => {
+      socket.off(eventName, handleStatusUpdate);
+    };
+  }, [user?.id]);
 
   const displayOrders =
     activeTab === "ALL"
@@ -177,7 +205,7 @@ export const OrderPage = () => {
                     >
                       Đặt lại
                     </Link>
-                    <button className="order-btn">Đặt lại</button>
+
                     <Link
                       to={`/order/${order.id}`}
                       className="order-btn order-btn-primary"

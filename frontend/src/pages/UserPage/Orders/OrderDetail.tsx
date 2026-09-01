@@ -5,6 +5,10 @@ import type { OrderResponse } from "../../../type_auth_api/order/order.api";
 import { getImageUrl } from "../../../utils/image";
 import "../../../assets/css/order-detail.css";
 
+import { getSocket } from "../../../services/socket";
+import { useAuthStore } from "../../../store/useAuthStore";
+import toast from "react-hot-toast";
+
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -21,6 +25,7 @@ const STATUS_STEPS = [
 
 export const OrderDetail = () => {
   const { id } = useParams();
+  const { user } = useAuthStore();
   const [order, setOrder] = useState<OrderResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -39,6 +44,53 @@ export const OrderDetail = () => {
     }
     fetchOrderDetail();
   }, [id]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const socket = getSocket();
+    const eventName = `orderStatusUpdate_${user.id}`;
+    
+    const handleStatusUpdate = (data: any) => {
+      if (data.orderId === Number(id)) {
+        toast.success(`Đơn hàng #${data.orderId} vừa chuyển sang trạng thái: ${data.status}`, {
+          duration: 5000,
+          position: "top-right",
+          style: {
+            background: "#182720",
+            color: "#b7913c",
+            border: "1px solid #b7913c"
+          }
+        });
+        
+        setOrder(prev => {
+          if (!prev) return prev;
+          // Cập nhật trạng thái và thêm vào lịch sử
+          const newHistory = {
+            id: Date.now(),
+            orderId: data.orderId,
+            status: data.status,
+            createdAt: new Date().toISOString()
+          };
+          
+          // Tránh trùng lặp nếu có 2 socket events
+          const historyExists = prev.histories?.find(h => h.status === data.status);
+          const newHistories = historyExists ? prev.histories : [...(prev.histories || []), newHistory];
+          
+          return {
+            ...prev,
+            currentStatus: data.status,
+            histories: newHistories
+          };
+        });
+      }
+    };
+
+    socket.on(eventName, handleStatusUpdate);
+
+    return () => {
+      socket.off(eventName, handleStatusUpdate);
+    };
+  }, [user?.id, id]);
 
   if (isLoading) {
     return (
