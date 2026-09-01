@@ -3,10 +3,14 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { OrderCreatedEvent } from '../order/events/order-created.event';
 import { NotificationService } from './notification.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class NotificationListener {
-  constructor(private notificationService: NotificationService) {}
+  constructor(
+    private notificationService: NotificationService,
+    private emailService: EmailService,
+  ) {}
 
   @OnEvent('order.created', { async: true })
   async handleOrderCreatedEvent(event: OrderCreatedEvent) {
@@ -20,9 +24,18 @@ export class NotificationListener {
     await this.notificationService.createNotification(event.userId, dto);
     console.log(`[Event-Driven] Đã tạo Notification cho user ${event.userId}`);
 
-    // 2. Giả lập gửi Email
+    // 2. Gửi Email thực tế qua NodeMailer
     if (event.email) {
-      console.log(`[Event-Driven] [Mock Email] Đã gửi email xác nhận đơn hàng #${event.orderId} tới ${event.email}`);
+      try {
+        console.log(`[Event-Driven] Đang gửi email xác nhận đơn hàng #${event.orderId} tới ${event.email}...`);
+        await this.emailService.sendOrderConfirmation(
+          event.email,
+          event.orderId,
+          event.totalAmount,
+        );
+      } catch (error) {
+        console.error(`[Event-Driven] Lỗi khi gửi email:`, error);
+      }
     }
   }
 }

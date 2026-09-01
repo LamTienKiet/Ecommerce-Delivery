@@ -58,6 +58,18 @@ export const UserLayout = () => {
             >
               Danh mục
             </NavLink>
+            <NavLink
+              to="/order"
+              className={({ isActive }) =>
+                `transition duration-200 pb-1 ${
+                  isActive
+                    ? "text-white border-b-2 border-[#B7913C]"
+                    : "text-[#A9B4A4] hover:text-white"
+                }`
+              }
+            >
+              Đơn hàng
+            </NavLink>
             <a
               href="#"
               className="text-[#A9B4A4] hover:text-white transition duration-200"

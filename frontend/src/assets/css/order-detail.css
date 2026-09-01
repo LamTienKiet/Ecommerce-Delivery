@@ -1,7 +1,10 @@
+/* CSS For Order Detail - Luxury Theme */
 .order-detail-page {
   padding: 40px 20px;
-  background-color: var(--surface);
+  background-color: var(--bg, #121b16);
+  color: var(--ink, #f1e9d8);
   min-height: 100vh;
+  font-family: "Be Vietnam Pro", sans-serif;
 }
 
 .order-detail-wrap {
@@ -17,7 +20,7 @@
 .back-link {
   display: inline-block;
   margin-bottom: 15px;
-  color: var(--ink-dim);
+  color: var(--ink-dim, #a9b4a4);
   font-size: 14px;
   text-decoration: none;
   font-weight: 500;
@@ -25,7 +28,7 @@
 }
 
 .back-link:hover {
-  color: var(--gold);
+  color: var(--gold, #b7913c);
 }
 
 .head-title {
@@ -37,8 +40,8 @@
 
 .head-title h1 {
   font-size: 24px;
-  font-family: var(--font-serif);
-  color: var(--ink);
+  font-family: var(--font-serif, "Fraunces", serif);
+  color: var(--ink, #f1e9d8);
   margin: 0;
 }
 
@@ -49,45 +52,35 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-}
-
-.status-badge.PENDING {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.status-badge.PREPARING {
-  background-color: #cce5ff;
-  color: #004085;
-}
-
-.status-badge.DELIVERING {
-  background-color: #d4edda;
-  color: #155724;
+  background: rgba(183, 145, 60, 0.1);
+  color: var(--gold, #b7913c);
+  border: 1px solid var(--gold, #b7913c);
 }
 
 .status-badge.COMPLETED {
-  background-color: #d1ecf1;
-  color: #0c5460;
+  border-color: #8fb996;
+  color: #8fb996;
+  background: rgba(143, 185, 150, 0.1);
 }
 
 .status-badge.CANCELLED {
-  background-color: #f8d7da;
-  color: #721c24;
+  border-color: #d68a97;
+  color: #d68a97;
+  background: rgba(214, 138, 151, 0.1);
 }
 
 .order-date {
-  color: var(--ink-faint);
+  color: var(--ink-faint, #6c7a6f);
   font-size: 13px;
   margin: 0;
 }
 
 /* Tracking Section */
 .tracking-section {
-  background: white;
+  background: var(--bg-panel, #182720);
   padding: 30px;
   border-radius: 12px;
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--hairline-strong, rgba(241, 233, 216, 0.28));
   margin-bottom: 30px;
 }
 
@@ -95,7 +88,7 @@
   font-size: 18px;
   margin-top: 0;
   margin-bottom: 30px;
-  color: var(--ink);
+  color: var(--ink, #f1e9d8);
   font-weight: 600;
 }
 
@@ -121,8 +114,8 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--surface);
-  border: 2px solid var(--hairline-strong);
+  background: var(--bg-panel, #182720);
+  border: 2px solid var(--hairline-strong, rgba(241, 233, 216, 0.28));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -136,34 +129,34 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--hairline-strong);
+  background: var(--hairline-strong, rgba(241, 233, 216, 0.28));
 }
 
 .timeline-icon svg {
   width: 16px;
   height: 16px;
-  color: white;
+  color: var(--bg-panel, #182720);
 }
 
 .timeline-step.active .timeline-icon {
-  background: var(--gold);
-  border-color: var(--gold);
+  background: var(--gold, #b7913c);
+  border-color: var(--gold, #b7913c);
 }
 
 .timeline-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--ink-dim);
+  color: var(--ink-dim, #a9b4a4);
   margin-bottom: 4px;
 }
 
 .timeline-step.active .timeline-title {
-  color: var(--ink);
+  color: var(--ink, #f1e9d8);
 }
 
 .timeline-time {
   font-size: 12px;
-  color: var(--ink-faint);
+  color: var(--ink-faint, #6c7a6f);
 }
 
 .timeline-connector {
@@ -172,18 +165,19 @@
   left: 50%;
   width: 100%;
   height: 2px;
-  background: var(--hairline-strong);
+  background: var(--hairline-strong, rgba(241, 233, 216, 0.28));
   z-index: 1;
 }
 
 .timeline-step.active .timeline-connector {
-  background: var(--gold);
+  background: var(--gold, #b7913c);
 }
 
 .cancelled-alert {
   padding: 15px;
-  background-color: #f8d7da;
-  color: #721c24;
+  background: rgba(214, 138, 151, 0.1);
+  color: #d68a97;
+  border: 1px solid #d68a97;
   border-radius: 8px;
   text-align: center;
   font-weight: 500;
@@ -197,10 +191,10 @@
 }
 
 .info-box {
-  background: white;
+  background: var(--bg-panel, #182720);
   padding: 24px;
   border-radius: 12px;
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--hairline-strong, rgba(241, 233, 216, 0.28));
   margin-bottom: 20px;
 }
 
@@ -209,40 +203,39 @@
   margin-top: 0;
   margin-bottom: 15px;
   padding-bottom: 10px;
-  border-bottom: 1px solid var(--hairline);
-  color: var(--ink);
+  border-bottom: 1px solid var(--hairline-strong, rgba(241, 233, 216, 0.28));
+  color: var(--ink, #f1e9d8);
 }
 
 .info-box p {
   margin: 0 0 10px 0;
   font-size: 14px;
-  color: var(--ink-dim);
+  color: var(--ink-dim, #a9b4a4);
   line-height: 1.5;
 }
 
 .info-box p strong {
-  color: var(--ink);
+  color: var(--ink, #f1e9d8);
   font-weight: 600;
   width: 120px;
   display: inline-block;
 }
 
 .payment-status {
-  padding: 2px 8px;
+  padding: 4px 10px;
   border-radius: 12px;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
+  background: rgba(183, 145, 60, 0.1);
+  color: var(--gold, #b7913c);
+  border: 1px solid var(--gold, #b7913c);
 }
 
 .payment-status.PAID {
-  background: #d4edda;
-  color: #155724;
-}
-
-.payment-status.PENDING {
-  background: #fff3cd;
-  color: #856404;
+  background: rgba(143, 185, 150, 0.1);
+  color: #8fb996;
+  border-color: #8fb996;
 }
 
 /* Items List */
@@ -258,7 +251,7 @@
   align-items: center;
   gap: 15px;
   padding-bottom: 15px;
-  border-bottom: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline, rgba(241, 233, 216, 0.14));
 }
 
 .item-row img {
@@ -266,6 +259,7 @@
   height: 60px;
   object-fit: cover;
   border-radius: 8px;
+  border: 1px solid var(--hairline-strong, rgba(241, 233, 216, 0.28));
 }
 
 .item-details {
@@ -274,18 +268,19 @@
 
 .item-name {
   font-weight: 500;
-  color: var(--ink);
+  color: var(--ink, #f1e9d8);
   margin-bottom: 4px;
+  font-size: 16px;
 }
 
 .item-qty {
   font-size: 13px;
-  color: var(--ink-dim);
+  color: var(--ink-dim, #a9b4a4);
 }
 
 .item-price {
   font-weight: 600;
-  color: var(--ink);
+  color: var(--ink, #f1e9d8);
 }
 
 .invoice-total {
@@ -295,11 +290,13 @@
   padding-top: 10px;
   font-size: 16px;
   font-weight: 600;
+  color: var(--ink, #f1e9d8);
 }
 
 .total-amount {
   font-size: 20px;
-  color: var(--gold);
+  color: var(--gold, #b7913c);
+  font-family: var(--font-serif, "Fraunces", serif);
 }
 
 @media (max-width: 768px) {

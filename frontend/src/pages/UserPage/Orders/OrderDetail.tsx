@@ -93,7 +93,7 @@ export const OrderDetail = () => {
             <div className="timeline">
               {STATUS_STEPS.map((step, index) => {
                 const historyRecord = histories.find(
-                  (h) => h.status === step.id
+                  (h) => h.status === step.id,
                 );
                 const isCompleted = !!historyRecord;
                 const isActive = isCompleted;
@@ -124,7 +124,7 @@ export const OrderDetail = () => {
                       {isCompleted && (
                         <div className="timeline-time">
                           {new Date(historyRecord.createdAt).toLocaleString(
-                            "vi-VN"
+                            "vi-VN",
                           )}
                         </div>
                       )}
@@ -189,6 +189,9 @@ export const OrderDetail = () => {
                     <div className="item-details">
                       <div className="item-name">{item.product.name}</div>
                       <div className="item-qty">Số lượng: {item.quantity}</div>
+                      {item.note && item.note.trim() !== "" && (
+                        <div className="item-qty">Ghi chú: {item.note}</div>
+                      )}
                     </div>
                     <div className="item-price">
                       {formatCurrency(item.price * item.quantity)}

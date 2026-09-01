@@ -7,8 +7,6 @@ import { getMyOrders } from "../../../services/order.service";
 import type { OrderResponse } from "../../../type_auth_api/order/order.api";
 import { getImageUrl } from "../../../utils/image";
 
-// Giả lập dữ liệu món ăn Âu (Fine Dining)
-
 const TABS = [
   { id: "ALL", label: "Tất cả" },
   { id: "PENDING", label: "Chờ xác nhận" },
@@ -166,13 +164,17 @@ export const OrderPage = () => {
 
                   <div className="order-actions">
                     {order.currentStatus === "COMPLETED" && (
-                      <button className="order-btn">
-                        Đánh giá món
-                      </button>
+                      <button className="order-btn">Đánh giá món</button>
                     )}
-                    <button className="order-btn">Đặt lại</button>
                     <Link 
-                      to={`/order/${order.id}`} 
+                      to={`/detail/${order.orderItems[0]?.productId}`}
+                      className="order-btn"
+                      style={{ display: "inline-block", textAlign: "center", textDecoration: "none" }}
+                    >
+                      Đặt lại
+                    </Link>
+                    <Link
+                      to={`/order/${order.id}`}
                       className="order-btn order-btn-primary"
                     >
                       Theo dõi đơn hàng
