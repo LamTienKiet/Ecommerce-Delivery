@@ -57,7 +57,7 @@ export const LoginPage = () => {
       if (data.role?.toUpperCase() === "ADMIN") {
         navigate("/admin");
       } else {
-        navigate("/menu");
+        navigate("/");
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {

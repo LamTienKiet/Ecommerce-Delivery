@@ -166,13 +166,18 @@ export const OrderPage = () => {
                     {order.currentStatus === "COMPLETED" && (
                       <button className="order-btn">Đánh giá món</button>
                     )}
-                    <Link 
+                    <Link
                       to={`/detail/${order.orderItems[0]?.productId}`}
                       className="order-btn"
-                      style={{ display: "inline-block", textAlign: "center", textDecoration: "none" }}
+                      style={{
+                        display: "inline-block",
+                        textAlign: "center",
+                        textDecoration: "none",
+                      }}
                     >
                       Đặt lại
                     </Link>
+                    <button className="order-btn">Đặt lại</button>
                     <Link
                       to={`/order/${order.id}`}
                       className="order-btn order-btn-primary"

@@ -11,6 +11,7 @@ import { ProductPage } from "../pages/ProductPage";
 import { CategoryPage } from "../pages/UserPage/Categories/CategoryPage";
 import { ProductDetail } from "../pages/UserPage/Products/ProductDetail";
 import { OrderAdmin } from "../pages/AdminPage/OrderAdmin";
+import { HomePage } from "../pages/HomePage";
 import { CartPage } from "../pages/UserPage/Cart/CartPage";
 import { CheckoutPage } from "../pages/UserPage/Checkout/CheckoutPage";
 import { OrderDetail } from "../pages/UserPage/Orders/OrderDetail";
@@ -48,6 +49,7 @@ export default function AppRouters() {
         </Route>
         {/* --- ROUTES CÔNG KHAI --- */}
         <Route element={<UserLayout />}>
+          <Route path="/" element={<HomePage />} />
           <Route path="/menu" element={<ProductPage />} />
           <Route path="/category" element={<CategoryPage />} />
           <Route path="/detail/:id" element={<ProductDetail />} />
