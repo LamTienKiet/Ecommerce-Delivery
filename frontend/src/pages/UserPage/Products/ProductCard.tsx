@@ -4,6 +4,7 @@ import { getImageUrl } from "../../../utils/image";
 import { addToCart as apiAddToCart } from "../../../services/cart.service";
 import { useCartStore } from "../../../store/useCartStore";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface ProductCardProps {
   product: ProductResponse;
@@ -41,10 +42,10 @@ export default function ProductCard({ product }: ProductCardProps) {
     try {
       await apiAddToCart({ productId: product.id, quantity: 1 });
       await fetchCartCount();
-      alert(`Đã thêm 1 x ${product.name} vào giỏ hàng!`);
+      toast.success(`Đã thêm 1 x ${product.name} vào giỏ hàng!`);
     } catch (err) {
       console.error(err);
-      alert("Có lỗi xảy ra khi thêm vào giỏ hàng. Bạn đã đăng nhập chưa?");
+      toast.error("Có lỗi xảy ra khi thêm vào giỏ hàng. Bạn đã đăng nhập chưa?");
     } finally {
       setIsAdding(null);
     }
@@ -113,33 +114,29 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.description}
         </p>
 
-        <div className="mt-auto flex items-center justify-between">
+        <div className="mt-auto border-t border-[#2a3c31] pt-4 flex items-end justify-between gap-3">
           <div className="flex flex-col">
-            <span className="text-[10px] text-[#A9B4A4] uppercase tracking-widest mb-1">
-              Giá
-            </span>
-            <span className="text-lg font-semibold text-[#B7913C]">
-              {new Intl.NumberFormat("vi-VN", {
-                style: "currency",
-                currency: "VND",
-              }).format(product.price)}
+            <span className="text-[10px] text-[#A9B4A4] uppercase tracking-widest mb-1.5">Giá</span>
+            <span className="text-2xl font-serif font-bold text-[#B7913C] leading-none">
+              {new Intl.NumberFormat("vi-VN").format(product.price)}
+              <span className="text-sm ml-1 font-sans">₫</span>
             </span>
           </div>
 
           <button
             onClick={handleAddToCart}
             disabled={isAdding === product.id || !product.isAvailable}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+            className={`py-2 px-10 h-[38px] rounded-lg flex items-center justify-center gap-1.5 font-medium text-sm transition-all duration-300 ${
               !product.isAvailable
-                ? "bg-gray-700 text-gray-400 cursor-not-allowed border border-gray-600"
+                ? "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
                 : isAdding === product.id
                 ? "bg-[#2a3c31] text-[#B7913C] cursor-wait"
-                : "bg-[#121B16] border border-[#2a3c31] text-[#A9B4A4] hover:bg-[#B7913C] hover:text-[#121B16] hover:border-[#B7913C]"
+                : "bg-[#B7913C] text-[#121B16] hover:bg-[#F1E9D8] shadow-lg shadow-[#B7913C]/20 hover:shadow-[#F1E9D8]/30 hover:-translate-y-0.5"
             }`}
             title={!product.isAvailable ? "Món này đang tạm ngưng" : "Thêm vào giỏ hàng"}
           >
             <svg
-              className="w-4 h-4"
+              className="w-4 h-4 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -151,6 +148,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
               />
             </svg>
+            <span className="whitespace-nowrap">{isAdding === product.id ? "Đang thêm..." : !product.isAvailable ? "Tạm ngưng" : "Thêm"}</span>
           </button>
         </div>
       </div>

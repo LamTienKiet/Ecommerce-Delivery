@@ -35,6 +35,18 @@ export const UserLayout = () => {
           {/* Navigation Links */}
           <nav className="hidden md:flex items-center gap-8 text-sm font-semibold tracking-wider uppercase">
             <NavLink
+              to="/"
+              className={({ isActive }) =>
+                `transition duration-200 pb-1 ${
+                  isActive
+                    ? "text-white border-b-2 border-[#B7913C]"
+                    : "text-[#A9B4A4] hover:text-white"
+                }`
+              }
+            >
+              Trang Chủ
+            </NavLink>
+            <NavLink
               to="/menu"
               className={({ isActive }) =>
                 `transition duration-200 pb-1 ${
@@ -70,24 +82,42 @@ export const UserLayout = () => {
             >
               Đơn hàng
             </NavLink>
-            <a
-              href="#"
-              className="text-[#A9B4A4] hover:text-white transition duration-200"
+            <NavLink
+              to="/about"
+              className={({ isActive }) =>
+                `transition duration-200 pb-1 ${
+                  isActive
+                    ? "text-white border-b-2 border-[#B7913C]"
+                    : "text-[#A9B4A4] hover:text-white"
+                }`
+              }
             >
               Câu chuyện
-            </a>
-            <a
-              href="#"
-              className="text-[#A9B4A4] hover:text-white transition duration-200"
+            </NavLink>
+            <NavLink
+              to="/space"
+              className={({ isActive }) =>
+                `transition duration-200 pb-1 ${
+                  isActive
+                    ? "text-white border-b-2 border-[#B7913C]"
+                    : "text-[#A9B4A4] hover:text-white"
+                }`
+              }
             >
               Không gian
-            </a>
-            <a
-              href="#"
-              className="text-[#A9B4A4] hover:text-white transition duration-200"
+            </NavLink>
+            <NavLink
+              to="/contact"
+              className={({ isActive }) =>
+                `transition duration-200 pb-1 ${
+                  isActive
+                    ? "text-white border-b-2 border-[#B7913C]"
+                    : "text-[#A9B4A4] hover:text-white"
+                }`
+              }
             >
               Liên hệ
-            </a>
+            </NavLink>
           </nav>
 
           {/* Action Buttons */}
@@ -123,7 +153,11 @@ export const UserLayout = () => {
                 >
                   <div className="w-8 h-8 rounded-full bg-[#16251e] border border-[#2a3c31] text-[#A9B4A4] group-hover:text-[#B7913C] group-hover:border-[#B7913C] transition-all duration-300 flex items-center justify-center overflow-hidden">
                     {user.avatar ? (
-                      <img src={`http://localhost:3000${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                      <img
+                        src={`http://localhost:3000${user.avatar}`}
+                        alt="Avatar"
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <svg
                         className="w-4 h-4"

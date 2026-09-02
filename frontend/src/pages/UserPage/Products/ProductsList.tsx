@@ -36,7 +36,7 @@ export const ProductList = () => {
         setLoading(true);
         setError(null);
         const [productsResponse, categories] = await Promise.all([
-          getProducts(currentPage, 6, selectedCategory),
+          getProducts(currentPage, 9, selectedCategory),
           getCategory(),
         ]);
 

@@ -20,6 +20,9 @@ import { UserAdmin } from "../pages/AdminPage/UserAdmin";
 import { ProtectedRoute } from "../components/ProtectedRoute";
 import { ProfilePage } from "../pages/UserPage/Profile/ProfilePage";
 import { PaymentReturnPage } from "../pages/UserPage/Checkout/PaymentReturnPage";
+import { AboutPage } from "../pages/UserPage/AboutPage";
+import { SpacePage } from "../pages/UserPage/SpacePage";
+import { ContactPage } from "../pages/UserPage/ContactPage";
 
 export default function AppRouters() {
   return (
@@ -53,6 +56,9 @@ export default function AppRouters() {
           <Route path="/menu" element={<ProductPage />} />
           <Route path="/category" element={<CategoryPage />} />
           <Route path="/detail/:id" element={<ProductDetail />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/space" element={<SpacePage />} />
+          <Route path="/contact" element={<ContactPage />} />
         </Route>
         {/* Auth Routes */}
         <Route path="/login" element={<LoginPage />} />

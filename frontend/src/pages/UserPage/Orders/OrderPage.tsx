@@ -13,6 +13,7 @@ import { useAuthStore } from "../../../store/useAuthStore";
 const TABS = [
   { id: "ALL", label: "Tất cả" },
   { id: "PENDING", label: "Chờ xác nhận" },
+  { id: "CONFIRMED", label: "Đã xác nhận" },
   { id: "PREPARING", label: "Đang chuẩn bị" },
   { id: "DELIVERING", label: "Đang giao" },
   { id: "COMPLETED", label: "Hoàn thành" },

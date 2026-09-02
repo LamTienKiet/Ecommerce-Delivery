@@ -5,6 +5,7 @@ import { getProductById } from "../../../services/product.service";
 import { getCategoryById } from "../../../services/category.service";
 import { addToCart as apiAddToCart } from "../../../services/cart.service";
 import { getImageUrl } from "../../../utils/image";
+import toast from "react-hot-toast";
 
 export const ProductDetail = () => {
   const [product, setProduct] = useState<ProductResponse | null>(null);
@@ -66,11 +67,11 @@ export const ProductDetail = () => {
     if (!product) return;
     try {
       await apiAddToCart({ productId: product.id, quantity, note: note.trim() || undefined });
-      alert("Đã thêm món ăn vào giỏ hàng!");
+      toast.success("Đã thêm món ăn vào giỏ hàng!");
       setNote("");
     } catch (err) {
       console.error(err);
-      alert("Có lỗi xảy ra khi thêm vào giỏ hàng. Bạn đã đăng nhập chưa?");
+      toast.error("Có lỗi xảy ra khi thêm vào giỏ hàng. Bạn đã đăng nhập chưa?");
     }
   };
 

@@ -6,6 +6,7 @@ import { loginApi } from "../services/auth.service";
 import axios from "axios";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export const LoginPage = () => {
   const [formSignIn, setFormSignIn] = useState({
@@ -53,7 +54,7 @@ export const LoginPage = () => {
         data.refreshToken,
       );
 
-      alert("Đăng nhập thành công!");
+      toast.success("Đăng nhập thành công!");
       if (data.role?.toUpperCase() === "ADMIN") {
         navigate("/admin");
       } else {

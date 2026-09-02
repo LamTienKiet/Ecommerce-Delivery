@@ -14,13 +14,4 @@ export class PaymentController {
       `http://localhost:5173/payment-return?status=${result.status}&orderId=${result.orderId || ''}`,
     );
   }
-
-  @Get('momo_return')
-  async momoReturn(@Query() query: any, @Res() res: Response) {
-    const result = await this.paymentService.momoReturn(query);
-    // Redirect về Frontend hiển thị kết quả
-    return res.redirect(
-      `http://localhost:5173/payment-return?status=${result.status}&orderId=${result.orderId || ''}`,
-    );
-  }
 }

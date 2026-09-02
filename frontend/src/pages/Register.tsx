@@ -5,6 +5,7 @@ import type { RegisterFormErrors } from "../type_auth_api/auth.api";
 import axios from "axios";
 import { registerApi } from "../services/auth.service";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ export const RegisterPage = () => {
       const data = await registerApi(formSignUp);
       console.log(data);
 
-      alert("Đăng ký thành công!");
+      toast.success("Đăng ký thành công!");
 
       // Ví dụ chuyển sang trang đăng nhập
       navigate("/login");

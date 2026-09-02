@@ -9,6 +9,7 @@ import type { CreateOrderRequest } from "../../../type_auth_api/order/order.api"
 import type { CartItemResponse } from "../../../type_auth_api/cart/cart.api";
 import { getImageUrl } from "../../../utils/image";
 import { useCartStore } from "../../../store/useCartStore";
+import toast from "react-hot-toast";
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -101,7 +102,8 @@ export const CheckoutPage = () => {
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (cartItems.length === 0) {
-      return alert("Your Cart is Empty");
+      toast.error("Giỏ hàng của bạn đang trống");
+      return;
     }
     
     if (!validateForm()) {
@@ -125,20 +127,16 @@ export const CheckoutPage = () => {
       const response = await createOrder(orderPayload);
       await fetchCartCount(); // Xóa số 0 trên giỏ hàng
 
-      if (response.momoUrl) {
-        window.location.href = response.momoUrl;
-        return;
-      }
       if (response.vnpayUrl) {
         window.location.href = response.vnpayUrl;
         return;
       }
 
-      alert("Đặt hàng thành công");
+      toast.success("Đặt hàng thành công");
       navigate("/order");
     } catch (err) {
       console.error("Lỗi khi đặt hàng:", err);
-      alert("Đã xảy ra lỗi khi tạo đơn hàng. Vui lòng thử lại!");
+      toast.error("Đã xảy ra lỗi khi tạo đơn hàng. Vui lòng thử lại!");
     } finally {
       setIsSubmitting(false);
     }
@@ -361,26 +359,6 @@ export const CheckoutPage = () => {
                   </div>
                   <div className="payment-method-desc">
                     Chuyển khoản qua cổng thanh toán VNPay
-                  </div>
-                </div>
-              </label>
-
-              <label
-                className={`payment-method ${paymentMethod === "momo" ? "is-active" : ""}`}
-              >
-                <input
-                  type="radio"
-                  name="payment"
-                  value="momo"
-                  checked={paymentMethod === "momo"}
-                  onChange={() => setPaymentMethod("momo")}
-                />
-                <div className="payment-method-details">
-                  <div className="payment-method-name">
-                    Ví MoMo
-                  </div>
-                  <div className="payment-method-desc">
-                    Thanh toán tiện lợi bằng ví MoMo
                   </div>
                 </div>
               </label>

@@ -16,6 +16,7 @@ import { getImageUrl } from "../../utils/image";
 import { ProductStats } from "./components/products/ProductStats";
 import { ProductToolbar } from "./components/products/ProductToolbar";
 import { ProductTable } from "./components/products/ProductTable";
+import toast from "react-hot-toast";
 
 export const ProductAdmin = () => {
   const [products, setProducts] = useState<ProductResponse[]>([]);
@@ -133,17 +134,45 @@ export const ProductAdmin = () => {
   };
 
   const handleDeleteProduct = async (id: number) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa món ăn này?")) {
-      return;
-    }
-    try {
-      await deleteProduct(id);
-      setProducts((prev) => prev.filter((p) => p.id !== id));
-      alert("Xóa món ăn thành công!");
-    } catch (err) {
-      console.error("Failed to delete product:", err);
-      alert("Không thể xóa món ăn. Vui lòng thử lại!");
-    }
+    toast.custom((t) => (
+      <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-sm w-full bg-white shadow-2xl rounded-2xl pointer-events-auto flex flex-col ring-1 ring-black/5 overflow-hidden`}>
+        <div className="p-5">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center">
+              <svg className="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            </div>
+            <div className="flex-1 pt-0.5">
+              <p className="text-sm font-bold text-slate-900">Xác nhận xóa</p>
+              <p className="mt-1.5 text-sm text-slate-500 leading-relaxed">Bạn có chắc chắn muốn xóa món ăn này không? Hành động này không thể hoàn tác.</p>
+            </div>
+          </div>
+        </div>
+        <div className="flex border-t border-slate-100 bg-slate-50">
+          <button 
+            onClick={async () => { 
+              toast.dismiss(t.id); 
+              try {
+                await deleteProduct(id);
+                setProducts((prev) => prev.filter((p) => p.id !== id));
+                toast.success("Xóa món ăn thành công!");
+              } catch (err) {
+                console.error("Failed to delete product:", err);
+                toast.error("Không thể xóa món ăn. Vui lòng thử lại!");
+              }
+            }} 
+            className="w-full border-r border-slate-100 px-4 py-3.5 flex items-center justify-center text-sm font-bold text-rose-600 hover:bg-rose-100 hover:text-rose-700 transition-colors"
+          >
+            Xác nhận Xóa
+          </button>
+          <button 
+            onClick={() => toast.dismiss(t.id)} 
+            className="w-full px-4 py-3.5 flex items-center justify-center text-sm font-bold text-slate-600 hover:bg-slate-200 transition-colors"
+          >
+            Hủy Bỏ
+          </button>
+        </div>
+      </div>
+    ), { duration: Infinity, position: 'top-center' });
   };
 
   const handleCloseModal = () => {
@@ -173,7 +202,7 @@ export const ProductAdmin = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      alert("Chỉ chấp nhận file ảnh!");
+      toast.error("Chỉ chấp nhận file ảnh!");
       return;
     }
 
@@ -186,7 +215,7 @@ export const ProductAdmin = () => {
       }));
     } catch (err) {
       console.error("Upload failed:", err);
-      alert("Tải ảnh lên thất bại. Vui lòng thử lại!");
+      toast.error("Tải ảnh lên thất bại. Vui lòng thử lại!");
     } finally {
       setIsUploading(false);
     }
@@ -204,45 +233,52 @@ export const ProductAdmin = () => {
 
     // Validate
     if (!formData.name.trim()) {
-      return alert("Tên không được để trống");
+      toast.error("Tên không được để trống");
+      return;
     }
 
     if (formData.name.length < 5) {
-      return alert("Tên món ăn quá ngắn");
+      toast.error("Tên món ăn quá ngắn");
+      return;
     }
 
     if (formData.price <= 0) {
-      return alert("Giá tiền phải lớn hơn 0");
+      toast.error("Giá tiền phải lớn hơn 0");
+      return;
     }
 
     if (formData.preparationTime < 5) {
-      return alert("Thời gian chuẩn bị ít nhất phải 5 phút");
+      toast.error("Thời gian chuẩn bị ít nhất phải 5 phút");
+      return;
     }
 
     if (!formData.imageUrl.trim()) {
-      return alert("Vui lòng tải lên ảnh món ăn");
+      toast.error("Vui lòng tải lên ảnh món ăn");
+      return;
     }
 
     if (!formData.categoryId) {
-      return alert("Vui lòng chọn danh mục");
+      toast.error("Vui lòng chọn danh mục");
+      return;
     }
 
     if (!formData.description.trim()) {
-      return alert("Vui lòng nhập mô tả");
+      toast.error("Vui lòng nhập mô tả");
+      return;
     }
 
     try {
       if (modalMode === "create") {
         const newProduct = await createProducts(formData);
         setProducts((prev) => [...prev, newProduct]);
-        alert("Thêm sản phẩm thành công!");
+        toast.success("Thêm sản phẩm thành công!");
       } else {
         if (editingProductId === null) return;
         const updatedProduct = await updateProduct(editingProductId, formData);
         setProducts((prev) =>
           prev.map((p) => (p.id === editingProductId ? updatedProduct : p)),
         );
-        alert("Cập nhật sản phẩm thành công!");
+        toast.success("Cập nhật sản phẩm thành công!");
       }
 
       setFormData({
@@ -258,7 +294,7 @@ export const ProductAdmin = () => {
       setIsModalOpen(false);
     } catch (err) {
       console.error(err);
-      alert(
+      toast.error(
         modalMode === "create"
           ? "Không thể thêm sản phẩm."
           : "Không thể cập nhật sản phẩm.",
