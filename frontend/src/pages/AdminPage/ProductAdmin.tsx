@@ -47,6 +47,7 @@ export const ProductAdmin = () => {
   // Khai báo state phục vụ phân trang
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalItems, setTotalItems] = useState<number>(0);
 
   // Tải dữ liệu thực tế từ Database
   useEffect(() => {
@@ -54,13 +55,16 @@ export const ProductAdmin = () => {
       try {
         setLoading(true);
         setError(null);
+        
+        const catId = selectedCategory === "all" ? null : Number(selectedCategory);
         const [productsData, categoriesData] = await Promise.all([
-          getProducts(currentPage, 10), // Phân trang 10 sản phẩm/trang
+          getProducts(currentPage, 10, catId), // Truyền thêm catId
           getCategory(),
         ]);
 
         setProducts(productsData.data);
         setTotalPages(productsData.meta.totalPages);
+        setTotalItems(productsData.meta.totalItems);
         setCategories(categoriesData);
       } catch (err) {
         console.error("Failed to fetch data from Database", err);
@@ -73,12 +77,17 @@ export const ProductAdmin = () => {
     }
 
     fetchData();
-  }, [currentPage]);
+  }, [currentPage, selectedCategory]);
+
+  // Reset page to 1 when category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory]);
 
   // Tính toán nhanh chỉ số thống kê
-  const total = products.length;
-  const available = products.filter((p) => p.isAvailable).length;
-  const unavailable = total - available;
+  const total = totalItems; // Lấy tổng từ API thay vì chỉ số của trang hiện tại
+  const available = products.filter((p) => p.isAvailable).length; // Lưu ý: cái này chỉ là của trang hiện tại
+  const unavailable = products.length - available;
   const totalCategories = categories.length;
 
   // Lọc sản phẩm theo các bộ lọc của ProductToolbar
@@ -89,18 +98,14 @@ export const ProductAdmin = () => {
       (product.description &&
         product.description.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    // 2. Lọc theo danh mục (category) từ DB
-    const matchesCategory =
-      selectedCategory === "all" ||
-      product.categoryId === Number(selectedCategory);
-
-    // 3. Lọc theo trạng thái phục vụ
+    // 2. Lọc theo trạng thái phục vụ
     const matchesStatus =
       selectedStatus === "all" ||
       (selectedStatus === "available" && product.isAvailable) ||
       (selectedStatus === "unavailable" && !product.isAvailable);
 
-    return matchesSearch && matchesCategory && matchesStatus;
+    // Filter theo category đã được backend lo (do truyền catId vào API)
+    return matchesSearch && matchesStatus;
   });
 
   const handleOpenCreateModal = () => {

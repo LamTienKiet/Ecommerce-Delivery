@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { useCartStore } from "../store/useCartStore";
 import { useEffect } from "react";
+import { AIChatWidget } from "../components/AIChatWidget";
 
 export const UserLayout = () => {
   const { user, logout } = useAuthStore();
@@ -236,6 +237,7 @@ export const UserLayout = () => {
           bảo lưu.
         </div>
       </footer>
+      <AIChatWidget />
     </div>
   );
 };
