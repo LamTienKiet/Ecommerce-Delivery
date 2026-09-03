@@ -35,7 +35,7 @@ Nếu khách hỏi những câu không liên quan đến nhà hàng hoặc ẩm 
       }));
 
       const chatSession = this.ai.chats.create({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-1.5-flash',
         config: {
           systemInstruction,
           temperature: 0.7,

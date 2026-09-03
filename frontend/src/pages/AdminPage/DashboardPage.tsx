@@ -1,7 +1,28 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend
+} from "recharts";
 import { getDashboardStats } from "../../services/dashboard.service";
 import type { DashboardStatsResponse } from "../../services/dashboard.service";
 import toast from "react-hot-toast";
+
+const STATUS_COLORS: Record<string, string> = {
+  COMPLETED: "#10b981",
+  DELIVERING: "#8b5cf6",
+  PREPARING: "#f59e0b",
+  PENDING: "#f59e0b",
+  CANCELLED: "#f43f5e",
+};
 
 export const DashboardPage = () => {
   const [data, setData] = useState<DashboardStatsResponse | null>(null);
@@ -242,198 +263,112 @@ export const DashboardPage = () => {
         </div>
       </div>
 
-      {/* Charts & Graphs simulated via SVGs */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 opacity-75 grayscale hover:grayscale-0 transition-all duration-500 cursor-not-allowed">
-        {/* Doanh thu 7 ngày qua - Giữ nguyen giao diện mô phỏng để sau làm Analytics xịn */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-2 space-y-6 pointer-events-none">
+      {/* Charts & Graphs with Recharts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Doanh thu 7 ngày qua */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-bold text-slate-900 text-lg flex items-center gap-2">
-                Biểu Đồ Doanh Thu Tuần 
-                <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">Đang mô phỏng</span>
+                Biểu Đồ Doanh Thu
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                Xu hướng từ Thứ 2 đến Chủ nhật
+                Xu hướng doanh thu 7 ngày gần nhất
               </p>
             </div>
-            <select className="text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 rounded-lg p-1.5 focus:outline-none">
-              <option>Tuần này</option>
-              <option>Tuần trước</option>
-            </select>
           </div>
 
-          <div className="h-60 flex flex-col justify-between">
-            <div className="flex-1 flex items-end justify-between px-4 pb-2 relative h-48 border-b border-slate-100">
-              {/* Grid Lines */}
-              <div className="absolute inset-x-0 top-0 border-t border-slate-100/50"></div>
-              <div className="absolute inset-x-0 top-1/3 border-t border-slate-100/50"></div>
-              <div className="absolute inset-x-0 top-2/3 border-t border-slate-100/50"></div>
-
-              {/* T2 */}
-              <div className="flex flex-col items-center flex-1 space-y-2 group">
-                <div
-                  className="w-10 bg-indigo-100 group-hover:bg-indigo-600 rounded-t-lg transition-all duration-300 relative"
-                  style={{ height: "45px" }}
-                >
-                  <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] py-1 px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-md pointer-events-none">
-                    1.2M
-                  </span>
-                </div>
-              </div>
-              {/* T3 */}
-              <div className="flex flex-col items-center flex-1 space-y-2 group">
-                <div
-                  className="w-10 bg-indigo-100 group-hover:bg-indigo-600 rounded-t-lg transition-all duration-300 relative"
-                  style={{ height: "70px" }}
-                >
-                  <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] py-1 px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-md pointer-events-none">
-                    2.0M
-                  </span>
-                </div>
-              </div>
-              {/* T4 */}
-              <div className="flex flex-col items-center flex-1 space-y-2 group">
-                <div
-                  className="w-10 bg-indigo-600 rounded-t-lg transition-all duration-300 relative"
-                  style={{ height: "135px" }}
-                >
-                  <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] py-1 px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-md pointer-events-none">
-                    4.28M (Hôm nay)
-                  </span>
-                </div>
-              </div>
-              {/* T5 */}
-              <div className="flex flex-col items-center flex-1 space-y-2 group">
-                <div
-                  className="w-10 bg-indigo-100 group-hover:bg-indigo-600 rounded-t-lg transition-all duration-300 relative"
-                  style={{ height: "90px" }}
-                >
-                  <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] py-1 px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-md pointer-events-none">
-                    2.8M
-                  </span>
-                </div>
-              </div>
-              {/* T6 */}
-              <div className="flex flex-col items-center flex-1 space-y-2 group">
-                <div
-                  className="w-10 bg-indigo-100 group-hover:bg-indigo-600 rounded-t-lg transition-all duration-300 relative"
-                  style={{ height: "110px" }}
-                >
-                  <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] py-1 px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-md pointer-events-none">
-                    3.5M
-                  </span>
-                </div>
-              </div>
-              {/* T7 */}
-              <div className="flex flex-col items-center flex-1 space-y-2 group">
-                <div
-                  className="w-10 bg-indigo-100 group-hover:bg-indigo-600 rounded-t-lg transition-all duration-300 relative"
-                  style={{ height: "145px" }}
-                >
-                  <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] py-1 px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-md pointer-events-none">
-                    4.8M
-                  </span>
-                </div>
-              </div>
-              {/* CN */}
-              <div className="flex flex-col items-center flex-1 space-y-2 group">
-                <div
-                  className="w-10 bg-indigo-100 group-hover:bg-indigo-600 rounded-t-lg transition-all duration-300 relative"
-                  style={{ height: "160px" }}
-                >
-                  <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] py-1 px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-md pointer-events-none">
-                    5.2M
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Labels */}
-            <div className="flex justify-between px-4 text-xs font-semibold text-slate-400 pt-2">
-              <span className="flex-1 text-center">T2</span>
-              <span className="flex-1 text-center">T3</span>
-              <span className="flex-1 text-center">T4</span>
-              <span className="flex-1 text-center">T5</span>
-              <span className="flex-1 text-center">T6</span>
-              <span className="flex-1 text-center">T7</span>
-              <span className="flex-1 text-center">CN</span>
-            </div>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={data?.weeklyRevenue || []}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis 
+                  dataKey="dayName" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fontSize: 12, fill: '#64748b' }} 
+                  dy={10}
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fontSize: 12, fill: '#64748b' }}
+                  tickFormatter={(value) => {
+                    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                    if (value >= 1000) return `${(value / 1000).toFixed(0)}k`;
+                    return value;
+                  }}
+                  dx={-10}
+                />
+                <RechartsTooltip 
+                  formatter={(value: number) => [`${value.toLocaleString('vi-VN')}đ`, 'Doanh thu']}
+                  labelFormatter={(label) => `Ngày: ${label}`}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#4f46e5"
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: '#4f46e5', strokeWidth: 2, stroke: '#fff' }}
+                  activeDot={{ r: 6, fill: '#4f46e5', stroke: '#fff', strokeWidth: 2 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Trạng thái đơn hàng - Cập nhật dữ liệu thật nhưng dùng mock chart */}
+        {/* Trạng thái đơn hàng */}
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
           <div>
             <h3 className="font-bold text-slate-900 text-lg">
               Trạng Thái Đơn Hàng
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Phân chia đơn hàng hôm nay
+              Phân bổ trên hệ thống
             </p>
           </div>
 
-          <div className="py-6 flex items-center justify-center relative pointer-events-none">
-            {/* SVG Pie Chart Mockup */}
-            <svg className="w-36 h-36" viewBox="0 0 36 36">
-              {/* Background circle */}
-              <circle
-                cx="18"
-                cy="18"
-                r="15.915"
-                fill="none"
-                stroke="#f1f5f9"
-                strokeWidth="4.2"
-              />
-
-              <circle
-                cx="18"
-                cy="18"
-                r="15.915"
-                fill="none"
-                stroke="#10b981"
-                strokeWidth="4.2"
-                strokeDasharray="60 40"
-                strokeDashoffset="25"
-              />
-
-              <circle
-                cx="18"
-                cy="18"
-                r="15.915"
-                fill="none"
-                stroke="#8b5cf6"
-                strokeWidth="4.2"
-                strokeDasharray="25 75"
-                strokeDashoffset="-35"
-              />
-
-              <circle
-                cx="18"
-                cy="18"
-                r="15.915"
-                fill="none"
-                stroke="#f59e0b"
-                strokeWidth="4.2"
-                strokeDasharray="15 85"
-                strokeDashoffset="-60"
-              />
-            </svg>
-            <div className="absolute flex flex-col items-center">
+          <div className="h-48 w-full relative">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data?.statusDistribution?.filter(s => s.count > 0) || []}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={70}
+                  paddingAngle={5}
+                  dataKey="count"
+                  nameKey="status"
+                >
+                  {data?.statusDistribution?.filter(s => s.count > 0).map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.status] || '#cbd5e1'} />
+                  ))}
+                </Pie>
+                <RechartsTooltip 
+                  formatter={(value: number) => [value, 'Số lượng']}
+                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <span className="text-2xl font-bold text-slate-800">{data?.totalOrders}</span>
-              <span className="text-[10px] font-semibold text-slate-400 uppercase">
-                Đơn hàng
-              </span>
+              <span className="text-[10px] font-semibold text-slate-400 uppercase">Đơn hàng</span>
             </div>
           </div>
 
-          <div className="space-y-2 pointer-events-none">
+          <div className="space-y-2 mt-4">
             <div className="flex items-center justify-between text-xs font-medium text-slate-600">
               <div className="flex items-center space-x-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                <span>Đã hoàn thành</span>
+                <span>Hoàn thành</span>
               </div>
               <span className="font-semibold text-slate-800">
-                {completedCount} đơn ({Math.round((completedCount / total) * 100)}%)
+                {completedCount} ({Math.round((completedCount / total) * 100)}%)
               </span>
             </div>
             <div className="flex items-center justify-between text-xs font-medium text-slate-600">
@@ -442,7 +377,7 @@ export const DashboardPage = () => {
                 <span>Đang giao</span>
               </div>
               <span className="font-semibold text-slate-800">
-                {deliveringCount} đơn ({Math.round((deliveringCount / total) * 100)}%)
+                {deliveringCount} ({Math.round((deliveringCount / total) * 100)}%)
               </span>
             </div>
             <div className="flex items-center justify-between text-xs font-medium text-slate-600">
@@ -451,7 +386,7 @@ export const DashboardPage = () => {
                 <span>Đang xử lý</span>
               </div>
               <span className="font-semibold text-slate-800">
-                {preparingCount} đơn ({Math.round((preparingCount / total) * 100)}%)
+                {preparingCount} ({Math.round((preparingCount / total) * 100)}%)
               </span>
             </div>
           </div>

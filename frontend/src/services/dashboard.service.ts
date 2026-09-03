@@ -18,6 +18,11 @@ export interface DashboardStatsResponse {
     status: string;
     time: string;
   }[];
+  weeklyRevenue: {
+    date: string;
+    dayName: string;
+    revenue: number;
+  }[];
 }
 
 export const getDashboardStats = async (): Promise<DashboardStatsResponse> => {

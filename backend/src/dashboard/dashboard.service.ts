@@ -75,6 +75,47 @@ export class DashboardService {
       };
     });
 
+    // 7. Doanh thu 7 ngày qua
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    const recentCompletedOrders = await this.prisma.order.findMany({
+      where: {
+        currentStatus: 'COMPLETED',
+        createdAt: {
+          gte: sevenDaysAgo,
+        },
+      },
+      select: {
+        totalAmount: true,
+        createdAt: true,
+      },
+    });
+
+    const weeklyRevenue = [];
+    const daysOfWeek = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateString = d.toISOString().split('T')[0]; // YYYY-MM-DD
+      const dayName = daysOfWeek[d.getDay()];
+
+      const dailyTotal = recentCompletedOrders
+        .filter((o) => {
+          // Adjust to local date if needed, but ISO string works fine for UTC consistency
+          return o.createdAt.toISOString().split('T')[0] === dateString;
+        })
+        .reduce((sum, o) => sum + Number(o.totalAmount), 0);
+
+      weeklyRevenue.push({
+        date: dateString,
+        dayName: dayName,
+        revenue: dailyTotal,
+      });
+    }
+
     return {
       totalRevenue,
       totalOrders,
@@ -82,6 +123,7 @@ export class DashboardService {
       totalCustomers,
       statusDistribution,
       recentOrders,
+      weeklyRevenue,
     };
   }
 }
