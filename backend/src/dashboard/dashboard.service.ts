@@ -93,7 +93,7 @@ export class DashboardService {
       },
     });
 
-    const weeklyRevenue = [];
+    const weeklyRevenue: { date: string; dayName: string; revenue: number }[] = [];
     const daysOfWeek = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 
     for (let i = 6; i >= 0; i--) {

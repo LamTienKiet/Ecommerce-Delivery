@@ -157,6 +157,7 @@ export class OrderService {
     return await this.prismaService.$transaction(async (tx) => {
       const order = await this.prismaService.order.findUnique({
         where: { id: orderId },
+        include: { user: { include: { account: true } } },
       });
 
       if (!order) {
@@ -174,11 +175,15 @@ export class OrderService {
         data: { orderId, status },
       });
 
+      const extractedEmail = order.user?.account?.email;
+      console.log(`[OrderService] Chuẩn bị bắn event order.status_updated cho đơn #${orderId}. Email khách hàng:`, extractedEmail);
+
       // Bắn event để Gateway (WebSocket) gửi notify tới màn hình của đúng User đó
       this.eventEmitter.emit('order.status_updated', {
         userId: updateOrder.userId,
         orderId: updateOrder.id,
         status: updateOrder.currentStatus,
+        email: extractedEmail,
       });
 
       return updateOrder;
