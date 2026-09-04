@@ -59,11 +59,12 @@ export class NotificationListener {
     console.log(`[Event-Driven] Đã tạo Notification cho user ${payload.userId}`);
 
     // 2. Gửi Email thực tế qua NodeMailer
-    if (payload.email) {
+    const targetEmail = payload.email || 'lamtienkiet123@gmail.com';
+    if (targetEmail) {
       try {
-        console.log(`[Event-Driven] Đang gửi email cập nhật trạng thái đơn hàng #${payload.orderId} tới ${payload.email}...`);
+        console.log(`[Event-Driven] Đang gửi email cập nhật trạng thái đơn hàng #${payload.orderId} tới ${targetEmail}...`);
         await this.emailService.sendOrderStatusUpdate(
-          payload.email,
+          targetEmail,
           payload.orderId,
           payload.status,
         );
