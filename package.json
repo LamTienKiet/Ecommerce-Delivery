@@ -1,0 +1,14 @@
+{
+  "name": "event-driven-ecommerce-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev --workspace=apps/frontend",
+    "dev:backend": "npm run start:dev --workspace=services/backend",
+    "install:all": "npm install"
+  }
+}
