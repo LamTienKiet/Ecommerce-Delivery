@@ -13,7 +13,9 @@ import { Logger } from '@nestjs/common';
     origin: '*',
   },
 })
-export class NotificationGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class NotificationGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer() server: Server;
   private logger = new Logger('NotificationGateway');
 
@@ -27,8 +29,14 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
 
   // Lắng nghe Event từ OrderService
   @OnEvent('order.status_updated')
-  handleOrderStatusUpdate(payload: { userId: number; orderId: number; status: string }) {
-    this.logger.log(`Broadcasting status update for order #${payload.orderId} to user #${payload.userId}`);
+  handleOrderStatusUpdate(payload: {
+    userId: number;
+    orderId: number;
+    status: string;
+  }) {
+    this.logger.log(
+      `Broadcasting status update for order #${payload.orderId} to user #${payload.userId}`,
+    );
     // Bắn một tín hiệu cụ thể tới userId này. Tên event ví dụ: orderStatusUpdate_1
     this.server.emit(`orderStatusUpdate_${payload.userId}`, payload);
   }

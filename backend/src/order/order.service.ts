@@ -21,7 +21,7 @@ export class OrderService {
         where: { userId },
         include: {
           user: {
-            include: { account: true }
+            include: { account: true },
           },
           cartItems: {
             include: {
@@ -58,7 +58,10 @@ export class OrderService {
       const orderType = createOrderDto.orderType || 'delivery';
       const deliveryFee = orderType === 'delivery' ? 35000 : 0;
       const promoCode = createOrderDto.promoCode || null;
-      const discount = promoCode?.toUpperCase() === 'LATIUKY10' ? Math.round(subtotal * 0.1) : 0;
+      const discount =
+        promoCode?.toUpperCase() === 'LATIUKY10'
+          ? Math.round(subtotal * 0.1)
+          : 0;
       const totalAmount = subtotal + deliveryFee - discount;
 
       const order = await tx.order.create({
@@ -87,8 +90,8 @@ export class OrderService {
               paymentMethod: createOrderDto.paymentMethod,
               amount: totalAmount,
               status: 'PENDING',
-            }
-          }
+            },
+          },
         },
         include: {
           orderItems: true,
@@ -105,7 +108,13 @@ export class OrderService {
       const email = cart.user?.account?.email;
       this.eventEmitter.emit(
         'order.created',
-        new OrderCreatedEvent(order.id, userId, Number(totalAmount), orderItemsData, email),
+        new OrderCreatedEvent(
+          order.id,
+          userId,
+          Number(totalAmount),
+          orderItemsData,
+          email,
+        ),
       );
 
       return order;
@@ -186,7 +195,10 @@ export class OrderService {
       });
 
       const extractedEmail = order.user?.account?.email;
-      console.log(`[OrderService] Chuẩn bị bắn event order.status_updated cho đơn #${orderId}. Email khách hàng:`, extractedEmail);
+      console.log(
+        `[OrderService] Chuẩn bị bắn event order.status_updated cho đơn #${orderId}. Email khách hàng:`,
+        extractedEmail,
+      );
 
       // Bắn event để Gateway (WebSocket) gửi notify tới màn hình của đúng User đó
       this.eventEmitter.emit('order.status_updated', {
