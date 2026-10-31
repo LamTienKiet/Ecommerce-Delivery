@@ -80,7 +80,7 @@ export class NotificationListener {
     );
 
     // 2. Gửi Email thực tế qua NodeMailer
-    const targetEmail = payload.email || 'lamtienkiet123@gmail.com';
+    const targetEmail = payload.email;
     if (targetEmail) {
       try {
         console.log(

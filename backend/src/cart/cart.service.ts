@@ -70,22 +70,33 @@ export class CartService {
     });
   }
 
-  async removeCartItem(cartItemId: number) {
-    return this.prismaService.cartItem.delete({
-      where: {
-        id: cartItemId,
-      },
+  // *Many + cart.userId so a user can only touch items in their own cart
+  async removeCartItem(userId: number, cartItemId: number) {
+    const { count } = await this.prismaService.cartItem.deleteMany({
+      where: { id: cartItemId, cart: { userId } },
     });
+    if (count === 0) {
+      throw new NotFoundException(`Cart item ${cartItemId} not found`);
+    }
+    return { count };
   }
 
-  async updateCartItemQuantity(cartItemId: number, quantity: number) {
+  async updateCartItemQuantity(
+    userId: number,
+    cartItemId: number,
+    quantity: number,
+  ) {
     if (quantity <= 0) {
-      return this.removeCartItem(cartItemId);
+      return this.removeCartItem(userId, cartItemId);
     }
-    return this.prismaService.cartItem.update({
-      where: { id: cartItemId },
+    const { count } = await this.prismaService.cartItem.updateMany({
+      where: { id: cartItemId, cart: { userId } },
       data: { quantity },
     });
+    if (count === 0) {
+      throw new NotFoundException(`Cart item ${cartItemId} not found`);
+    }
+    return { count };
   }
 
   async findCartByUserId(userId: number) {

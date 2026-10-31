@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { disconnectSocket } from "../services/socket";
 
 interface User {
   id: number;
@@ -43,6 +44,7 @@ export const useAuthStore = create<AuthenState>((set) => ({
     localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
+    disconnectSocket();
     set({ user: null, token: null, refreshToken: null });
   },
   updateUser: (updatedFields: Partial<User>) => {

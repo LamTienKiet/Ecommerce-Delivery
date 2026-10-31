@@ -13,6 +13,8 @@ import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { PaymentService } from '../payment/payment.service';
+import { RolesGuard } from 'src/auth/guards/roles/roles.guard';
+import { Roles } from 'src/auth/roles/roles.decorator';
 
 @Controller('order')
 @UseGuards(JwtAuthGuard)
@@ -50,6 +52,8 @@ export class OrderController {
   }
 
   @Get('all')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
   getAllOrders() {
     return this.orderService.getAllOrders();
   }
@@ -60,8 +64,9 @@ export class OrderController {
   }
 
   @Patch(':id/status')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
   updateOrderStatus(@Param('id') id: string, @Body('status') status: string) {
-    // Note: In a real app, this should probably be restricted to admin/staff roles
     return this.orderService.updateOrderStatus(+id, status);
   }
 }

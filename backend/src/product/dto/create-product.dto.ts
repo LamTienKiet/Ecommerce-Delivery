@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsInt,
@@ -19,6 +20,8 @@ export class CreateProductDto {
   @IsNotEmpty()
   imageUrl!: string;
 
+  // Prisma Decimal is serialized as a string, so the edit form sends it back as one
+  @Type(() => Number)
   @IsNumber()
   @IsPositive()
   price!: number;

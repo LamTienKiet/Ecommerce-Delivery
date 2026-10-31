@@ -1,13 +1,12 @@
-import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class LoginDto {
   @IsNotEmpty()
   @IsString()
   username!: string;
 
+  // no length rule here: change-password allows passwords longer than register's max
   @IsNotEmpty()
   @IsString()
-  @MinLength(4)
-  @MaxLength(8)
   password!: string;
 }

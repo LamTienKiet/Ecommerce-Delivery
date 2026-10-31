@@ -7,10 +7,12 @@ export class PaymentService {
   constructor(private prisma: PrismaService) {}
 
   // VNPay Sandbox Config
-  private vnp_TmnCode = 'CGXZLS0Z';
-  private vnp_HashSecret = 'XNBCJFAKAZQSGTARRLGCHVZWCIOIGSHN';
+  private vnp_TmnCode = process.env.VNPAY_TMN_CODE!;
+  private vnp_HashSecret = process.env.VNPAY_HASH_SECRET!;
   private vnp_Url = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
-  private vnp_ReturnUrl = 'http://localhost:3000/payment/vnpay_return';
+  private vnp_ReturnUrl =
+    process.env.VNPAY_RETURN_URL ??
+    'http://localhost:3000/payment/vnpay_return';
 
   createVnpayUrl(order: any, ipAddr: string) {
     const date = new Date();
@@ -34,20 +36,13 @@ export class PaymentService {
     vnp_Params['vnp_OrderType'] = 'other';
     vnp_Params['vnp_Amount'] = Math.round(amount * 100); // VNPay requires multiplying by 100 and must be integer
     vnp_Params['vnp_ReturnUrl'] = this.vnp_ReturnUrl;
-    vnp_Params['vnp_IpAddr'] = (ipAddr && ipAddr !== '::1') ? ipAddr : '127.0.0.1';
+    vnp_Params['vnp_IpAddr'] =
+      ipAddr && ipAddr !== '::1' ? ipAddr : '127.0.0.1';
     vnp_Params['vnp_CreateDate'] = vnp_CreateDate;
     vnp_Params['vnp_ExpireDate'] = vnp_ExpireDate;
 
     vnp_Params = this.sortObject(vnp_Params);
-
-    const signData = Object.keys(vnp_Params)
-      .map((key) => `${key}=${vnp_Params[key]}`)
-      .join('&');
-
-    const hmac = crypto.createHmac('sha512', this.vnp_HashSecret);
-    const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
-
-    vnp_Params['vnp_SecureHash'] = signed;
+    vnp_Params['vnp_SecureHash'] = this.sign(vnp_Params);
     return (
       this.vnp_Url +
       '?' +
@@ -57,59 +52,95 @@ export class PaymentService {
     );
   }
 
-  async vnpayReturn(vnp_Params: any) {
-    const secureHash = vnp_Params['vnp_SecureHash'];
-    delete vnp_Params['vnp_SecureHash'];
-    delete vnp_Params['vnp_SecureHashType'];
+  // Used by both the browser return URL and VNPay's server-to-server IPN; safe to run twice.
+  // Returns VNPay IPN response codes: 00 ok, 01 order not found, 02 already confirmed, 04 wrong amount, 97 bad signature.
+  async processVnpayResult(query: any) {
+    const { vnp_SecureHash, vnp_SecureHashType, ...params } = query;
+    if (
+      !vnp_SecureHash ||
+      this.sign(this.sortObject(params)) !== vnp_SecureHash
+    ) {
+      return {
+        RspCode: '97',
+        Message: 'Invalid signature',
+        orderId: null,
+        isSuccess: false,
+      };
+    }
 
-    const sortedParams = this.sortObject(vnp_Params);
-    const signData = Object.keys(sortedParams)
-      .map((key) => `${key}=${sortedParams[key]}`)
-      .join('&');
+    const orderId = parseInt(String(params.vnp_TxnRef).split('-')[0], 10);
+    const isSuccess = params.vnp_ResponseCode === '00';
 
-    const hmac = crypto.createHmac('sha512', this.vnp_HashSecret);
-    const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
+    return this.prisma.$transaction(async (tx) => {
+      const payment = await tx.payment.findUnique({ where: { orderId } });
+      if (!payment) {
+        return {
+          RspCode: '01',
+          Message: 'Order not found',
+          orderId,
+          isSuccess: false,
+        };
+      }
+      if (
+        Math.round(Number(payment.amount) * 100) !== Number(params.vnp_Amount)
+      ) {
+        return {
+          RspCode: '04',
+          Message: 'Invalid amount',
+          orderId,
+          isSuccess: false,
+        };
+      }
 
-    if (secureHash === signed) {
-      const orderId = parseInt(vnp_Params['vnp_TxnRef'].split('-')[0], 10);
-      const isSuccess = vnp_Params['vnp_ResponseCode'] === '00';
-
-      // Update Payment status in DB
-      const payment = await this.prisma.payment.findUnique({
-        where: { orderId },
+      // Conditional update: a paid order is never downgraded, and only one callback wins the race.
+      const { count } = await tx.payment.updateMany({
+        where: { id: payment.id, status: { not: 'SUCCESS' } },
+        data: { status: isSuccess ? 'SUCCESS' : 'FAILED' },
       });
-      if (payment) {
-        await this.prisma.payment.update({
-          where: { orderId },
-          data: { status: isSuccess ? 'SUCCESS' : 'FAILED' },
-        });
+      if (count === 0) {
+        return {
+          RspCode: '02',
+          Message: 'Order already confirmed',
+          orderId,
+          isSuccess: true,
+        };
+      }
 
-        await this.prisma.paymentTransaction.create({
-          data: {
-            paymentId: payment.id,
-            transactionCode:
-              vnp_Params['vnp_TransactionNo'] || vnp_Params['vnp_TxnRef'],
-            gatewayResponse: JSON.stringify(vnp_Params),
-          },
-        });
+      // paymentId is unique, so a retry after a failed attempt overwrites the old row.
+      const transaction = {
+        transactionCode: params.vnp_TransactionNo || params.vnp_TxnRef,
+        gatewayResponse: JSON.stringify(params),
+      };
+      await tx.paymentTransaction.upsert({
+        where: { paymentId: payment.id },
+        create: { paymentId: payment.id, ...transaction },
+        update: transaction,
+      });
 
-        if (isSuccess) {
-          await this.prisma.order.update({
-            where: { id: orderId },
-            data: { currentStatus: 'CONFIRMED' },
-          });
-          await this.prisma.orderStatusHistory.create({
+      if (isSuccess) {
+        const updated = await tx.order.updateMany({
+          where: { id: orderId, currentStatus: 'PENDING' },
+          data: { currentStatus: 'CONFIRMED' },
+        });
+        if (updated.count > 0) {
+          await tx.orderStatusHistory.create({
             data: { orderId, status: 'CONFIRMED' },
           });
         }
       }
-      return { status: isSuccess ? 'success' : 'failed', orderId };
-    }
-
-    return { status: 'invalid_signature', orderId: null };
+      return { RspCode: '00', Message: 'Confirm Success', orderId, isSuccess };
+    });
   }
 
-
+  private sign(sortedParams: Record<string, string>) {
+    const signData = Object.keys(sortedParams)
+      .map((key) => `${key}=${sortedParams[key]}`)
+      .join('&');
+    return crypto
+      .createHmac('sha512', this.vnp_HashSecret)
+      .update(Buffer.from(signData, 'utf-8'))
+      .digest('hex');
+  }
 
   private sortObject(obj: any) {
     const sorted: any = {};

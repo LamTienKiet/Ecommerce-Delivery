@@ -30,14 +30,19 @@ export class CartController {
 
   @Patch('item/:cartItemId')
   updateQuantity(
+    @Request() req,
     @Param('cartItemId') cartItemId: string,
     @Body('quantity') quantity: number,
   ) {
-    return this.cartService.updateCartItemQuantity(+cartItemId, quantity);
+    return this.cartService.updateCartItemQuantity(
+      req.user.sub,
+      +cartItemId,
+      quantity,
+    );
   }
   @Delete('item/:cartItemId')
-  removeItem(@Param('cartItemId') cartItemId: string) {
-    return this.cartService.removeCartItem(+cartItemId);
+  removeItem(@Request() req, @Param('cartItemId') cartItemId: string) {
+    return this.cartService.removeCartItem(req.user.sub, +cartItemId);
   }
   @Delete('clear')
   clear(@Request() req) {

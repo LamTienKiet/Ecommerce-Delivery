@@ -10,6 +10,8 @@ export const initSocket = () => {
     socket = io(SOCKET_URL, {
       transports: ['websocket', 'polling'], // Đảm bảo hỗ trợ cả 2 fallback
       autoConnect: true,
+      // Function form: the latest token is read on every (re)connect
+      auth: (cb) => cb({ token: localStorage.getItem('token') }),
     });
 
     socket.on('connect', () => {
@@ -27,5 +29,12 @@ export const getSocket = () => {
   if (!socket) {
     return initSocket();
   }
+  // Server drops sockets without a valid token; retry with the current one
+  if (!socket.connected) socket.connect();
   return socket;
+};
+
+export const disconnectSocket = () => {
+  socket?.disconnect();
+  socket = null;
 };

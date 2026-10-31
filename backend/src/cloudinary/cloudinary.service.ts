@@ -7,9 +7,9 @@ const streamifier = require('streamifier');
 export class CloudinaryService {
   constructor() {
     cloudinary.config({
-      cloud_name: 'dkosqrf6',
-      api_key: '553598152726312',
-      api_secret: 'jQ-YuzzcjNUkjNOMljJrSh8v5Q8',
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
     });
   }
 
