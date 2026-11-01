@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -10,7 +10,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend
 } from "recharts";
 import { getDashboardStats } from "../../services/dashboard.service";
 import type { DashboardStatsResponse } from "../../services/dashboard.service";
@@ -304,7 +303,7 @@ export const DashboardPage = () => {
                   dx={-10}
                 />
                 <RechartsTooltip 
-                  formatter={(value: number) => [`${value.toLocaleString('vi-VN')}đ`, 'Doanh thu']}
+                  formatter={(value) => [`${Number(value).toLocaleString('vi-VN')}đ`, 'Doanh thu']}
                   labelFormatter={(label) => `Ngày: ${label}`}
                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 />
@@ -350,7 +349,7 @@ export const DashboardPage = () => {
                   ))}
                 </Pie>
                 <RechartsTooltip 
-                  formatter={(value: number) => [value, 'Số lượng']}
+                  formatter={(value) => [Number(value), 'Số lượng']}
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 />
               </PieChart>

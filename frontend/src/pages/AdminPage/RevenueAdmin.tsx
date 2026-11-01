@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { getDashboardStats } from "../../services/dashboard.service";
 import type { DashboardStatsResponse } from "../../services/dashboard.service";
 import {
@@ -66,7 +66,7 @@ export const RevenueAdmin = () => {
                 dx={-10}
               />
               <Tooltip 
-                formatter={(value: number) => [`${value.toLocaleString('vi-VN')}đ`, 'Doanh thu']}
+                formatter={(value) => [`${Number(value).toLocaleString('vi-VN')}đ`, 'Doanh thu']}
                 labelFormatter={(label) => `Ngày: ${label}`}
                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
               />

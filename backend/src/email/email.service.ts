@@ -51,7 +51,7 @@ export class EmailService {
           </p>
           
           <div style="text-align: center; margin-top: 30px;">
-            <a href="http://localhost:5173/order/${orderId}" style="background-color: #b7913c; color: #121b16; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; display: inline-block;">Theo Dõi Đơn Hàng</a>
+            <a href="${(process.env.FRONTEND_URL ?? "http://localhost:5173").split(",")[0]}/order/${orderId}" style="background-color: #b7913c; color: #121b16; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; display: inline-block;">Theo Dõi Đơn Hàng</a>
           </div>
         </div>
         
@@ -120,7 +120,7 @@ export class EmailService {
           </div>
           
           <div style="text-align: center; margin-top: 30px;">
-            <a href="http://localhost:5173/order/${orderId}" style="background-color: #b7913c; color: #121b16; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; display: inline-block;">Xem Chi Tiết</a>
+            <a href="${(process.env.FRONTEND_URL ?? "http://localhost:5173").split(",")[0]}/order/${orderId}" style="background-color: #b7913c; color: #121b16; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; display: inline-block;">Xem Chi Tiết</a>
           </div>
         </div>
         

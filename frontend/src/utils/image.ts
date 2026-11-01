@@ -4,7 +4,7 @@ export function getImageUrl(url: string | undefined): string {
     return url;
   }
   if (url.startsWith("/uploads/")) {
-    return `http://localhost:3000${url}`;
+    return `${import.meta.env.VITE_API_URL || "http://localhost:3000"}${url}`;
   }
   return `/images/${url}`;
 }

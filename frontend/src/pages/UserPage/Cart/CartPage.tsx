@@ -20,12 +20,7 @@ interface CartLineItem {
   imageUrl: string; // placeholder cho ProductImage
 }
 
-type OrderType = "delivery" | "pickup";
-
 const cartItems: CartLineItem[] = [];
-
-const DELIVERY_FEE = 35000;
-const PROMO_CODE = "LATIUKY10"; // giảm 10%
 
 const formatVnd = (n: number) => n.toLocaleString("vi-VN") + "₫";
 

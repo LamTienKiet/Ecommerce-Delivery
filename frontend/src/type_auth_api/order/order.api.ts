@@ -1,4 +1,3 @@
-import type { CartItemResponse } from "../cart/cart.api";
 import type { ProductResponse } from "../products/product.api";
 
 export interface OrderItemRequest {
