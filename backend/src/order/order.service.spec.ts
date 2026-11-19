@@ -55,7 +55,7 @@ describe('OrderService events fire only after commit', () => {
 describe('OrderService.createOrder totals', () => {
   const emitter = { emit: jest.fn() };
   const tx = {
-    cart: { findUnique: jest.fn() },
+    cart: { findUnique: jest.fn(), updateMany: jest.fn() },
     order: { create: jest.fn() },
     cartItem: { deleteMany: jest.fn() },
   };
@@ -115,6 +115,15 @@ describe('OrderService.createOrder totals', () => {
     cartWith(item('100000.00', 1));
     await service.createOrder(7, { ...dto, promoCode: 'FAKE' } as any);
     expect(savedOrder()).toMatchObject({ discount: 0, totalAmount: 135000 });
+  });
+
+  it('locks the cart before reading it, so a double submit cannot reuse it', async () => {
+    cartWith(item('100000.00', 1));
+    await service.createOrder(7, dto as any);
+    expect(tx.cart.updateMany.mock.calls[0][0].where).toEqual({ userId: 7 });
+    expect(tx.cart.updateMany.mock.invocationCallOrder[0]).toBeLessThan(
+      tx.cart.findUnique.mock.invocationCallOrder[0],
+    );
   });
 
   it('rejects an empty cart without writing anything', async () => {

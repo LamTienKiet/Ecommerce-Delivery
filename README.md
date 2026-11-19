@@ -19,3 +19,17 @@ npm install
 
 - Frontend: `npm run dev:frontend`
 - Backend: `npm run dev:backend`
+
+## Chạy bằng Docker
+
+Sao chép `.env.example` thành `backend/.env` và `.env`, điền các giá trị rồi chạy:
+
+```bash
+docker compose up --build
+```
+
+Backend tự chạy migration và seed khi khởi động. Tài khoản `admin` chỉ được tạo khi có `ADMIN_PASSWORD`.
+
+## Thanh toán
+
+> Đây là dự án portfolio. VNPay chạy ở môi trường **sandbox** để minh họa luồng thanh toán, **không nhận tiền thật**.

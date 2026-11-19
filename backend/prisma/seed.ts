@@ -3,19 +3,12 @@ import { PrismaMssql } from '@prisma/adapter-mssql';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
-const adapter = new PrismaMssql({
-  server: 'localhost',
-  port: 1433,
-  database: 'EventLaTiuKey',
-  user: 'sa',
-  password: '1',
-  options: {
-    encrypt: true,
-    trustServerCertificate: true,
-  },
-});
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error('DATABASE_URL environment variable is not defined');
+}
 
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient({ adapter: new PrismaMssql(connectionString) });
 
 async function main() {
   console.log('🌱 Bắt đầu Seeding...');
@@ -38,29 +31,33 @@ async function main() {
 
   console.log(' Đã tạo Roles: ADMIN, USER');
 
-  await prisma.account.upsert({
-    where: { username: 'admin' },
-    update: {},
-    create: {
-      username: 'admin',
-      email: 'admin@latiukey.com',
-      password: await bcrypt.hash('admin123', 10),
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (adminPassword) {
+    await prisma.account.upsert({
+      where: { username: 'admin' },
+      update: {},
+      create: {
+        username: 'admin',
+        email: 'admin@latiukey.com',
+        password: await bcrypt.hash(adminPassword, 10),
 
-      status: 'ACTIVE',
-      roleId: adminRole.id,
+        status: 'ACTIVE',
+        roleId: adminRole.id,
 
-      user: {
-        create: {
-          fullName: 'Quản trị viên LaTiuKey',
-          phone: '0987654321',
-          gender: 'Nam',
-          address: 'Việt Nam',
+        user: {
+          create: {
+            fullName: 'Quản trị viên LaTiuKey',
+            phone: '0987654321',
+            gender: 'Nam',
+            address: 'Việt Nam',
+          },
         },
       },
-    },
-  });
-
-  console.log(' Đã tạo tài khoản Admin');
+    });
+    console.log(' Đã kiểm tra tài khoản Admin');
+  } else {
+    console.log(' Bỏ qua tài khoản Admin vì chưa đặt ADMIN_PASSWORD');
+  }
 
   // =========================
   // 3. CATEGORY
@@ -104,6 +101,12 @@ async function main() {
   });
 
   console.log(' Đã thêm Category thành công');
+
+  // Runs on every container start, so never add the menu twice.
+  if ((await prisma.product.count()) > 0) {
+    console.log(' Seeding hoàn tất, sản phẩm đã tồn tại');
+    return;
+  }
 
   await prisma.product.createMany({
     data: [
