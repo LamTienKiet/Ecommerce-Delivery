@@ -73,8 +73,8 @@ export class ProductController {
     @Query('isAvailable') isAvailable?: string,
     @Query('sortBy') sortBy?: string,
   ) {
-    const pageNumber = page ? parseInt(page) : 1;
-    const limitNumber = limit ? parseInt(limit) : 10;
+    const pageNumber = Math.max(parseInt(page ?? '') || 1, 1);
+    const limitNumber = Math.min(Math.max(parseInt(limit ?? '') || 10, 1), 100);
     const catId = categoryId ? parseInt(categoryId) : undefined;
     return this.productService.findAll(pageNumber, limitNumber, catId, search, isAvailable, sortBy);
   }

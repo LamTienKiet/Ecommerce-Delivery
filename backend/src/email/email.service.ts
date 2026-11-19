@@ -7,6 +7,12 @@ export class EmailService {
   private readonly logger = new Logger(EmailService.name);
 
   constructor() {
+    if (!process.env.SMTP_USER) {
+      // local dev and load tests: build the mail but send nothing
+      this.logger.warn('SMTP_USER is not set, emails will not be sent');
+      this.transporter = nodemailer.createTransport({ jsonTransport: true });
+      return;
+    }
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {

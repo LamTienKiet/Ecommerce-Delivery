@@ -2,34 +2,41 @@ import { Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { cachedCatalog, clearCatalogCache } from 'src/common/catalog-cache';
 
 @Injectable()
 export class CategoryService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  create(createCategoryDto: CreateCategoryDto) {
-    return this.prismaService.category.create({
+  async create(createCategoryDto: CreateCategoryDto) {
+    const category = await this.prismaService.category.create({
       data: {
         name: createCategoryDto.name,
         description: createCategoryDto.description,
       },
     });
+    clearCatalogCache();
+    return category;
   }
 
   findAll() {
-    return this.prismaService.category.findMany();
+    return cachedCatalog('categories', () =>
+      this.prismaService.category.findMany(),
+    );
   }
 
   findOne(id: number) {
-    return this.prismaService.category.findUnique({
-      where: {
-        id: id,
-      },
-    });
+    return cachedCatalog(`category:${id}`, () =>
+      this.prismaService.category.findUnique({
+        where: {
+          id: id,
+        },
+      }),
+    );
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return this.prismaService.category.update({
+  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+    const category = await this.prismaService.category.update({
       where: {
         id: id,
       },
@@ -38,13 +45,17 @@ export class CategoryService {
         description: updateCategoryDto.description,
       },
     });
+    clearCatalogCache();
+    return category;
   }
 
-  remove(id: number) {
-    return this.prismaService.category.delete({
+  async remove(id: number) {
+    const category = await this.prismaService.category.delete({
       where: {
         id: id,
       },
     });
+    clearCatalogCache();
+    return category;
   }
 }
