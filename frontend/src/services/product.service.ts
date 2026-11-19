@@ -63,6 +63,8 @@ export async function uploadProductImage(file: File): Promise<{ url: string }> {
     "/product/upload",
     formData,
     {
+      // uploads on a slow connection need longer than the 15s default
+      timeout: 60_000,
       headers: {
         "Content-Type": "multipart/form-data",
       },

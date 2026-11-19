@@ -8,6 +8,8 @@ import * as fs from 'fs';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  // on SIGTERM (docker stop): stop accepting requests, let running ones finish, then close the DB pool
+  app.enableShutdownHooks();
 
   // Ensure uploads directory exists
   const uploadsDir = join(process.cwd(), 'uploads');

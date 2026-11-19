@@ -1,4 +1,4 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnApplicationShutdown, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { PrismaMssql } from '@prisma/adapter-mssql';
 import 'dotenv/config';
@@ -6,7 +6,7 @@ import 'dotenv/config';
 @Injectable()
 export class PrismaService
   extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy
+  implements OnModuleInit, OnApplicationShutdown
 {
   constructor() {
     const connectionString = process.env.DATABASE_URL;
@@ -21,7 +21,8 @@ export class PrismaService
     await this.$connect();
   }
 
-  async onModuleDestroy() {
+  // not onModuleDestroy: Nest runs that before closing the HTTP server, so in-flight requests would lose the DB
+  async onApplicationShutdown() {
     await this.$disconnect();
   }
 }
