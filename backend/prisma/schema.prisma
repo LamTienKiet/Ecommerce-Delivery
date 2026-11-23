@@ -97,6 +97,9 @@ model Product {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([createdAt])
 }
 
 // Cart
@@ -143,6 +146,9 @@ model Order {
   histories       OrderStatusHistory[]
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
 }
 
 // OrderItem
@@ -166,6 +172,8 @@ model OrderStatusHistory {
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   status    String   @db.VarChar(20) // PENDING, CONFIRMED, PREPARING, DELIVERING, COMPLETED, CANCELLED
   createdAt DateTime @default(now())
+
+  @@index([orderId])
 }
 
 // Payment
@@ -215,4 +223,6 @@ model Notification {
   message   String   @db.NVarChar(Max)
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }

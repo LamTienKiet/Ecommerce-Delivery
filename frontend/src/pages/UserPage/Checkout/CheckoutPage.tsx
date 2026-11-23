@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../../../assets/css/checkout.css";
 
 // Import các types và services gọi API
@@ -10,6 +11,17 @@ import type { CartItemResponse } from "../../../type_auth_api/cart/cart.api";
 import { getImageUrl } from "../../../utils/image";
 import { useCartStore } from "../../../store/useCartStore";
 import toast from "react-hot-toast";
+
+// The backend empties the cart in the same transaction that saves the order,
+// and checkout only starts with a non-empty cart, so an empty cart now means the order went through.
+async function orderWasSaved() {
+  try {
+    const cart = await getCart();
+    return cart.cartItems.length === 0;
+  } catch {
+    return false;
+  }
+}
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -137,7 +149,20 @@ export const CheckoutPage = () => {
       navigate("/order");
     } catch (err) {
       console.error("Lỗi khi đặt hàng:", err);
-      toast.error("Đã xảy ra lỗi khi tạo đơn hàng. Vui lòng thử lại!");
+      // no reply (network drop, timeout) or a server error: the order may already be saved
+      const uncertain =
+        axios.isAxiosError(err) && (!err.response || err.response.status >= 500);
+      if (uncertain && (await orderWasSaved())) {
+        await fetchCartCount();
+        toast.success("Đơn hàng của bạn đã được tạo");
+        navigate("/order");
+        return;
+      }
+      toast.error(
+        uncertain
+          ? "Kết nối bị gián đoạn. Vui lòng kiểm tra mục Đơn hàng trước khi đặt lại."
+          : "Đã xảy ra lỗi khi tạo đơn hàng. Vui lòng thử lại!",
+      );
     } finally {
       setIsSubmitting(false);
     }

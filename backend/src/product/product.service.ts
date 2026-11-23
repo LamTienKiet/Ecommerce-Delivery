@@ -3,6 +3,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CategoryService } from 'src/category/category.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { cachedCatalog, clearCatalogCache } from 'src/common/catalog-cache';
 
 @Injectable()
 export class ProductService {
@@ -11,8 +12,8 @@ export class ProductService {
     private readonly prismaService: PrismaService,
   ) {}
 
-  create(createProductDto: CreateProductDto) {
-    return this.prismaService.product.create({
+  async create(createProductDto: CreateProductDto) {
+    const product = await this.prismaService.product.create({
       data: {
         name: createProductDto.name,
         description: createProductDto.description,
@@ -32,6 +33,8 @@ export class ProductService {
         category: true,
       },
     });
+    clearCatalogCache();
+    return product;
   }
 
   async findAll(
@@ -65,43 +68,64 @@ export class ProductService {
     else if (sortBy === 'name-asc') orderBy = { name: 'asc' };
     else if (sortBy === 'newest') orderBy = { createdAt: 'desc' };
 
-    const products = await this.prismaService.product.findMany({
-      where: where,
-      skip: skip,
-      take: limit,
-      include: {
-        category: true,
-      },
-      orderBy: orderBy,
-    });
+    const load = async () => {
+      // categories come from the cached category list: one database round trip less per request
+      const [products, total, categories] = await Promise.all([
+        this.prismaService.product.findMany({
+          where: where,
+          skip: skip,
+          take: limit,
+          orderBy: orderBy,
+        }),
+        this.prismaService.product.count({ where }),
+        this.categoryService.findAll(),
+      ]);
+      const categoryById = new Map(categories.map((category) => [category.id, category]));
+      const data = products.every((product) => categoryById.has(product.categoryId))
+        ? products.map((product) => ({ ...product, category: categoryById.get(product.categoryId)! }))
+        : await this.prismaService.product.findMany({
+            where: { id: { in: products.map((product) => product.id) } },
+            include: { category: true },
+            orderBy: orderBy,
+          });
+      const totalPages = Math.ceil(total / limit);
 
-    const total = await this.prismaService.product.count({ where });
-    const totalPages = Math.ceil(total / limit);
-
-    return {
-      data: products,
-      meta: {
-        totalItems: total,
-        currentPage: page,
-        totalPages: totalPages,
-        itemsPerPage: limit,
-      },
+      return {
+        data,
+        meta: {
+          totalItems: total,
+          currentPage: page,
+          totalPages: totalPages,
+          itemsPerPage: limit,
+        },
+      };
     };
+
+    // search text is unbounded, so caching it would mostly store one-off results
+    if (search) {
+      return load();
+    }
+    return cachedCatalog(
+      `products:${JSON.stringify([page, limit, categoryId, isAvailable, sortBy])}`,
+      load,
+    );
   }
 
   findOne(id: number) {
-    return this.prismaService.product.findUnique({
-      where: {
-        id: id,
-      },
-      include: {
-        category: true,
-      },
-    });
+    return cachedCatalog(`product:${id}`, () =>
+      this.prismaService.product.findUnique({
+        where: {
+          id: id,
+        },
+        include: {
+          category: true,
+        },
+      }),
+    );
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return this.prismaService.product.update({
+  async update(id: number, updateProductDto: UpdateProductDto) {
+    const product = await this.prismaService.product.update({
       where: {
         id: id,
       },
@@ -125,13 +149,17 @@ export class ProductService {
         category: true,
       },
     });
+    clearCatalogCache();
+    return product;
   }
 
-  remove(id: number) {
-    return this.prismaService.product.delete({
+  async remove(id: number) {
+    const product = await this.prismaService.product.delete({
       where: {
         id: id,
       },
     });
+    clearCatalogCache();
+    return product;
   }
 }

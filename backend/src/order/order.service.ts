@@ -18,6 +18,12 @@ export class OrderService {
   async createOrder(userId: number, createOrderDto: CreateOrderDto) {
     const { order, orderItemsData, email } =
       await this.prismaService.$transaction(async (tx) => {
+        // Holds this user's cart row until commit, so a double submit waits and then finds the cart empty.
+        await tx.cart.updateMany({
+          where: { userId },
+          data: { updatedAt: new Date() },
+        });
+
         const cart = await tx.cart.findUnique({
           where: { userId },
           include: {

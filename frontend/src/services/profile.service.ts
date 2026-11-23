@@ -21,6 +21,8 @@ export async function uploadAvatarApi(file: File): Promise<{ url: string }> {
   const formData = new FormData();
   formData.append("file", file);
   return await axiosClient.post("/user/upload", formData, {
+    // uploads on a slow connection need longer than the 15s default
+    timeout: 60_000,
     headers: { "Content-Type": "multipart/form-data" },
   });
 }
