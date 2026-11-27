@@ -14,6 +14,8 @@ import { ProfileModule } from './profile/profile.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -31,8 +33,15 @@ import { DashboardModule } from './dashboard/dashboard.module';
     DashboardModule,
 
     EventEmitterModule.forRoot(),
+    // shortcut: counts per IP in memory, so behind a reverse proxy set trust proxy and with several instances use a Redis store
+    ThrottlerModule.forRoot({
+      throttlers: [{ ttl: 60_000, limit: 600 }],
+      errorMessage: 'Bạn thao tác quá nhanh, vui lòng thử lại sau ít phút.',
+      // load-test scripts send everything from one IP
+      skipIf: () => process.env.THROTTLE_DISABLED === 'true',
+    }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
