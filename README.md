@@ -42,6 +42,7 @@ Events are handled in-process with `@nestjs/event-emitter`. A crash can lose an 
 - **Catalog cache:** product and category reads are cached for 30 seconds. Concurrent cache misses share one query, and every write clears the cache.
 - **Indexes** on the main read paths (products by category, orders and notifications by user).
 - **Tuning:** a database pool of 30 connections, and 16 libuv threads so bcrypt logins don't block other requests.
+- **Rate limiting:** 600 requests per minute per IP, 10 login attempts and 5 registrations per minute per IP.
 - **Resilience:** graceful shutdown lets in-flight requests finish, client requests time out after 15 seconds, and checkout checks whether an order was saved when the reply was lost.
 
 ### Load test results
@@ -56,7 +57,7 @@ Measured on one local machine (API, database and test client together), 50 concu
 
 The full shopping flow (log in, browse, add to cart, check out) ran with **300 concurrent users at ~119 req/s with 0 errors**.
 
-Run them yourself against a running API:
+Run them yourself against a running API started with `THROTTLE_DISABLED=true` (the scripts send everything from one IP):
 
 ```bash
 cd backend
